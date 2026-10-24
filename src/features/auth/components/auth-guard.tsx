@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { isUserAuthenticated } from "@/lib/auth-session";
+import { isUserAuthenticated, subscribeAuth } from "@/lib/auth-session";
 import { APP_CONFIG } from "@/lib/constants";
 import { Logo } from "@/components/shared/logo";
 
-const emptySubscribe = () => () => {};
-
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useSyncExternalStore(
-    emptySubscribe,
+    subscribeAuth,
     isUserAuthenticated,
     () => null
   );

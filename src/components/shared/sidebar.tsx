@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "motion/react";
-import { clearAuthSession, getAuthUser } from "@/lib/auth-session";
+import { clearAuthSession, getAuthUser, subscribeAuth } from "@/lib/auth-session";
 import { Logo } from "@/components/shared/logo";
 import {
   LayoutGrid,
@@ -74,13 +74,11 @@ const systemNavItems: NavItem[] = [
   { title: "الملف الشخصي", href: "/profile/", icon: UserCircle2 },
 ];
 
-const emptySubscribe = () => () => {};
-
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
-  const currentUser = useSyncExternalStore(emptySubscribe, getAuthUser, () => null);
+  const currentUser = useSyncExternalStore(subscribeAuth, getAuthUser, () => null);
 
   // Normalize pathname to strip basePath and any trailing slash
   const cleanPathname =

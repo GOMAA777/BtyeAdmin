@@ -5,10 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../schemas/login.schema";
 import { loginAction } from "../actions/login.action";
-import { isUserAuthenticated, setAuthSession } from "@/lib/auth-session";
+import { isUserAuthenticated, setAuthSession, subscribeAuth } from "@/lib/auth-session";
 import { APP_CONFIG } from "@/lib/constants";
-
-const emptySubscribe = () => () => {};
 
 export function useLoginController() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +14,7 @@ export function useLoginController() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const isAuthenticated = useSyncExternalStore(
-    emptySubscribe,
+    subscribeAuth,
     isUserAuthenticated,
     () => null
   );

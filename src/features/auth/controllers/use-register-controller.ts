@@ -5,10 +5,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "../schemas/register.schema";
 import { registerAction } from "../actions/register.action";
-import { isUserAuthenticated, setAuthSession } from "@/lib/auth-session";
+import { isUserAuthenticated, setAuthSession, subscribeAuth } from "@/lib/auth-session";
 import { APP_CONFIG } from "@/lib/constants";
-
-const emptySubscribe = () => () => {};
 
 export function useRegisterController() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +14,7 @@ export function useRegisterController() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const isAuthenticated = useSyncExternalStore(
-    emptySubscribe,
+    subscribeAuth,
     isUserAuthenticated,
     () => null
   );

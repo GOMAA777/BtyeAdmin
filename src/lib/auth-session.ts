@@ -8,6 +8,44 @@ export interface AuthUser {
 export const AUTH_COOKIE_NAME = "realestate_auth";
 export const AUTH_USER_KEY = "realestate_auth_user";
 
+let cachedRawUser: string | null = null;
+let cachedAuthUser: AuthUser | null = null;
+
+const authSubscribers = new Set<() => void>();
+
+export function subscribeAuth(callback: () => void): () => void {
+  authSubscribers.add(callback);
+
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === AUTH_USER_KEY || e.key === null) {
+      cachedRawUser = null;
+      cachedAuthUser = null;
+      callback();
+    }
+  };
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", handleStorage);
+  }
+
+  return () => {
+    authSubscribers.delete(callback);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", handleStorage);
+    }
+  };
+}
+
+function notifyAuthSubscribers(): void {
+  authSubscribers.forEach((cb) => {
+    try {
+      cb();
+    } catch {
+      // Ignore subscriber errors
+    }
+  });
+}
+
 /**
  * Checks if the current client is authenticated
  * Uses document.cookie first, and falls back to localStorage
@@ -38,19 +76,30 @@ export function isUserAuthenticated(): boolean {
 }
 
 /**
- * Retrieves the currently logged-in user details
+ * Retrieves the currently logged-in user details.
+ * Caches the parsed AuthUser object by matching the raw localStorage string
+ * to guarantee referential equality across React renders unless the data changes.
  */
 export function getAuthUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(AUTH_USER_KEY);
-    if (raw) {
-      return JSON.parse(raw) as AuthUser;
+    if (!raw) {
+      cachedRawUser = null;
+      cachedAuthUser = null;
+      return null;
     }
+    if (raw === cachedRawUser && cachedAuthUser !== null) {
+      return cachedAuthUser;
+    }
+    cachedRawUser = raw;
+    cachedAuthUser = JSON.parse(raw) as AuthUser;
+    return cachedAuthUser;
   } catch {
-    // Ignore error
+    cachedRawUser = null;
+    cachedAuthUser = null;
+    return null;
   }
-  return null;
 }
 
 /**
@@ -85,7 +134,11 @@ export function setAuthSession(
   document.cookie = `${AUTH_COOKIE_NAME}=true; path=/; max-age=${maxAge}; SameSite=Lax`;
 
   try {
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(authUser));
+    const raw = JSON.stringify(authUser);
+    localStorage.setItem(AUTH_USER_KEY, raw);
+    cachedRawUser = raw;
+    cachedAuthUser = authUser;
+    notifyAuthSubscribers();
   } catch {
     // Ignore
   }
@@ -105,6 +158,9 @@ export function clearAuthSession(): void {
   try {
     localStorage.removeItem(AUTH_USER_KEY);
     sessionStorage.clear();
+    cachedRawUser = null;
+    cachedAuthUser = null;
+    notifyAuthSubscribers();
   } catch {
     // Ignore
   }
