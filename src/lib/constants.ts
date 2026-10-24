@@ -4,7 +4,7 @@
 export const APP_CONFIG = {
   name: "ابراج",
   subtitle: "منظومة إدارة وتشغيل العقارات",
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "/Edaret_Amlak",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 } as const;
 
 /**
@@ -17,6 +17,9 @@ export function resolveAssetUrl(path: string): string {
     return path;
   }
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (!APP_CONFIG.basePath) {
+    return cleanPath;
+  }
   if (cleanPath.startsWith(APP_CONFIG.basePath)) {
     return cleanPath;
   }

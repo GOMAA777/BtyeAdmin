@@ -81,7 +81,11 @@ DirectoryIndex index.html
 # ----------------------------------------------------------------------
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /Edaret_Amlak/
+  RewriteBase /
+
+  # Redirect legacy /Edaret_Amlak subpath if accessed to root /
+  RewriteRule ^Edaret_Amlak/(.*)$ /$1 [R=301,L]
+  RewriteRule ^Edaret_Amlak/?$ / [R=301,L]
 
   # If requested path is a real file or real directory, serve it directly
   RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -109,7 +113,7 @@ DirectoryIndex index.html
   RewriteRule ^(.*)$ $1.html [L]
 
   # ErrorDocument for 404
-  ErrorDocument 404 /Edaret_Amlak/404.html
+  ErrorDocument 404 /404.html
 
   # Unknown paths fallback to 404.html instead of home page
   RewriteCond %{REQUEST_FILENAME} !-f
