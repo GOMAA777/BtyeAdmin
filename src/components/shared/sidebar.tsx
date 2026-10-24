@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "motion/react";
-import { clearAuthSession, getAuthUser, type AuthUser } from "@/lib/auth-session";
+import { clearAuthSession, getAuthUser } from "@/lib/auth-session";
 import { Logo } from "@/components/shared/logo";
 import {
   LayoutGrid,
@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/use-ui-store";
 import { showUnderConstructionToast } from "@/lib/toast";
+import { APP_CONFIG } from "@/lib/constants";
 
 const isRouteAvailable = (href: string) => {
   const clean = href.replace(/\/+$/, "");
@@ -38,6 +39,8 @@ const isRouteAvailable = (href: string) => {
     "/units",
     "/bookings",
     "/operations",
+    "/guests",
+    "/activity",
     "/whatsapp",
     "/automation",
     "/billing",
@@ -71,11 +74,13 @@ const systemNavItems: NavItem[] = [
   { title: "الملف الشخصي", href: "/profile/", icon: UserCircle2 },
 ];
 
+const emptySubscribe = () => () => {};
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const currentUser = useSyncExternalStore(emptySubscribe, getAuthUser, () => null);
 
   // Normalize pathname to strip basePath and any trailing slash
   const cleanPathname =
@@ -94,15 +99,13 @@ export function Sidebar() {
     );
   };
 
-  useEffect(() => {
-    setCurrentUser(getAuthUser());
-  }, []);
-
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
     clearAuthSession();
     toast.success("تم تسجيل الخروج بنجاح");
-    router.push("/login/");
+    const prefix = APP_CONFIG.basePath || "";
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`${prefix}/login/`);
   };
 
   const handleNavClick = (
@@ -119,6 +122,19 @@ export function Sidebar() {
       // Only close the drawer on mobile overlay mode, keep open on desktop
       setSidebarOpen(false);
     }
+
+    const cleanHref = href.replace(/\/+$/, "") || "/";
+    if (cleanPathname === cleanHref) {
+      e.preventDefault();
+      return;
+    }
+
+    // Direct browser navigation ensures 100% reliable page transition on static Apache hosting
+    e.preventDefault();
+    const prefix = APP_CONFIG.basePath || "";
+    const targetUrl = `${prefix}${href}`;
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(targetUrl);
   };
 
   return (
@@ -267,6 +283,7 @@ export function Sidebar() {
             className="relative block group"
             title="الملف الشخصي - محمد أحمد"
             aria-label="الملف الشخصي"
+            onClick={(e) => handleNavClick(e, "/profile/", "الملف الشخصي")}
           >
             <div className="w-10 h-10 rounded-xl bg-[#C9B99A] text-[#252A24] font-bold text-xs flex items-center justify-center shadow-xs group-hover:opacity-90 transition-opacity">
               م

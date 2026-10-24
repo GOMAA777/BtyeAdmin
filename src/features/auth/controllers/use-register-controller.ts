@@ -1,27 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "../schemas/register.schema";
 import { registerAction } from "../actions/register.action";
 import { isUserAuthenticated, setAuthSession } from "@/lib/auth-session";
+import { APP_CONFIG } from "@/lib/constants";
+
+const emptySubscribe = () => () => {};
 
 export function useRegisterController() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const isAuthenticated = useSyncExternalStore(
+    emptySubscribe,
+    isUserAuthenticated,
+    () => null
+  );
 
   useEffect(() => {
-    if (isUserAuthenticated()) {
-      router.replace("/");
-    } else {
-      setIsCheckingAuth(false);
+    if (isAuthenticated === true) {
+      const prefix = APP_CONFIG.basePath || "";
+      window.location.replace(`${prefix}/`);
     }
-  }, [router]);
+  }, [isAuthenticated]);
+
+  const isCheckingAuth = isAuthenticated === null;
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -56,7 +63,9 @@ export function useRegisterController() {
           email: data.email,
         });
         setFeedback(res.data.message || "تم إنشاء الحساب بنجاح");
-        router.push("/");
+        const prefix = APP_CONFIG.basePath || "";
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign(`${prefix}/`);
       }
     } catch {
       setFeedback("حدث خطأ أثناء إنشاء الحساب");

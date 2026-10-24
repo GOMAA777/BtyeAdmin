@@ -1,24 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useSyncExternalStore } from "react";
 import { isUserAuthenticated } from "@/lib/auth-session";
+import { APP_CONFIG } from "@/lib/constants";
 import { Logo } from "@/components/shared/logo";
 
+const emptySubscribe = () => () => {};
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const isAuthenticated = useSyncExternalStore(
+    emptySubscribe,
+    isUserAuthenticated,
+    () => null
+  );
 
   useEffect(() => {
-    const authenticated = isUserAuthenticated();
-    if (!authenticated) {
-      router.replace("/login/");
-    } else {
-      setIsAuthenticated(true);
+    if (isAuthenticated === false) {
+      const prefix = APP_CONFIG.basePath || "";
+      window.location.replace(`${prefix}/login/`);
     }
-  }, [router]);
+  }, [isAuthenticated]);
 
-  if (isAuthenticated === null) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#EFF3EA] p-6 text-[#172115] select-none">
         <div className="flex flex-col items-center gap-6 max-w-sm text-center">

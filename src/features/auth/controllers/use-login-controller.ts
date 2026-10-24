@@ -1,27 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../schemas/login.schema";
 import { loginAction } from "../actions/login.action";
 import { isUserAuthenticated, setAuthSession } from "@/lib/auth-session";
+import { APP_CONFIG } from "@/lib/constants";
+
+const emptySubscribe = () => () => {};
 
 export function useLoginController() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const isAuthenticated = useSyncExternalStore(
+    emptySubscribe,
+    isUserAuthenticated,
+    () => null
+  );
 
   useEffect(() => {
-    if (isUserAuthenticated()) {
-      router.replace("/");
-    } else {
-      setIsCheckingAuth(false);
+    if (isAuthenticated === true) {
+      const prefix = APP_CONFIG.basePath || "";
+      window.location.replace(`${prefix}/`);
     }
-  }, [router]);
+  }, [isAuthenticated]);
+
+  const isCheckingAuth = isAuthenticated === null;
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -40,7 +47,9 @@ export function useLoginController() {
       if (res?.data?.success) {
         setAuthSession({ identifier: data.identifier }, data.rememberMe);
         setFeedback(res.data.message || "تم تسجيل الدخول بنجاح");
-        router.push("/");
+        const prefix = APP_CONFIG.basePath || "";
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign(`${prefix}/`);
       }
     } catch {
       setFeedback("حدث خطأ أثناء تسجيل الدخول");

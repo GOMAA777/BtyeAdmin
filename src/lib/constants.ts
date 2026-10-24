@@ -1,10 +1,12 @@
 /**
  * Core application constants and configuration.
  */
+const isDev = process.env.NODE_ENV === "development";
+
 export const APP_CONFIG = {
   name: "ابراج",
   subtitle: "منظومة إدارة وتشغيل العقارات",
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || (isDev ? "" : "/Edaret_Amlak"),
 } as const;
 
 /**
