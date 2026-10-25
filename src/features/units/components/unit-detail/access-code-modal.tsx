@@ -32,6 +32,7 @@ export function AccessCodeModal({
   unitNumber = "204",
   propertyName = "عمارة النخيل",
 }: AccessCodeModalProps) {
+  const confirm = useConfirm();
   const [codeType, setCodeType] = useState<"temporary" | "permanent">("temporary");
   const [copied, setCopied] = useState(false);
 
@@ -52,8 +53,6 @@ export function AccessCodeModal({
   }, [open]);
 
   if (!open) return null;
-
-  const confirm = useConfirm();
 
   const handleCopy = () => {
     navigator.clipboard.writeText("129385");
