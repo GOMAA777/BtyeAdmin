@@ -1,7 +1,7 @@
 "use client";
 
 interface UnitActivityTimelineCardProps {
-  variant?: "available" | "occupied";
+  variant?: "available" | "occupied" | "cleaning" | "maintenance";
   onOpenOperationsLog?: () => void;
 }
 
@@ -9,13 +9,13 @@ export function UnitActivityTimelineCard({
   variant = "occupied",
   onOpenOperationsLog,
 }: UnitActivityTimelineCardProps) {
-  const isAvailable = variant === "available";
+  const isBooking = variant === "occupied";
 
   const events = [
     {
       dotColor: "bg-[#E99A38]",
       title: "تم ربط حجز جديد #BK-10482",
-      badge: isAvailable ? "whatsapp.com" : "Booking.com",
+      badge: isBooking ? "Booking.com" : "whatsapp.com",
       date: "18 سبتمبر 2026 — 02:45 م",
     },
     {

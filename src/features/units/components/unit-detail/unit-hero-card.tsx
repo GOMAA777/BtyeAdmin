@@ -4,7 +4,7 @@ import Link from "next/link";
 
 interface UnitHeroCardProps {
   unitNumber?: string;
-  status?: "available" | "occupied";
+  status?: "available" | "occupied" | "cleaning" | "maintenance";
   statusLabel?: string;
   propertyName?: string;
   location?: string;
@@ -30,7 +30,19 @@ export function UnitHeroCard({
   onEditUnit,
 }: UnitHeroCardProps) {
   const isAvailable = status === "available";
-  const displayStatusLabel = statusLabel || (isAvailable ? "متاحة للاستقبال" : "مشغولة (نزيل حالي)");
+  const isCleaning = status === "cleaning";
+  const isMaintenance = status === "maintenance";
+  const showActionButtons = status !== "occupied";
+
+  const displayStatusLabel =
+    statusLabel ||
+    (isAvailable
+      ? "متاحة للاستقبال"
+      : isCleaning
+      ? "تحت التنظيف والتعقيم"
+      : isMaintenance
+      ? "تحت الصيانة الطارئة"
+      : "مشغولة (نزيل حالي)");
 
   return (
     <div
@@ -48,6 +60,13 @@ export function UnitHeroCard({
             <div className="bg-[#EAF1E8] rounded-full px-3 py-1 flex items-center gap-1.5">
               <span className="bg-[#3E8A5A] rounded-full size-2 shrink-0" />
               <span className="font-bold text-[#3E8A5A] text-[12px] leading-[18px]">
+                {displayStatusLabel}
+              </span>
+            </div>
+          ) : isMaintenance ? (
+            <div className="bg-[#FFDAD6] rounded-full px-3 py-1 flex items-center gap-1.5">
+              <span className="bg-[#BA1A1A] rounded-full size-2 shrink-0" />
+              <span className="font-bold text-[#93000A] text-[12px] leading-[18px]">
                 {displayStatusLabel}
               </span>
             </div>
@@ -88,8 +107,8 @@ export function UnitHeroCard({
         </div>
       </div>
 
-      {/* Left Column: If Available -> 3 Action Buttons; If Occupied -> IoT Lock Status */}
-      {isAvailable ? (
+      {/* Left Column: If Available/Cleaning/Maintenance -> 3 Action Buttons; If Occupied -> IoT Lock Status */}
+      {showActionButtons ? (
         <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
           {/* 1. سجل العمليات */}
           <button
