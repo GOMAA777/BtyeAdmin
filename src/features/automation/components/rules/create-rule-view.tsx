@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackButton } from "@/components/shared/back-button";
 import {
-  ArrowRight,
   Sliders,
   Clock,
   Send,
@@ -15,12 +14,15 @@ import {
   Sparkles,
   Wrench,
   Key,
+  Shield,
   ShieldCheck,
   ChevronDown,
   Trash2,
   Plus,
-  Play,
-  Share2,
+  Zap,
+  Phone,
+  MessageSquare,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -28,254 +30,331 @@ import { useConfirm } from "@/hooks/use-confirm";
 export function CreateRuleView() {
   const router = useRouter();
 
-  // Form states
+  // Form states matching Figma node 1:21892
   const [ruleName, setRuleName] = useState("إرسال تفاصيل الوصول الذاتي وموقع الوحدة");
   const [category, setCategory] = useState("وصول ذاتي وكود الدخول");
   const [description, setDescription] = useState(
-    "إرسال رسالة واتساب رسمية تتضمن موقع العقار الجغرافي، رقم الوحدة وكود القفل الإلكتروني المشفر قبل موعد الدخول المحدد بـ 24 ساعة بدقة."
+    "إرسال رسالة واتساب رسمية تتضمن موقع العقار الجغرافي، رقم الوحدة، وكود القفل الإلكتروني المشفر قبل موعد الدخول المحدد بـ 24 ساعة بدقة."
   );
   const [initialStatus, setInitialStatus] = useState<"active" | "draft">("active");
   const [triggerEvent, setTriggerEvent] = useState("قبل موعد الوصول (Before Check-in)");
   const [triggerTime, setTriggerTime] = useState("الساعة 3 م");
   const [conditionsType, setConditionsType] = useState<"all" | "any">("all");
+  const [sourceCondition, setSourceCondition] = useState("Whatsapp .com");
+  const [passcodeCondition, setPasscodeCondition] = useState("كود مخصص لكل حجز");
+  const [selectedTemplate, setSelectedTemplate] = useState("تفاصيل الوصول وكود القفل");
+  const [targetRecipient, setTargetRecipient] = useState("رقم جوال النزيل الأساسي المسجل بالحجز");
+  const [auditNote, setAuditNote] = useState(
+    "توثيق إرسال تفاصيل الوصول آلياً عبر محرك الأتمتة المركزي لحجز المنصة"
+  );
   const [scope, setScope] = useState<"all" | "custom" | "regional">("all");
 
+  // Simulation states
+  const [selectedSampleBooking, setSelectedSampleBooking] = useState("(أحمد محمد - عمارة النخيل)");
+  const [safeSimulationMode, setSafeSimulationMode] = useState(true);
   const [simulationRunning, setSimulationRunning] = useState(false);
+
+  const confirm = useConfirm();
 
   const handleSimulate = () => {
     setSimulationRunning(true);
     setTimeout(() => {
       setSimulationRunning(false);
-      toast.success("تم تشغيل المحاكاة بنجاح: الحجز مؤهل ومطابق 100% لكافة الشروط!");
+      toast.success("تم تشغيل محاكاة الاختبار بنجاح: الحجز مؤهل للتنفيذ بنسبة 100% دون أي تعارض!");
     }, 1000);
   };
-
-  const confirm = useConfirm();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const ok = await confirm({
       title: "تأكيد حفظ وتفعيل قاعدة الأتمتة",
-      message: `هل أنت متأكد من حفظ وتفعيل قاعدة الأتمتة الجديدة "${ruleName}"؟ سيتم تطبيق شروط الإطلاق التلقائية فوراً.`,
+      message: `هل أنت متأكد من حفظ وتفعيل قاعدة الأتمتة "${ruleName}"؟ سيبدأ محرك الأتمتة المركزي المعالجة الفورية مع أول حدث مؤهل.`,
       confirmLabel: "حفظ وتفعيل القاعدة",
       variant: "default",
     });
     if (!ok) return;
 
-    toast.success("تم إنشاء وتفعيل قاعدة الأتمتة بنجاح!");
+    toast.success("تم حفظ وتفعيل قاعدة الأتمتة بنجاح!");
+    router.push("/automation/");
+  };
+
+  const handleDraftSave = () => {
+    toast.success("تم حفظ قاعدة الأتمتة كمسودة بنجاح");
     router.push("/automation/");
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+    <div className="space-y-6" dir="rtl">
+      {/* PAGE HEADER BAR - Matching Figma node 1:21895 */}
+      <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start md:items-center gap-3">
           <BackButton
             fallbackHref="/automation/"
-            className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
+            className="w-9 h-9 rounded-xl bg-[#f1f5eb] hover:bg-[#e5eae0] flex items-center justify-center text-[#181d17] transition-colors shrink-0 mt-0.5 md:mt-0"
           />
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#1F2937]">إنشاء قاعدة أتمتة</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#EEF5EE] text-[#1F3D2B] border border-[#DCE8DC]">
-                اعتمادية إدارة المنصة المعيارية
+          <div className="space-y-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-[24px] font-semibold text-[#181d17] tracking-[-0.6px]">
+                إنشاء قاعدة أتمتة
+              </h1>
+              <span className="bg-[#d8e8cb] text-[#5a6952] text-[11px] font-semibold rounded-full px-[10px] py-[4px] inline-flex items-center justify-center whitespace-nowrap">
+                صلاحية إدارة المنصة المركزية
               </span>
             </div>
-            <p className="text-xs text-[#6B7280] mt-1">
-              حدد الحدث الذي يشغل القاعدة والإجراءات التي يتم تنفيذها تلقائياً وفق قواعد الحوكمة والتشغيل لجميع المحافظ العقارية.
+            <p className="text-[13px] text-[#454840] leading-[20px]">
+              حدد الحدث الذي يشغّل القاعدة والإجراءات التي يتم تنفيذها تلقائيًا وفق قواعد الحوكمة والتشغيل لجميع المحافظ العقارية.
             </p>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => toast.info("تم فتح مساعد هيكل سير العمل")}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 bg-[#FAFBF9] hover:bg-gray-50 transition-colors"
-        >
-          <Sliders className="w-3.5 h-3.5 text-[#1F3D2B]" />
-          <span>هيكل سير العمل الذكي</span>
-        </button>
+        <div className="flex items-center self-start md:self-center shrink-0">
+          <div className="bg-[#e5eae0] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[12px] px-[16px] py-[8px] flex items-center gap-[8px]">
+            <Sparkles className="size-[15px] text-[#181d17]" />
+            <span className="text-[#181d17] text-[12px] font-semibold whitespace-nowrap">
+              مُنشئ سير العمل الذكي
+            </span>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Right Main Column (8 Cols) */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Card 1: Rule Details & Category */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6] text-base font-bold text-[#1F2937]">
-                <div className="flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-[#1F3D2B]" />
-                  <span>بيانات القاعدة والتصنيف</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] items-start">
+          {/* RIGHT / MAIN COLUMN (Col 1 to 8 in RTL) - Step-by-Step Rule Definition */}
+          <div className="lg:col-span-8 flex flex-col gap-[24px]">
+            {/* SECTION 01: بيانات القاعدة والتصنيف */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              {/* Section Header */}
+              <div className="border-b border-[#e5eae0] pb-[17px] flex items-center justify-between">
+                <div className="flex items-center gap-[8px]">
+                  <div className="bg-[#e5eae0] rounded-[8px] size-[28px] flex items-center justify-center shrink-0">
+                    <Sliders className="size-[15px] text-[#181d17]" />
+                  </div>
+                  <h2 className="text-[18px] font-bold text-[#181d17]">
+                    بيانات القاعدة والتصنيف
+                  </h2>
                 </div>
-                <span className="text-[11px] text-[#9CA3AF]">حقول إلزامية (*)</span>
+                <span className="text-[#75786f] text-[11px] font-medium">
+                  حقول إلزامية (*)
+                </span>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#374151]">
-                  اسم القاعدة <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={ruleName}
-                  onChange={(e) => setRuleName(e.target.value)}
-                  className="w-full p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl text-xs font-medium text-[#1F2937] focus:outline-none focus:border-[#1F3D2B]"
-                />
-              </div>
+              {/* Form Fields */}
+              <div className="flex flex-col gap-[16px]">
+                {/* 1. اسم القاعدة */}
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px] font-semibold text-[#181d17] flex items-center gap-1">
+                    <span>اسم القاعدة</span>
+                    <span className="text-[#ba1a1a]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={ruleName}
+                    onChange={(e) => setRuleName(e.target.value)}
+                    required
+                    placeholder="إرسال تفاصيل الوصول الذاتي وموقع الوحدة"
+                    className="bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] py-[9px] text-[#181d17] text-[14px] font-normal w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] transition-all"
+                  />
+                </div>
 
-              {/* Operational Classification */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#374151]">
-                  التصنيف التشغيلي <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {[
-                    "وصول ذاتي وكود الدخول",
-                    "تشغيل وتنظيف",
-                    "تأكيد ومغادرة",
-                    "حوكمة وأمان",
-                  ].map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCategory(cat)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                        category === cat
-                          ? "bg-[#1F3D2B] text-white shadow-xs"
-                          : "bg-[#FAFBF9] border border-[#EBEBEB] text-[#4B5563] hover:bg-gray-50"
+                {/* 2. التصنيف التشغيلي */}
+                <div className="flex flex-col gap-[8px]">
+                  <label className="text-[14px] font-semibold text-[#181d17] flex items-center gap-1">
+                    <span>التصنيف التشغيلي</span>
+                    <span className="text-[#ba1a1a]">*</span>
+                  </label>
+                  <div className="flex gap-[8px] items-center flex-wrap">
+                    {[
+                      { id: "وصول ذاتي وكود الدخول", label: "وصول ذاتي وكود الدخول", icon: Key },
+                      { id: "تشغيل وتنظيف", label: "تشغيل وتنظيف", icon: Wrench },
+                      { id: "تأكيد ومغادرة", label: "تأكيد ومغادرة", icon: CheckCircle2 },
+                      { id: "حوكمة وأمان", label: "حوكمة وأمان", icon: Shield },
+                    ].map((cat) => {
+                      const IconComp = cat.icon;
+                      const isActive = category === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setCategory(cat.id)}
+                          className={`flex items-center gap-[6px] px-[14px] py-[6px] rounded-[12px] text-[12px] font-semibold transition-all ${
+                            isActive
+                              ? "bg-[#34422a] text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+                              : "bg-[#ebefe6] text-[#454840] hover:bg-[#dfe4db]"
+                          }`}
+                        >
+                          <IconComp className="size-[13px]" />
+                          <span>{cat.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. الوصف الإيضاحي للمشغلين */}
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px] font-semibold text-[#181d17]">
+                    الوصف الإيضاحي للمشغلين
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={2}
+                    className="bg-[#f1f5eb] rounded-[12px] p-[16px] text-[#181d17] text-[14px] font-normal leading-[22.75px] w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] transition-all resize-none"
+                  />
+                </div>
+
+                {/* 4. الحالة التشغيلية الأولية */}
+                <div className="flex flex-col gap-[8px] pt-[8px]">
+                  <label className="text-[14px] font-semibold text-[#181d17]">
+                    الحالة التشغيلية الأولية
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px]">
+                    {/* Active Option */}
+                    <div
+                      onClick={() => setInitialStatus("active")}
+                      className={`flex items-center justify-between p-[12px] rounded-[12px] cursor-pointer transition-all ${
+                        initialStatus === "active"
+                          ? "bg-[rgba(216,232,203,0.4)] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                          : "bg-[#f1f5eb] hover:bg-[#e8eee1]"
                       }`}
                     >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#374151]">
-                  الوصف الإيضاحي للمشغلين
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={2}
-                  className="w-full p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl text-xs text-[#1F2937] leading-relaxed focus:outline-none focus:border-[#1F3D2B]"
-                />
-              </div>
-
-              {/* Initial Status */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-semibold text-[#374151]">
-                  الحالة التشغيلية الأولية
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <label
-                    onClick={() => setInitialStatus("active")}
-                    className={`p-3 rounded-2xl border flex items-start gap-2.5 cursor-pointer transition-all ${
-                      initialStatus === "active"
-                        ? "bg-[#EEF5EE] border-[#1F3D2B] text-[#1F3D2B]"
-                        : "bg-[#FAFBF9] border-[#EBEBEB] text-gray-600"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="initialStatus"
-                      checked={initialStatus === "active"}
-                      onChange={() => setInitialStatus("active")}
-                      className="mt-0.5 text-[#1F3D2B]"
-                    />
-                    <div>
-                      <span className="font-bold block">مفعلة فور الحفظ</span>
-                      <span className="text-[10px] text-[#6B7280]">تبدأ المعالجة مع أول حدث مؤهل</span>
+                      <div className="flex flex-col items-start text-right">
+                        <span className="text-[12px] font-bold text-[#181d17] leading-[18px]">
+                          مفعلة فور الحفظ
+                        </span>
+                        <span className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                          تبدأ المعالجة مع أول حدث مؤهل
+                        </span>
+                      </div>
+                      <div
+                        className={`size-[16px] rounded-full flex items-center justify-center shrink-0 bg-white ${
+                          initialStatus === "active"
+                            ? "border border-[#34422a]"
+                            : "border border-[#767676]"
+                        }`}
+                      >
+                        {initialStatus === "active" && (
+                          <div className="size-[9.6px] rounded-full bg-[#34422a]" />
+                        )}
+                      </div>
                     </div>
-                  </label>
 
-                  <label
-                    onClick={() => setInitialStatus("draft")}
-                    className={`p-3 rounded-2xl border flex items-start gap-2.5 cursor-pointer transition-all ${
-                      initialStatus === "draft"
-                        ? "bg-[#EEF5EE] border-[#1F3D2B] text-[#1F3D2B]"
-                        : "bg-[#FAFBF9] border-[#EBEBEB] text-gray-600"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="initialStatus"
-                      checked={initialStatus === "draft"}
-                      onChange={() => setInitialStatus("draft")}
-                      className="mt-0.5 text-[#1F3D2B]"
-                    />
-                    <div>
-                      <span className="font-bold block">مسودة غير مفعلة</span>
-                      <span className="text-[10px] text-[#6B7280]">حفظ القاعدة للتعطيل دون تنفيذ فعلي</span>
+                    {/* Draft Option */}
+                    <div
+                      onClick={() => setInitialStatus("draft")}
+                      className={`flex items-center justify-between p-[12px] rounded-[12px] cursor-pointer transition-all ${
+                        initialStatus === "draft"
+                          ? "bg-[rgba(216,232,203,0.4)] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                          : "bg-[#f1f5eb] hover:bg-[#e8eee1]"
+                      }`}
+                    >
+                      <div className="flex flex-col items-start text-right">
+                        <span className="text-[12px] font-semibold text-[#181d17] leading-[18px]">
+                          مسودة غير مفعلة
+                        </span>
+                        <span className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                          حفظ القاعدة للتعديل دون تنفيذ فعلي
+                        </span>
+                      </div>
+                      <div
+                        className={`size-[16px] rounded-full flex items-center justify-center shrink-0 bg-white ${
+                          initialStatus === "draft"
+                            ? "border border-[#34422a]"
+                            : "border border-[#767676]"
+                        }`}
+                      >
+                        {initialStatus === "draft" && (
+                          <div className="size-[9.6px] rounded-full bg-[#34422a]" />
+                        )}
+                      </div>
                     </div>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Card 2: Trigger & Timing */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-[#F3F4F6] text-base font-bold text-[#1F2937]">
-                <Clock className="w-5 h-5 text-[#1F3D2B]" />
-                <span>المحفّز وموعد التشغيل</span>
+            {/* SECTION 02: المحفّز وموعد التشغيل */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              {/* Section Header */}
+              <div className="border-b border-[#e5eae0] pb-[17px] flex items-center gap-[8px]">
+                <div className="bg-[#e5eae0] rounded-[8px] size-[28px] flex items-center justify-center shrink-0">
+                  <Clock className="size-[16px] text-[#181d17]" />
+                </div>
+                <h2 className="text-[18px] font-bold text-[#181d17]">
+                  المحفّز وموعد التشغيل (Trigger)
+                </h2>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#374151]">
-                  الحدث المحفّز الرئيسي <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    value={triggerEvent}
-                    onChange={(e) => setTriggerEvent(e.target.value)}
-                    className="w-full appearance-none p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl text-xs font-medium text-[#1F2937] focus:outline-none focus:border-[#1F3D2B]"
-                  >
-                    <option>قبل موعد الوصول (Before Check-in)</option>
-                    <option>عند إنشاء حجز مؤكد (Booking Created)</option>
-                    <option>قبل انتهاء الحجز والمغادرة (Before Check-out)</option>
-                    <option>عند انتهاء الحجز وتسجيل الخروج (Check-out Done)</option>
-                  </select>
-                  <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="p-4 bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl space-y-2 text-xs">
-                <div className="flex justify-between items-center text-[#6B7280]">
-                  <span className="font-semibold text-[#1F2937] flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#1F3D2B]" />
-                    <span>توقيت الإطلاق بالنسبة للحدث:</span>
-                  </span>
-                  <span className="text-[10px] font-mono">توقيت الرياض القياسي (UTC+3)</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div className="p-2.5 bg-white border border-[#E5E7EB] rounded-xl text-center font-bold text-xs text-[#1F2937]">
-                    قبل موعد الوصول المحدد بـ 24 ساعة
-                  </div>
-                  <div className="p-2.5 bg-white border border-[#E5E7EB] rounded-xl text-center font-bold text-xs text-[#1F3D2B]">
-                    {triggerTime}
+              {/* Fields */}
+              <div className="flex flex-col gap-[16px]">
+                {/* الحدث المحفّز الرئيسي */}
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px] font-semibold text-[#181d17] flex items-center gap-1">
+                    <span>الحدث المحفّز الرئيسي</span>
+                    <span className="text-[#ba1a1a]">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={triggerEvent}
+                      onChange={(e) => setTriggerEvent(e.target.value)}
+                      className="bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[#181d17] text-[14px] font-semibold w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
+                    >
+                      <option>قبل موعد الوصول (Before Check-in)</option>
+                      <option>عند إنشاء حجز مؤكد (Booking Created)</option>
+                      <option>قبل انتهاء الحجز والمغادرة (Before Check-out)</option>
+                      <option>عند انتهاء الحجز وتسجيل الخروج (Check-out Done)</option>
+                    </select>
+                    <ChevronDown className="absolute left-[16px] top-1/2 -translate-y-1/2 size-[14px] text-[#181d17] pointer-events-none" />
                   </div>
                 </div>
 
-                <p className="text-[11px] text-[#6B7280] leading-relaxed pt-1">
-                  سيتم إرسال الرسالة آلياً في تمام الساعة 03:00 مساءً من اليوم السابق لتاريخ حجز النزيل.
-                </p>
+                {/* Time-based Offset Config Box */}
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col gap-[12px]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-[8px]">
+                      <Clock className="size-[16px] text-[#34422a]" />
+                      <span className="text-[12px] font-bold text-[#181d17]">
+                        توقيت الإطلاق بالنسبة للحدث:
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#34422a]">
+                      توقيت الرياض القياسي (GMT+3)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px]">
+                    <div className="bg-white rounded-[8px] h-[40px] px-[16px] flex items-center justify-center text-[12px] font-semibold text-[#181d17]">
+                      قبل موعد الوصول المحدد
+                    </div>
+                    <div className="bg-white rounded-[8px] h-[40px] px-[16px] flex items-center justify-between text-[12px] font-semibold text-[#181d17]">
+                      <span>{triggerTime}</span>
+                      <Clock className="size-[15px] text-[#34422a]" />
+                    </div>
+                  </div>
+
+                  <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                    سيتم إرسال الرسالة آلياً في تمام الساعة 03:00 مساءً من اليوم السابق لتاريخ حجز النزيل.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Card 3: Conditions */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
-                <h3 className="font-bold text-base text-[#1F2937]">شروط التفعيل الدقيقة</h3>
-                <div className="flex items-center gap-1 bg-[#EDF2EC] p-1 rounded-xl">
+            {/* SECTION 03: شروط التفعيل الدقيقة */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              {/* Section Header */}
+              <div className="border-b border-[#e5eae0] pb-[17px] flex items-center justify-between">
+                <h2 className="text-[18px] font-bold text-[#181d17]">
+                  شروط التفعيل الدقيقة
+                </h2>
+                <div className="bg-[#e5eae0] p-[2px] rounded-[12px] flex items-center">
                   <button
                     type="button"
                     onClick={() => setConditionsType("all")}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                      conditionsType === "all" ? "bg-white text-[#1F3D2B] shadow-xs" : "text-[#4B5563]"
+                    className={`rounded-[8px] h-[32px] px-[24px] text-[11px] font-semibold flex items-center justify-center transition-all ${
+                      conditionsType === "all"
+                        ? "bg-[#34422a] text-white shadow-xs"
+                        : "text-[#454840] hover:text-[#181d17]"
                     }`}
                   >
                     كافة الشروط
@@ -283,8 +362,10 @@ export function CreateRuleView() {
                   <button
                     type="button"
                     onClick={() => setConditionsType("any")}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                      conditionsType === "any" ? "bg-white text-[#1F3D2B] shadow-xs" : "text-[#4B5563]"
+                    className={`rounded-[8px] h-[32px] px-[21px] text-[11px] font-medium flex items-center justify-center transition-all ${
+                      conditionsType === "any"
+                        ? "bg-[#34422a] text-white shadow-xs"
+                        : "text-[#454840] hover:text-[#181d17]"
                     }`}
                   >
                     أي شرط
@@ -292,322 +373,581 @@ export function CreateRuleView() {
                 </div>
               </div>
 
-              <div className="space-y-3 text-xs">
-                <div className="p-3 bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#1F3D2B]" />
-                    <span className="font-bold text-[#1F2937]">مصدر الحجز</span>
-                  </div>
-                  <div className="w-64 p-2 bg-white border border-gray-200 rounded-xl text-center font-semibold text-gray-700">
-                    Whatsapp.com
-                  </div>
-                  <button type="button" className="text-gray-400 hover:text-red-500">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="p-3 bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#1F3D2B]" />
-                    <span className="font-bold text-[#1F2937]">طريقة كود الدخول</span>
-                  </div>
-                  <div className="w-64 p-2 bg-white border border-gray-200 rounded-xl text-center font-semibold text-gray-700">
-                    كود مخصص لكل حجز
-                  </div>
-                  <button type="button" className="text-gray-400 hover:text-red-500">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Actions Executed */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <h3 className="font-bold text-base text-[#1F2937] pb-3 border-b border-[#F3F4F6]">
-                الإجراءات التلقائية المنفذة
-              </h3>
-
-              {/* Action 1 */}
-              <div className="p-4 bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl space-y-3 text-xs">
-                <div className="flex items-center justify-between pb-2 border-b border-[#EAEFE9]">
-                  <div className="flex items-center gap-2 font-bold text-[#1F2937]">
-                    <Send className="w-4 h-4 text-[#1F3D2B]" />
-                    <span>إرسال رسالة WhatsApp للنزيل</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-gray-100 text-gray-600">
-                    إجراء 1
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-[#9CA3AF] block text-[10px]">قالب الرسالة المعتمد</span>
-                    <span className="font-bold text-[#1F2937] text-xs">تفاصيل الوصول وكود القفل</span>
-                  </div>
-                  <div>
-                    <span className="text-[#9CA3AF] block text-[10px]">المستلم المستهدف</span>
-                    <span className="font-bold text-[#1F2937] text-xs">
-                      رقم جوال النزيل الأساسي المسجل بالحجز
+              {/* Condition Rows */}
+              <div className="flex flex-col gap-[12px]">
+                {/* Row 1 */}
+                <div className="bg-[#f1f5eb] rounded-[12px] h-[60px] px-[12px] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-[8px]">
+                    <div className="size-[8px] rounded-full bg-[#34422a]" />
+                    <span className="text-[12px] font-semibold text-[#181d17]">
+                      مصدر الحجز
                     </span>
                   </div>
-                </div>
 
-                <div className="p-3 bg-white border border-[#EAEFE9] rounded-xl text-[11px] text-[#4B5563] leading-relaxed">
-                  <span className="font-semibold text-[#1F3D2B] block mb-1">
-                    معاينة محتوى القالب التلقائي:
-                  </span>
-                  مرحباً {"{{guest_name}}"}، يسعدنا استضافتكم في {"{{property_name}}"}. موعد تسجيل الوصول يبدأ من الساعة 03:00 م. كود دخول الوحدة الخاص بكم هو: {"{{access_code}}"} ، رابط موقع العقار: https://rwq.sa/t/Doc_token0
-                </div>
-              </div>
-
-              {/* Action 2 */}
-              <div className="p-4 bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl space-y-2 text-xs">
-                <div className="flex items-center justify-between pb-2 border-b border-[#EAEFE9]">
-                  <div className="flex items-center gap-2 font-bold text-[#1F2937]">
-                    <ShieldCheck className="w-4 h-4 text-[#1F3D2B]" />
-                    <span>تسجيل حدث رسمي في سجل التدقيق والحوكمة</span>
+                  <div className="relative flex-1 max-w-[340px]">
+                    <select
+                      value={sourceCondition}
+                      onChange={(e) => setSourceCondition(e.target.value)}
+                      className="bg-white rounded-[8px] h-[36px] w-full px-[16px] text-[13px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
+                    >
+                      <option>Whatsapp .com</option>
+                      <option>Airbnb.com</option>
+                      <option>Booking.com</option>
+                      <option>حجز مباشر عبر المنصة</option>
+                    </select>
+                    <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-gray-100 text-gray-600">
-                    إجراء 2
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#6B7280]">
-                  توثيق إرسال تفاصيل الوصول آلياً عبر محرك الأتمتة المركزي لحجز المنصة.
-                </p>
-              </div>
 
-              {/* Add Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap pt-1">
-                <button
-                  type="button"
-                  onClick={() => toast.info("إجراء WhatsApp إضافي")}
-                  className="px-3 py-1.5 rounded-xl border border-dashed border-[#1F3D2B] text-[#1F3D2B] text-xs font-semibold hover:bg-[#EEF5EE]"
-                >
-                  + إضافة إجراء: إرسال WhatsApp
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toast.info("إجراء مهمة تنظيف إضافية")}
-                  className="px-3 py-1.5 rounded-xl border border-dashed border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-50"
-                >
-                  + إنشاء مهمة تنظيف
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toast.info("إجراء تنبيه فوري")}
-                  className="px-3 py-1.5 rounded-xl border border-dashed border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-50"
-                >
-                  + إنشاء تنبيه فوري
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("حذف شرط مصدر الحجز")}
+                    className="bg-[#ebefe6] hover:bg-[#dfe4db] rounded-[8px] size-[36px] flex items-center justify-center text-[#454840] hover:text-[#ba1a1a] transition-colors"
+                  >
+                    <Trash2 className="size-[14px]" />
+                  </button>
+                </div>
+
+                {/* Row 2 */}
+                <div className="bg-[#f1f5eb] rounded-[12px] h-[60px] px-[12px] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-[8px]">
+                    <div className="size-[8px] rounded-full bg-[#34422a]" />
+                    <span className="text-[12px] font-semibold text-[#181d17]">
+                      طريقة كود الدخول
+                    </span>
+                  </div>
+
+                  <div className="relative flex-1 max-w-[340px]">
+                    <select
+                      value={passcodeCondition}
+                      onChange={(e) => setPasscodeCondition(e.target.value)}
+                      className="bg-white rounded-[8px] h-[36px] w-full px-[16px] text-[13px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
+                    >
+                      <option>كود مخصص لكل حجز</option>
+                      <option>كود رئيسي ثابت للوحدة</option>
+                      <option>بطاقة دخول فيزيائية</option>
+                    </select>
+                    <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => toast.info("حذف شرط طريقة كود الدخول")}
+                    className="bg-[#ebefe6] hover:bg-[#dfe4db] rounded-[8px] size-[36px] flex items-center justify-center text-[#454840] hover:text-[#ba1a1a] transition-colors"
+                  >
+                    <Trash2 className="size-[14px]" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Card 5: Rule Scope */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-3">
-              <h3 className="font-bold text-base text-[#1F2937] pb-3 border-b border-[#F3F4F6]">
-                نطاق شمول القاعدة
-              </h3>
+            {/* SECTION 04: الإجراءات التلقائية المنفذة */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              {/* Section Header */}
+              <div className="border-b border-[#e5eae0] pb-[17px]">
+                <h2 className="text-[18px] font-bold text-[#181d17]">
+                  الإجراءات التلقائية المنفذة
+                </h2>
+              </div>
 
-              <div className="space-y-2.5 text-xs">
-                <label
+              {/* Action Blocks */}
+              <div className="flex flex-col gap-[16px]">
+                {/* Action Block 1: WhatsApp */}
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col gap-[12px]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-[10px]">
+                      <div className="bg-[#d8e8cb] rounded-[8px] size-[32px] flex items-center justify-center text-[#34422a] shrink-0">
+                        <MessageSquare className="size-[16px]" />
+                      </div>
+                      <span className="text-[14px] font-bold text-[#181d17]">
+                        إرسال رسالة WhatsApp للنزيل
+                      </span>
+                      <span className="bg-[#e5eae0] text-[#454840] text-[11px] font-semibold rounded-[6px] px-[8px] py-[2px]">
+                        إجراء 1
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => toast.info("خيارات إجراء WhatsApp")}
+                      className="size-[28px] rounded-[8px] flex items-center justify-center text-[#454840] hover:bg-[#ebefe6] transition-colors"
+                    >
+                      <Trash2 className="size-[13px]" />
+                    </button>
+                  </div>
+
+                  {/* Recipient & Template Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px]">
+                    <div className="flex flex-col gap-[4px]">
+                      <label className="text-[11px] font-semibold text-[#454840]">
+                        قالب الرسالة المعتمد
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={selectedTemplate}
+                          onChange={(e) => setSelectedTemplate(e.target.value)}
+                          className="bg-white rounded-[8px] h-[40px] w-full px-[16px] text-[12px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
+                        >
+                          <option>تفاصيل الوصول وكود القفل</option>
+                          <option>تأكيد استلام الحجز وموقع العقار</option>
+                          <option>تذكير بموعد المغادرة وإجراءات الخروج</option>
+                        </select>
+                        <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-[4px]">
+                      <label className="text-[11px] font-semibold text-[#454840]">
+                        المستلم المستهدف
+                      </label>
+                      <div className="bg-white rounded-[8px] h-[40px] px-[12px] flex items-center justify-between text-[12px] font-semibold text-[#181d17]">
+                        <span>{targetRecipient}</span>
+                        <Phone className="size-[14px] text-[#34422a]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Template Preview Snippet Box */}
+                  <div className="bg-white rounded-[12px] p-[12px] flex flex-col gap-[6px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[#34422a]">
+                        معاينة محتوى القالب التلقائي:
+                      </span>
+                      <span className="text-[11px] font-medium text-[#75786f]">
+                        المتغيرات تُستبدل لحظياً
+                      </span>
+                    </div>
+
+                    <div className="text-[13px] font-normal text-[#181d17] leading-[22px]">
+                      <span>مرحباً </span>
+                      <span className="inline-block bg-[#ebefe6] text-[#34422a] font-bold text-[13px] px-[6px] py-[1px] rounded-[4px] mx-1">
+                        {"{guest_name}"}
+                      </span>
+                      <span>، يسعدنا استقبالكم في </span>
+                      <span className="inline-block bg-[#ebefe6] text-[#34422a] font-bold text-[13px] px-[6px] py-[1px] rounded-[4px] mx-1">
+                        {"{property_name}"}
+                      </span>
+                      <span>. موعد تسجيل الوصول يبدأ من الساعة 03:00 م. كود دخول الوحدة الخاص بكم هو: </span>
+                      <span className="inline-block bg-[#ebefe6] text-[#34422a] font-bold text-[13px] px-[6px] py-[1px] rounded-[4px] mx-1">
+                        {"{access_code}"}
+                      </span>
+                      <span>. رابط موقع المبنى: </span>
+                      <a
+                        href="#"
+                        onClick={(e) => e.preventDefault()}
+                        className="text-[#34422a] underline font-semibold text-[13px] decoration-[1px] underline-offset-2"
+                      >
+                        https://rwq.sa/l/{"{loc_token}"}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Block 2: Audit Log */}
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col gap-[12px]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-[10px]">
+                      <div className="bg-[#e5eae0] rounded-[8px] size-[32px] flex items-center justify-center text-[#454840] shrink-0">
+                        <ShieldCheck className="size-[16px]" />
+                      </div>
+                      <span className="text-[14px] font-bold text-[#181d17]">
+                        تسجيل حدث رسمي في سجل التدقيق والحوكمة
+                      </span>
+                      <span className="bg-[#e5eae0] text-[#454840] text-[11px] font-semibold rounded-[6px] px-[8px] py-[2px]">
+                        إجراء 2
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => toast.info("خيارات إجراء التدقيق")}
+                      className="size-[28px] rounded-[8px] flex items-center justify-center text-[#454840] hover:bg-[#ebefe6] transition-colors"
+                    >
+                      <Trash2 className="size-[13px]" />
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="text-[11px] font-semibold text-[#454840]">
+                      ملاحظة التدقيق المرفقة
+                    </label>
+                    <input
+                      type="text"
+                      value={auditNote}
+                      onChange={(e) => setAuditNote(e.target.value)}
+                      className="bg-white rounded-[8px] h-[40px] px-[12px] py-[8px] text-[13px] font-normal text-[#181d17] w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a]"
+                    />
+                  </div>
+                </div>
+
+                {/* Append Action Buttons */}
+                <div className="flex gap-[8px] items-center flex-wrap pt-[4px]">
+                  <button
+                    type="button"
+                    onClick={() => toast.info("إضافة تنبيه فوري")}
+                    className="bg-[#e5eae0] hover:bg-[#dfe4db] text-[#181d17] text-[12px] font-semibold rounded-[12px] px-[14px] py-[8px] flex items-center gap-[6px] transition-colors"
+                  >
+                    <Plus className="size-[12px]" />
+                    <span>إنشاء تنبيه فوري</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("إضافة مهمة تنظيف")}
+                    className="bg-[#e5eae0] hover:bg-[#dfe4db] text-[#181d17] text-[12px] font-semibold rounded-[12px] px-[14px] py-[8px] flex items-center gap-[6px] transition-colors"
+                  >
+                    <Plus className="size-[12px]" />
+                    <span>إنشاء مهمة تنظيف</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("إضافة إجراء WhatsApp")}
+                    className="bg-[#e5eae0] hover:bg-[#dfe4db] text-[#181d17] text-[12px] font-semibold rounded-[12px] px-[14px] py-[8px] flex items-center gap-[6px] transition-colors"
+                  >
+                    <Plus className="size-[12px]" />
+                    <span>إضافة إجراء: إرسال WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION 05: نطاق شمول القاعدة */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              {/* Section Header */}
+              <div className="border-b border-[#e5eae0] pb-[17px] flex items-center gap-[8px]">
+                <div className="bg-[#e5eae0] rounded-[8px] size-[28px] flex items-center justify-center shrink-0">
+                  <Building2 className="size-[16px] text-[#181d17]" />
+                </div>
+                <h2 className="text-[18px] font-bold text-[#181d17]">
+                  نطاق شمول القاعدة
+                </h2>
+              </div>
+
+              {/* Scope Radio Options */}
+              <div className="flex flex-col gap-[12px]">
+                {/* Option 1: All properties (Selected) */}
+                <div
                   onClick={() => setScope("all")}
-                  className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                  className={`rounded-[12px] p-[16px] flex gap-[14px] items-start cursor-pointer transition-all ${
                     scope === "all"
-                      ? "bg-[#EEF5EE] border-[#1F3D2B] text-[#1F3D2B]"
-                      : "bg-[#FAFBF9] border-[#EBEBEB] text-[#374151]"
+                      ? "bg-[rgba(216,232,203,0.3)] border border-[#34422a]/20"
+                      : "bg-[#f1f5eb] hover:bg-[#e8eee1]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="scope"
-                      checked={scope === "all"}
-                      onChange={() => setScope("all")}
-                      className="text-[#1F3D2B]"
-                    />
-                    <div>
-                      <span className="font-bold block">جميع العقارات المسجلة بالمنصة</span>
-                      <span className="text-[11px] text-[#6B7280]">
-                        تطبق القاعدة تلقائياً على كافة الأصول الحالية وأي عقار أو وحدة جديدة تضاف للمنظومة مستقبلاً.
+                  <div className="flex-1 flex flex-col gap-[2px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-bold text-[#181d17]">
+                        جميع العقارات المسجلة بالمنصة
+                      </span>
+                      <span className="bg-[#34422a] text-white text-[11px] font-bold rounded-full px-[10px] py-[2px]">
+                        18 عقاراً • 142 وحدة
                       </span>
                     </div>
+                    <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                      تُطبق القاعدة تلقائياً على كافة الأصول الحالية وأي عقار أو وحدة جديدة تُضاف للمنظومة مستقبلاً.
+                    </p>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-[#DCE8DC] text-[#1F3D2B] font-bold">
-                    18 عقاراً • 142 وحدة
-                  </span>
-                </label>
+                  <div
+                    className={`size-[16px] rounded-full flex items-center justify-center shrink-0 mt-1 bg-white ${
+                      scope === "all" ? "border border-[#34422a]" : "border border-[#767676]"
+                    }`}
+                  >
+                    {scope === "all" && <div className="size-[9.6px] rounded-full bg-[#34422a]" />}
+                  </div>
+                </div>
 
-                <label
+                {/* Option 2: Custom properties */}
+                <div
                   onClick={() => setScope("custom")}
-                  className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                  className={`rounded-[12px] p-[16px] flex gap-[14px] items-start cursor-pointer transition-all ${
                     scope === "custom"
-                      ? "bg-[#EEF5EE] border-[#1F3D2B] text-[#1F3D2B]"
-                      : "bg-[#FAFBF9] border-[#EBEBEB] text-[#374151]"
+                      ? "bg-[rgba(216,232,203,0.3)] border border-[#34422a]/20"
+                      : "bg-[#f1f5eb] hover:bg-[#e8eee1]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="scope"
-                      checked={scope === "custom"}
-                      onChange={() => setScope("custom")}
-                      className="text-[#1F3D2B]"
-                    />
-                    <div>
-                      <span className="font-bold block">عقارات محددة (اختيار مخصص)</span>
-                      <span className="text-[11px] text-[#6B7280]">
-                        تحديد مشاريع أو أبراج سكنية بعينها (مثال: برج روق العليا فقط).
+                  <div className="flex-1 flex flex-col gap-[2px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-semibold text-[#181d17]">
+                        عقارات محددة (اختيار مخصص)
                       </span>
+                      <ChevronDown className="size-[14px] text-[#454840]" />
                     </div>
+                    <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                      تحديد مشاريع أو أبراج سكنية بعينها (مثال: برج رِواق العليا فقط).
+                    </p>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                </label>
+                  <div
+                    className={`size-[16px] rounded-full flex items-center justify-center shrink-0 mt-1 bg-white ${
+                      scope === "custom" ? "border border-[#34422a]" : "border border-[#767676]"
+                    }`}
+                  >
+                    {scope === "custom" && <div className="size-[9.6px] rounded-full bg-[#34422a]" />}
+                  </div>
+                </div>
 
-                <label
+                {/* Option 3: Regional Scope */}
+                <div
                   onClick={() => setScope("regional")}
-                  className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                  className={`rounded-[12px] p-[16px] flex gap-[14px] items-start cursor-pointer transition-all ${
                     scope === "regional"
-                      ? "bg-[#EEF5EE] border-[#1F3D2B] text-[#1F3D2B]"
-                      : "bg-[#FAFBF9] border-[#EBEBEB] text-[#374151]"
+                      ? "bg-[rgba(216,232,203,0.3)] border border-[#34422a]/20"
+                      : "bg-[#f1f5eb] hover:bg-[#e8eee1]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="scope"
-                      checked={scope === "regional"}
-                      onChange={() => setScope("regional")}
-                      className="text-[#1F3D2B]"
-                    />
-                    <div>
-                      <span className="font-bold block">مجموعة عقارية أو نطاق جغرافي (المدينة / الحي)</span>
-                      <span className="text-[11px] text-[#6B7280]">
-                        حصر التطبيق على محافظة معينة (مثال: كافة عقارات مدينة الرياض).
+                  <div className="flex-1 flex flex-col gap-[2px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-semibold text-[#181d17]">
+                        مجموعة عقارية أو نطاق جغرافي (المدينة / الحي)
                       </span>
+                      <ChevronDown className="size-[14px] text-[#454840]" />
                     </div>
+                    <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
+                      حصر التطبيق على محفظة معينة (مثال: كافة عقارات مدينة الرياض).
+                    </p>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                </label>
+                  <div
+                    className={`size-[16px] rounded-full flex items-center justify-center shrink-0 mt-1 bg-white ${
+                      scope === "regional" ? "border border-[#34422a]" : "border border-[#767676]"
+                    }`}
+                  >
+                    {scope === "regional" && <div className="size-[9.6px] rounded-full bg-[#34422a]" />}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Left Column: Summary and Simulation (4 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Approved Workflow Summary Card */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4 text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
-                <h3 className="font-bold text-sm text-[#1F2937]">ملخص سير العمل المعتمد</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]">
+          {/* LEFT / SIDEBAR COLUMN (Col 9 to 12 in RTL, left side visually) - Sticky Summary & Test Bench */}
+          <div className="lg:col-span-4 flex flex-col gap-[24px]">
+            {/* CARD 1: ملخص سير العمل المعتمد */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[16px]">
+              <div className="border-b border-[#e5eae0] pb-[17px] flex items-center justify-between">
+                <h3 className="text-[18px] font-bold text-[#181d17] leading-[28px]">
+                  ملخص سير العمل المعتمد
+                </h3>
+                <span className="bg-[#d8e8cb] text-[#5a6952] text-[11px] font-bold rounded-full px-[8px] py-[2px]">
                   جاهز
                 </span>
               </div>
 
-              <div className="space-y-3">
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-[#EBEBEB]">
-                  <span className="text-[10px] text-[#9CA3AF] block">المحفز الزمني</span>
-                  <span className="font-bold text-[#1F2937]">قبل موعد الوصول بـ 24 ساعة</span>
+              {/* Pipeline Diagram */}
+              <div className="flex flex-col gap-[12px] py-[4px]">
+                {/* Step 1: Trigger */}
+                <div className="flex gap-[12px] items-start">
+                  <div className="bg-[#34422a] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-full size-[32px] flex items-center justify-center text-white shrink-0 mt-0.5">
+                    <Clock className="size-[14px]" />
+                  </div>
+                  <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 flex flex-col gap-0.5 text-right">
+                    <span className="text-[#34422a] text-[11px] font-bold leading-[16px]">
+                      المحفّز الزمني
+                    </span>
+                    <span className="text-[#181d17] text-[13px] font-semibold leading-[20px]">
+                      قبل موعد الوصول بـ 24 ساعة
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-[#EBEBEB]">
-                  <span className="text-[10px] text-[#9CA3AF] block">شروط التحقق (2)</span>
-                  <span className="font-medium text-[#1F2937]">مصدر الحجز عبر whatsapp.com + قفل إلكتروني ذكي</span>
+                {/* Connector */}
+                <div className="pr-[15px] -my-1">
+                  <div className="w-[2px] h-[20px] bg-[#dfe4db]" />
                 </div>
 
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-[#EBEBEB]">
-                  <span className="text-[10px] text-[#9CA3AF] block">الإجراءات التلقائية (2)</span>
-                  <span className="font-medium text-[#1F2937]">إرسال WhatsApp + قيد سجل التدقيق</span>
+                {/* Step 2: Conditions */}
+                <div className="flex gap-[12px] items-start">
+                  <div className="bg-[#34422a] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-full size-[32px] flex items-center justify-center text-white shrink-0 mt-0.5">
+                    <Sliders className="size-[14px]" />
+                  </div>
+                  <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 flex flex-col gap-0.5 text-right">
+                    <span className="text-[#34422a] text-[11px] font-bold leading-[16px]">
+                      شروط التحقق (2)
+                    </span>
+                    <span className="text-[#181d17] text-[13px] font-normal leading-[20px]">
+                      مصدر الحجز: whatsapp.com + قفل إلكتروني ذكي
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-[#EBEBEB]">
-                  <span className="text-[10px] text-[#9CA3AF] block">النطاق والشمول</span>
-                  <span className="font-bold text-[#1F2937]">شامل لكافة العقارات (18 عقاراً • 142 وحدة)</span>
+                {/* Connector */}
+                <div className="pr-[15px] -my-1">
+                  <div className="w-[2px] h-[20px] bg-[#dfe4db]" />
+                </div>
+
+                {/* Step 3: Actions */}
+                <div className="flex gap-[12px] items-start">
+                  <div className="bg-[#34422a] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-full size-[32px] flex items-center justify-center text-white shrink-0 mt-0.5">
+                    <Send className="size-[14px]" />
+                  </div>
+                  <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 flex flex-col gap-0.5 text-right">
+                    <span className="text-[#34422a] text-[11px] font-bold leading-[16px]">
+                      الإجراءات التلقائية (2)
+                    </span>
+                    <span className="text-[#181d17] text-[13px] font-normal leading-[20px]">
+                      إرسال WhatsApp + قيد سجل التدقيق
+                    </span>
+                  </div>
+                </div>
+
+                {/* Connector */}
+                <div className="pr-[15px] -my-1">
+                  <div className="w-[2px] h-[20px] bg-[#dfe4db]" />
+                </div>
+
+                {/* Step 4: Scope */}
+                <div className="flex gap-[12px] items-start">
+                  <div className="bg-[#e5eae0] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-full size-[32px] flex items-center justify-center text-[#34422a] shrink-0 mt-0.5">
+                    <Building2 className="size-[14px]" />
+                  </div>
+                  <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 flex flex-col gap-0.5 text-right">
+                    <span className="text-[#34422a] text-[11px] font-bold leading-[16px]">
+                      النطاق والشمول
+                    </span>
+                    <span className="text-[#181d17] text-[13px] font-normal leading-[20px]">
+                      شامل لكافة العقارات (18 عقاراً • 142 وحدة)
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-3 bg-[#EEF5EE] border border-[#DCE8DC] rounded-xl text-[11px] text-[#374151] leading-relaxed">
-                <span className="font-bold text-[#1F3D2B] block mb-0.5">صياغة القاعدة:</span>
-                "عند اقتراب الوصول بـ 24 ساعة وكان الحجز عبر whatsapp.com ولديه كود ذكي ← إرسال رسالة WhatsApp للنزيل وتوثيق تدقيق آلي في كافة العقارات."
+              {/* Highlighted Rule Formulation Block */}
+              <div className="bg-[#ebefe6] border-r-4 border-[#34422a] rounded-[12px] p-[14px] text-right">
+                <span className="font-bold text-[#34422a] text-[13px] leading-[21.13px]">
+                  صياغة القاعدة:{" "}
+                </span>
+                <span className="font-normal text-[#181d17] text-[13px] leading-[21.13px]">
+                  "عند اقتراب الوصول بـ 24 ساعة وكان الحجز عبر whatsapp.com ولديه كود ذكي ← إرسال رسالة WhatsApp للنزيل وتوثيق تدقيق آلي في كافة العقارات."
+                </span>
               </div>
             </div>
 
-            {/* Quick Simulation Card */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4 text-xs">
-              <h3 className="font-bold text-sm text-[#1F2937]">اختبار المحاكاة السريعة</h3>
-              <p className="text-[11px] text-[#6B7280]">
+            {/* CARD 2: اختبار المحاكاة السريعة */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] flex flex-col gap-[12px]">
+              <div className="border-b border-[#e5eae0] pb-[12px]">
+                <h3 className="text-[18px] font-bold text-[#181d17]">
+                  اختبار المحاكاة السريعة
+                </h3>
+              </div>
+
+              <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
                 تحقق من مسار معالجة الشروط دون إرسال رسائل فعلية للنزلاء.
               </p>
 
-              <div className="space-y-1.5">
-                <span className="text-[10px] text-[#9CA3AF] block">عينة حجز نشطة للاختبار</span>
-                <div className="p-2.5 bg-[#FAFBF9] border border-gray-200 rounded-xl font-bold text-[#1F2937]">
-                  أحمد محمد - عمارة النخيل
+              {/* Sample Selector */}
+              <div className="flex flex-col gap-[4px] pt-[4px]">
+                <label className="text-[11px] font-semibold text-[#454840]">
+                  عينة حجز نشطة للاختبار
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedSampleBooking}
+                    onChange={(e) => setSelectedSampleBooking(e.target.value)}
+                    className="bg-[#f1f5eb] rounded-[8px] h-[40px] w-full px-[16px] text-[13px] font-normal text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
+                  >
+                    <option>(أحمد محمد - عمارة النخيل)</option>
+                    <option>(خالد عبد الله - برج رِواق العليا)</option>
+                    <option>(سارة علي - فلل الياسمين)</option>
+                  </select>
+                  <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 bg-[#FAFBF9] rounded-xl border border-gray-200">
-                <span className="font-semibold text-gray-700">وضع المحاكاة الآمنة</span>
-                <span className="w-8 h-4 bg-[#1F3D2B] rounded-full relative inline-block">
-                  <span className="w-3 h-3 bg-white rounded-full absolute top-0.5 end-0.5" />
+              {/* Safe Simulation Mode Switch */}
+              <div className="bg-[#f1f5eb] rounded-[8px] p-[10px] flex items-center justify-between">
+                <span className="text-[12px] font-semibold text-[#181d17]">
+                  وضع المحاكاة الآمنة
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSafeSimulationMode(!safeSimulationMode)}
+                  className={`w-[44px] h-[24px] rounded-full transition-colors relative p-[2px] ${
+                    safeSimulationMode ? "bg-[#34422a]" : "bg-[#c5c8bd]"
+                  }`}
+                >
+                  <div
+                    className={`size-[20px] rounded-full bg-white transition-transform ${
+                      safeSimulationMode ? "translate-x-0" : "-translate-x-[20px]"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Evaluation Output Preview Pill */}
+              <div className="bg-[rgba(216,232,203,0.4)] rounded-[8px] p-[12px] flex items-center justify-between">
+                <div className="flex items-center gap-[8px]">
+                  <CheckCircle2 className="size-[16px] text-[#34422a]" />
+                  <span className="text-[12px] font-semibold text-[#181d17]">
+                    نتيجة الفحص التقديري
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold text-[#34422a]">
+                  مؤهل للتنفيذ (100%)
                 </span>
               </div>
 
-              <div className="p-3 bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl flex items-center justify-between text-[#16A34A]">
-                <span className="font-semibold">نتيجة الفحص التجريبي:</span>
-                <span className="font-bold">مؤهل للتنفيذ (100%)</span>
-              </div>
-
+              {/* Run Simulation Button */}
               <button
                 type="button"
                 onClick={handleSimulate}
                 disabled={simulationRunning}
-                className="w-full py-2.5 rounded-xl border border-[#1F3D2B] text-[#1F3D2B] bg-[#EEF5EE] hover:bg-[#E2EDE2] font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                className="bg-[#e5eae0] hover:bg-[#d8e8cb] text-[#181d17] text-[12px] font-bold h-[40px] rounded-[12px] flex items-center justify-center gap-[6px] w-full transition-colors disabled:opacity-50"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{simulationRunning ? "جاري الاختبار..." : "تشغيل محاكاة الاختبار الآن"}</span>
+                <span>
+                  {simulationRunning ? "جاري تشغيل المحاكاة..." : "تشغيل محاكاة الاختبار الآن ⚡"}
+                </span>
               </button>
             </div>
 
-            {/* Estimated Impact Box */}
-            <div className="p-4 bg-white rounded-3xl border border-[#EBEBEB] shadow-sm space-y-2 text-xs">
-              <span className="text-[#9CA3AF] block text-[10px]">الأثر المتوقع خلال 7 أيام القادمة</span>
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-gray-100">
-                  <span className="text-xl font-bold text-[#1F2937] block">34</span>
-                  <span className="text-[10px] text-[#6B7280]">رسالة مؤهلة</span>
+            {/* CARD 3: التأثير المتوقع خلال 7 أيام القادمة */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[16px] flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-medium text-[#454840]">
+                  التأثير المتوقع خلال 7 أيام القادمة
+                </span>
+                <span className="text-[11px] font-bold text-[#34422a]">
+                  تقدير دقيق
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-[8px]">
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] text-center flex flex-col items-center">
+                  <span className="text-[18px] font-bold text-[#181d17] leading-[28px]">
+                    34
+                  </span>
+                  <span className="text-[11px] font-medium text-[#454840] leading-[16px]">
+                    رسالة مؤهلة
+                  </span>
                 </div>
-                <div className="p-2.5 bg-[#FAFBF9] rounded-xl border border-gray-100">
-                  <span className="text-xl font-bold text-[#16A34A] block">0%</span>
-                  <span className="text-[10px] text-[#6B7280]">تعارض مع القواعد</span>
+
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] text-center flex flex-col items-center">
+                  <span className="text-[18px] font-bold text-[#34422a] leading-[28px]">
+                    0%
+                  </span>
+                  <span className="text-[11px] font-medium text-[#454840] leading-[16px]">
+                    تعارض مع القواعد
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-2.5">
+            {/* FINAL ACTION BUTTONS PANEL */}
+            <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[16px] flex flex-col gap-[10px]">
               <button
                 type="submit"
-                className="w-full py-3.5 px-5 rounded-2xl bg-[#1F3D2B] text-white text-sm font-bold hover:bg-[#183022] transition-colors shadow-sm flex items-center justify-center gap-2"
+                className="bg-[#34422a] hover:bg-[#283320] text-white text-[14px] font-semibold h-[48px] rounded-[12px] flex items-center justify-center gap-[8px] w-full transition-colors drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
               >
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="size-[16px]" />
                 <span>حفظ وتفعيل القاعدة</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  toast.success("تم حفظ القاعدة كمسودة بنجاح");
-                  router.push("/automation/");
-                }}
-                className="w-full py-3 px-5 rounded-2xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                onClick={handleDraftSave}
+                className="bg-[#ebefe6] hover:bg-[#dfe4db] text-[#181d17] text-[14px] font-semibold h-[44px] rounded-[12px] flex items-center justify-center gap-[8px] w-full transition-colors"
               >
-                <Bookmark className="w-4 h-4 text-gray-500" />
+                <Bookmark className="size-[14px]" />
                 <span>حفظ كمسودة</span>
               </button>
 
               <Link
                 href="/automation/"
-                className="block text-center text-xs text-[#9CA3AF] hover:text-[#1F2937] py-1"
+                className="text-[#454840] hover:text-[#181d17] text-[12px] font-semibold text-center py-[8px] transition-colors block w-full"
               >
                 إلغاء والتراجع عن التغييرات
               </Link>
@@ -618,3 +958,4 @@ export function CreateRuleView() {
     </div>
   );
 }
+
