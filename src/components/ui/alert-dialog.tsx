@@ -50,7 +50,7 @@ export function AlertDialogContent({
       role="alertdialog"
       aria-modal="true"
       dir="rtl"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 font-cairo select-none"
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 font-cairo select-none"
     >
       {/* Backdrop - ignores clicks strictly when preventCloseOnBackdrop is true */}
       <div
