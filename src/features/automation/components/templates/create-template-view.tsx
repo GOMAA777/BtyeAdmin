@@ -1,77 +1,142 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BackButton } from "@/components/shared/back-button";
 import {
-  ArrowRight,
-  Send,
+  Code2,
+  FileText,
   MessageSquare,
   Sparkles,
-  Smartphone,
+  MapPin,
+  KeyRound,
+  ShieldCheck,
+  Send,
+  Building2,
   Check,
   CheckCheck,
-  Plus,
-  Trash2,
+  SlidersHorizontal,
+  Smartphone,
+  Phone,
+  Video,
+  MoreVertical,
+  ArrowRight,
+  BadgeCheck,
   ExternalLink,
-  ShieldCheck,
-  Sliders,
-  FileText,
-  Image as ImageIcon,
-  HelpCircle,
-  Eye,
-  Info,
+  Layers,
+  Lock,
+  Mic,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
-import { PreviewTemplateModal } from "./modals/preview-template-modal";
 
 export function CreateTemplateView() {
   const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Form states
+  // Form states matching 1:24243
+  const [templateName, setTemplateName] = useState("تأكيد الحجز وموقع الوحدة");
   const [templateCode, setTemplateCode] = useState("tpl_booking_confirmation_v2");
-  const [templateName, setTemplateName] = useState("تأكيد حجز جديد وإرسال كود الدخول");
-  const [category, setCategory] = useState("bookings");
-  const [language, setLanguage] = useState("العربية (ar)");
-  const [headerType, setHeaderType] = useState<"text" | "image" | "none">("text");
-  const [headerText, setHeaderText] = useState("تأكيد الحجز - أبراج للضيافة");
-  const [messageBody, setMessageBody] = useState(
-    `مرحبًا {{1}}،\n\nيسعدنا استقبالكم في {{2}} - {{3}}.\n\n📅 تاريخ الوصول: {{4}}\n📅 تاريخ المغادرة: {{5}}\n🔑 كود الدخول للباب الذكي: {{6}}\n\nنتمنى لكم إقامة ممتعة ونسعد بخدمتكم دائماً!`
-  );
-  const [footerText, setFooterText] = useState("أبراج لإدارة الأصول العقارية - خدمة العملاء 24/7");
-  const [button1Label, setButton1Label] = useState("فتح الموقع في خرائط Google");
-  const [button2Label, setButton2Label] = useState("دليل كود الدخول والتعليمات");
+  const [selectedCategory, setSelectedCategory] = useState("bookings");
+  const [language] = useState("العربية (ar)");
 
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const defaultMessageBody = `مرحبًا {{اسم العميل}}،
+تم تأكيد حجزك في {{اسم العقار}} - الوحدة {{رقم الوحدة}}.
+الوصول: {{تاريخ الوصول}} الساعة {{وقت الوصول}}.
+المغادرة: {{تاريخ المغادرة}}.
+كود الدخول: {{كود الدخول}}.
+الموقع: {{رابط الموقع}}
+نسعد بخدمتكم ونتمنى لكم إقامة ممتعة!`;
+
+  const [messageBody, setMessageBody] = useState(defaultMessageBody);
+  const [buttonLabel, setButtonLabel] = useState("فتح الموقع في الخرائط");
+  const [governanceStatus, setGovernanceStatus] = useState<"active" | "draft" | "paused">("active");
+  const [applyGlobally, setApplyGlobally] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Dynamic variable insertion
+  // 12 dynamic variables list from 1:24243
+  const availableVariables = [
+    "اسم العميل",
+    "اسم العقار",
+    "رقم الوحدة",
+    "رقم الحجز",
+    "تاريخ الوصول",
+    "وقت الوصول",
+    "تاريخ المغادرة",
+    "وقت المغادرة",
+    "كود الدخول",
+    "رابط الموقع",
+    "عدد الأيام المتبقية",
+    "رقم التواصل",
+  ];
+
+  // Insert variable into textarea
   const insertVariable = (varName: string) => {
-    setMessageBody((prev) => `${prev} {{${varName}}}`);
-    toast.info(`تمت إضافة المتغير {{${varName}}} إلى نص الرسالة`);
+    const placeholder = `{{${varName}}}`;
+    if (!textareaRef.current) {
+      setMessageBody((prev) => `${prev} ${placeholder}`);
+      return;
+    }
+    const start = textareaRef.current.selectionStart || 0;
+    const end = textareaRef.current.selectionEnd || 0;
+    const newText = messageBody.substring(0, start) + ` ${placeholder} ` + messageBody.substring(end);
+    setMessageBody(newText);
+    toast.success(`تمت إضافة المتغير ${placeholder}`);
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(start + placeholder.length + 2, start + placeholder.length + 2);
+      }
+    }, 50);
   };
 
-  // Preview replacement computation
-  const previewBodyFormatted = messageBody
-    .replace(/\{\{1\}\}|\{\{اسم العميل\}\}/g, "خالد العتيبي")
-    .replace(/\{\{2\}\}|\{\{اسم العقار\}\}/g, "عمارة النخيل")
-    .replace(/\{\{3\}\}|\{\{رقم الوحدة\}\}/g, "الوحدة 204")
-    .replace(/\{\{4\}\}|\{\{تاريخ الوصول\}\}/g, "18 سبتمبر 2026 (02:00 م)")
-    .replace(/\{\{5\}\}|\{\{تاريخ المغادرة\}\}/g, "21 سبتمبر 2026 (12:00 م)")
-    .replace(/\{\{6\}\}|\{\{كود الدخول\}\}/g, "482913")
-    .replace(/\{\{رابط الموقع\}\}/g, "https://maps.google.com/?q=24.77,46.68");
+  // Format formatting toolbar helper
+  const applyFormatting = (prefix: string, suffix: string = prefix) => {
+    if (!textareaRef.current) return;
+    const start = textareaRef.current.selectionStart || 0;
+    const end = textareaRef.current.selectionEnd || 0;
+    const selected = messageBody.substring(start, end);
+    const formatted = `${prefix}${selected || "نص"}${suffix}`;
+    const newText = messageBody.substring(0, start) + formatted + messageBody.substring(end);
+    setMessageBody(newText);
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, 50);
+  };
+
+  // Clear text
+  const handleClearText = () => {
+    setMessageBody("");
+    toast.info("تم تفريغ نص الرسالة");
+  };
+
+  // Live preview replacement for the phone mockup
+  const previewFormattedText = messageBody
+    .replace(/\{\{اسم العميل\}\}/g, "فيصل السبيعي")
+    .replace(/\{\{اسم العقار\}\}/g, "عمارة النخيل الفندقية")
+    .replace(/\{\{رقم الوحدة\}\}/g, "الوحدة 204")
+    .replace(/\{\{رقم الحجز\}\}/g, "BK-2026-1049")
+    .replace(/\{\{تاريخ الوصول\}\}/g, "26 أغسطس 2026")
+    .replace(/\{\{وقت الوصول\}\}/g, "الساعة 02:00 م")
+    .replace(/\{\{تاريخ المغادرة\}\}/g, "30 أغسطس 2026")
+    .replace(/\{\{وقت المغادرة\}\}/g, "الساعة 12:00 م")
+    .replace(/\{\{كود الدخول\}\}/g, "583921")
+    .replace(/\{\{رابط الموقع\}\}/g, "https://maps.abraj.sa/loc/204")
+    .replace(/\{\{عدد الأيام المتبقية\}\}/g, "4 أيام")
+    .replace(/\{\{رقم التواصل\}\}/g, "+966501234567");
 
   const confirm = useConfirm();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSave = async (statusOverride?: "active" | "draft" | "paused") => {
+    const finalStatus = statusOverride || governanceStatus;
     const ok = await confirm({
       title: "تأكيد اعتماد وحفظ القالب",
-      message: `هل أنت متأكد من رغبتك في إرسال قالب واتساب "${templateName}" (${templateCode}) للاعتماد الرسمي عبر Meta Cloud API؟`,
-      confirmLabel: "اعتماد وحفظ القالب",
+      message: `هل أنت متأكد من حفظ قالب واتساب "${templateName}" (${templateCode}) بحالة ${
+        finalStatus === "active" ? "مفعلة" : finalStatus === "draft" ? "مسودة" : "متوقفة"
+      }؟`,
+      confirmLabel: "حفظ القالب",
       variant: "default",
     });
     if (!ok) return;
@@ -79,475 +144,564 @@ export function CreateTemplateView() {
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("تم إرسال قالب واتساب للاعتماد الفوري عبر Meta Cloud API بنجاح!");
+      toast.success("تم اعتماد وحفظ قالب واتساب بنجاح في محرك الأتمتة المركزي!");
       router.push("/automation/?tab=templates");
     }, 800);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 font-cairo pb-20" dir="rtl">
+      {/* Top Header Card [1:24243] */}
+      <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm">
         <div className="flex items-center gap-3">
-          <BackButton
-            fallbackHref="/automation/?tab=templates"
-            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-          />
+          <Link
+            href="/automation/?tab=templates"
+            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-[#454840] transition-colors cursor-pointer"
+            title="الرجوع للقوالب"
+          >
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#181d17]">إنشاء قالب واتساب</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#d8e8cb] text-[#34422a] border border-[#c6dcbe] flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#4b5940]" />
-                Meta Cloud API معتمد
-              </span>
-            </div>
-            <p className="text-xs text-[#454840] mt-1">
+            <h1 className="text-[24px] font-bold text-[#181D17]">إنشاء قالب واتساب</h1>
+            <p className="text-xs text-[#75786F] mt-1">
               قم بإنشاء وصياغة قالب رسالة واتساب معتمد وقابل لإعادة الاستخدام وربطه بمحرك الأتمتة المركزي للمنصة.
             </p>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setPreviewModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold border border-gray-200 text-[#454840] bg-[#FAFBF9] hover:bg-gray-50 transition-colors"
-        >
-          <Eye className="w-3.5 h-3.5 text-[#4b5940]" />
-          <span>معاينة الرسالة الفعلية</span>
-        </button>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Right Column: Editor Form (7 Cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Section 1: Metadata */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
-                <div className="flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-[#4b5940]" />
-                  <h2 className="text-base font-bold text-[#181d17]">بيانات وتصنيف القالب</h2>
-                </div>
-                <span className="text-xs text-gray-400 font-normal">معايير Meta الرسمية</span>
+      {/* Main 2-Column Grid Layout [1:24243] */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Right Column: Form Sections (8 Cols) */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Section 1: بيانات وتصنيف القالب [1:24243] */}
+          <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#F3F4F6]">
+              <div className="flex items-center gap-2">
+                <Code2 className="w-5 h-5 text-[#4B5940]" />
+                <h2 className="text-[16px] font-bold text-[#181D17]">بيانات وتصنيف القالب</h2>
               </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                      رمز القالب البرمجي (Code) *
-                    </label>
-                    <input
-                      type="text"
-                      value={templateCode}
-                      onChange={(e) => setTemplateCode(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
-                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-xs font-mono focus:outline-none focus:border-[#4b5940] transition-colors"
-                      placeholder="tpl_booking_confirmation_v2"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                      اسم القالب التعريفي *
-                    </label>
-                    <input
-                      type="text"
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#4b5940] transition-colors"
-                      placeholder="تأكيد حجز جديد وإرسال كود الدخول"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                      تصنيف القالب *
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#4b5940] bg-white transition-colors"
-                    >
-                      <option value="bookings">حجوزات وإشعارات (Bookings)</option>
-                      <option value="arrival">تفاصيل وإرشادات الوصول (Arrival)</option>
-                      <option value="door_pin">كود الدخول الذكي (Door PIN)</option>
-                      <option value="departure">المغادرة والتقييم (Checkout)</option>
-                      <option value="operations">تشغيل وتنبيهات أمان (Operations)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                      اللغة المعتمدة
-                    </label>
-                    <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#4b5940] bg-white transition-colors"
-                    >
-                      <option value="العربية (ar)">العربية (ar-SA)</option>
-                      <option value="English (en)">English (en-US)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF1E8] text-[#34422A] flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#34422A]" />
+                <span>اللغة: العربية (ar)</span>
+              </span>
             </div>
 
-            {/* Section 2: Header (رأس الرسالة) */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#4b5940]" />
-                  <h2 className="text-base font-bold text-[#181d17]">رأس الرسالة (Header - اختياري)</h2>
-                </div>
-                <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setHeaderType("text")}
-                    className={`px-3 py-1 rounded-md transition-all font-semibold ${
-                      headerType === "text" ? "bg-white text-[#4b5940] shadow-sm" : "text-gray-500"
-                    }`}
-                  >
-                    نص (Text)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHeaderType("image")}
-                    className={`px-3 py-1 rounded-md transition-all font-semibold ${
-                      headerType === "image" ? "bg-white text-[#4b5940] shadow-sm" : "text-gray-500"
-                    }`}
-                  >
-                    صورة (Image)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHeaderType("none")}
-                    className={`px-3 py-1 rounded-md transition-all font-semibold ${
-                      headerType === "none" ? "bg-white text-[#4b5940] shadow-sm" : "text-gray-500"
-                    }`}
-                  >
-                    بدون رأس
-                  </button>
-                </div>
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#181D17] mb-1.5">
+                  اسم القالب *
+                </label>
+                <input
+                  type="text"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-[12px] border border-[#E5E8E2] text-xs text-[#181D17] focus:outline-none focus:border-[#4B5940] transition-colors"
+                  placeholder="تأكيد الحجز وموقع الوحدة"
+                  required
+                />
+                <p className="text-[10.5px] text-[#75786F] mt-1.5">
+                  اسم تعريفي داخلي يظهر لمشرفي النظام ومديري المحتوى.
+                </p>
               </div>
 
-              {headerType === "text" && (
-                <div>
-                  <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                    نص العنوان البارز للرأس
-                  </label>
+              <div>
+                <label className="block text-xs font-semibold text-[#181D17] mb-1.5">
+                  الرمز البرمجي (API Key) *
+                </label>
+                <div className="relative">
                   <input
                     type="text"
-                    value={headerText}
-                    onChange={(e) => setHeaderText(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#4b5940] transition-colors"
-                    placeholder="مثال: تأكيد الحجز - أبراج للضيافة"
+                    value={templateCode}
+                    onChange={(e) =>
+                      setTemplateCode(e.target.value.toLowerCase().replace(/\s+/g, "_"))
+                    }
+                    className="w-full h-11 pr-3.5 pl-9 rounded-[12px] border border-[#E5E8E2] text-xs font-mono text-[#181D17] focus:outline-none focus:border-[#4B5940] transition-colors"
+                    placeholder="tpl_booking_confirmation_v2"
+                    required
                   />
+                  <Code2 className="w-4 h-4 text-[#75786F] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
-              )}
-
-              {headerType === "image" && (
-                <div className="p-4 rounded-2xl border-2 border-dashed border-gray-200 text-center space-y-1">
-                  <ImageIcon className="w-8 h-8 text-gray-400 mx-auto" />
-                  <div className="text-xs font-semibold text-[#181d17]">
-                    سيتم استخدام صورة الغلاف الافتراضية للعقار تلقائياً
-                  </div>
-                  <div className="text-[11px] text-gray-400">
-                    تدعم Meta ملفات JPG و PNG بحد أقصى 5 ميجابايت
-                  </div>
-                </div>
-              )}
+                <p className="text-[10.5px] text-[#75786F] mt-1.5">
+                  يُستخدم للربط عبر Webhook وخدمات الأتمتة.
+                </p>
+              </div>
             </div>
 
-            {/* Section 3: Body & Variables */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
+            {/* Functional Category Pills */}
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-semibold text-[#181D17]">
+                التصنيف الوظيفي
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: "bookings", label: "الحجوزات" },
+                  { id: "arrival", label: "الوصول" },
+                  { id: "departure", label: "المغادرة" },
+                  { id: "door_pin", label: "كود الدخول" },
+                  { id: "operations", label: "التشغيل والعمليات" },
+                  { id: "other", label: "... أخرى" },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-4 py-2 rounded-[10px] text-xs font-semibold transition-all cursor-pointer ${
+                      selectedCategory === cat.id
+                        ? "bg-[#34422A] text-white shadow-2xs"
+                        : "bg-[#FAFBF9] hover:bg-gray-100 text-[#454840] border border-[#E5E8E2]"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: محتوى الرسالة والمتغيرات [1:24243] */}
+          <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#F3F4F6]">
+              <div>
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-[#4b5940]" />
-                  <h2 className="text-base font-bold text-[#181d17]">نص الرسالة الأساسي (Body) *</h2>
+                  <MessageSquare className="w-5 h-5 text-[#4B5940]" />
+                  <h2 className="text-[16px] font-bold text-[#181D17]">محتوى الرسالة والمتغيرات</h2>
                 </div>
-                <span className="text-xs text-[#4b5940] font-semibold">يدعم الحقول الديناميكية</span>
+                <p className="text-xs text-[#75786F] mt-1">
+                  انقر فوق أي متغير لإدراجه فوراً في موضع المؤشر داخل نص القالب.
+                </p>
               </div>
 
-              {/* Variable Injection Buttons */}
-              <div>
-                <label className="block text-xs font-semibold text-[#181d17] mb-2">
-                  إدراج حقل ديناميكي سريع:
-                </label>
-                <div className="flex flex-wrap gap-1.5">
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-[#FAFBF9] text-[#454840] border border-[#EBEFE6]">
+                8 متغيرات مستخدمة
+              </span>
+            </div>
+
+            {/* 12 Available Dynamic Variables Box [1:24243] */}
+            <div className="bg-[#F1F5EB] rounded-[18px] p-4 space-y-3 border border-[#E5E8E2]/60">
+              <div className="flex items-center justify-between text-xs font-bold text-[#181D17]">
+                <div className="flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-[#4B5940]" />
+                  <span>المتغيرات الديناميكية المتاحة</span>
+                </div>
+                <span className="text-[11px] font-normal text-[#75786F]">12 متغير معتمد</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {availableVariables.map((varName) => (
+                  <button
+                    key={varName}
+                    type="button"
+                    onClick={() => insertVariable(varName)}
+                    className="px-2.5 py-1.5 rounded-[8px] bg-white hover:bg-[#FAFBF9] text-[#34422A] hover:text-[#181D17] text-[11px] font-medium border border-[#E5E8E2] shadow-2xs transition-all flex items-center justify-center gap-1 text-center cursor-pointer group"
+                    title={`إدراج {{${varName}}}`}
+                  >
+                    <span className="text-[#4B5940] group-hover:scale-110 transition-transform font-bold">+</span>
+                    <span>&#123;&#123;{varName}&#125;&#125;</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Textarea with Rich Formatting Toolbar */}
+            <div className="space-y-2">
+              {/* Toolbar */}
+              <div className="bg-[#FAFBF9] border border-[#E5E8E2] rounded-t-[12px] p-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => insertVariable("اسم العميل")}
-                    className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[11px] font-semibold text-gray-700 hover:text-[#34422a] transition-colors"
+                    onClick={() => applyFormatting("*")}
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 text-xs font-bold flex items-center justify-center text-[#181D17] transition-colors cursor-pointer"
+                    title="عريض (*نص*)"
                   >
-                    + اسم العميل
+                    B
                   </button>
                   <button
                     type="button"
-                    onClick={() => insertVariable("اسم العقار")}
-                    className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[11px] font-semibold text-gray-700 hover:text-[#34422a] transition-colors"
+                    onClick={() => applyFormatting("_")}
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 text-xs italic font-serif flex items-center justify-center text-[#181D17] transition-colors cursor-pointer"
+                    title="مائل (_نص_)"
                   >
-                    + اسم العقار
+                    I
                   </button>
                   <button
                     type="button"
-                    onClick={() => insertVariable("رقم الوحدة")}
-                    className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[11px] font-semibold text-gray-700 hover:text-[#34422a] transition-colors"
+                    onClick={() => applyFormatting("~")}
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 text-xs line-through flex items-center justify-center text-[#181D17] transition-colors cursor-pointer"
+                    title="مشطوب (~نص~)"
                   >
-                    + رقم الوحدة
+                    S
                   </button>
+                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
                   <button
                     type="button"
-                    onClick={() => insertVariable("تاريخ الوصول")}
-                    className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[11px] font-semibold text-gray-700 hover:text-[#34422a] transition-colors"
+                    onClick={() => insertVariable("رابط الموقع")}
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 flex items-center justify-center text-[#4B5940] transition-colors cursor-pointer"
+                    title="رابط الموقع"
                   >
-                    + تاريخ الوصول
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertVariable("تاريخ المغادرة")}
-                    className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[11px] font-semibold text-gray-700 hover:text-[#34422a] transition-colors"
-                  >
-                    + تاريخ المغادرة
+                    <MapPin className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => insertVariable("كود الدخول")}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800 transition-colors"
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 flex items-center justify-center text-[#4B5940] transition-colors cursor-pointer"
+                    title="كود الدخول"
                   >
-                    + كود الدخول الذكي
+                    <KeyRound className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => insertVariable("رابط الموقع")}
-                    className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-800 transition-colors"
+                    onClick={() => toast.info("تم تحسين صياغة الرسالة آلياً بواسطة محرك الذكاء الاصطناعي")}
+                    className="w-7 h-7 rounded-[6px] hover:bg-gray-200 flex items-center justify-center text-amber-600 transition-colors cursor-pointer"
+                    title="تحسين النص بالذكاء الاصطناعي"
                   >
-                    + رابط الموقع
+                    <Sparkles className="w-3.5 h-3.5" />
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleClearText}
+                  className="text-[11px] text-[#75786F] hover:text-red-600 px-2 py-1 rounded transition-colors cursor-pointer"
+                >
+                  مسح النص
+                </button>
               </div>
 
-              <div>
-                <textarea
-                  rows={8}
-                  value={messageBody}
-                  onChange={(e) => setMessageBody(e.target.value)}
-                  className="w-full p-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#4b5940] transition-colors leading-relaxed font-sans"
-                  placeholder="اكتب نص الرسالة هنا..."
-                  required
-                />
-              </div>
+              {/* Textarea */}
+              <textarea
+                ref={textareaRef}
+                value={messageBody}
+                onChange={(e) => setMessageBody(e.target.value)}
+                rows={8}
+                className="w-full p-4 rounded-b-[12px] border-x border-b border-[#E5E8E2] text-xs font-mono leading-relaxed text-[#181D17] focus:outline-none focus:border-[#4B5940] transition-colors resize-y"
+                placeholder="اكتب نص الرسالة هنا..."
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-[#181d17] mb-1.5">
-                  تذييل الرسالة (Footer - اختياري)
-                </label>
-                <input
-                  type="text"
-                  value={footerText}
-                  onChange={(e) => setFooterText(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#4b5940] transition-colors text-gray-600"
-                  placeholder="مثال: أبراج لإدارة الأصول العقارية - خدمة العملاء 24/7"
-                />
+              {/* Footer info below textarea */}
+              <div className="flex items-center justify-between text-[11px] text-[#75786F] pt-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4B5940]" />
+                  <span>يدعم تنسيقات واتساب القياسية: *عريض* ، _مائل_ ، ~مشطوب~</span>
+                </div>
+                <span>{messageBody.length} / 1024 حرف</span>
               </div>
             </div>
 
-            {/* Section 4: Interactive Quick Action Buttons */}
-            <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
+            {/* Quick Actions (الأزرار التفاعلية المرفقة) [1:24243] */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#181D17]">
                 <div className="flex items-center gap-2">
-                  <Send className="w-5 h-5 text-[#4b5940]" />
-                  <h2 className="text-base font-bold text-[#181d17]">أزرار التفاعل السريع (Quick Actions)</h2>
+                  <Send className="w-4 h-4 text-[#4B5940]" />
+                  <span>الأزرار التفاعلية المرفقة (Quick Actions)</span>
                 </div>
-                <span className="text-xs text-gray-400">بحد أقصى زرين</span>
+                <span className="text-[11px] font-normal text-[#75786F]">ميزة معتمدة من Meta</span>
               </div>
 
-              <div className="space-y-3">
-                <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-700 text-xs font-bold flex items-center justify-center">
-                    1
+              <div className="p-3.5 rounded-[14px] bg-[#FAFBF9] border border-[#E5E8E2] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="px-2.5 py-1 rounded-[6px] text-[10.5px] font-bold bg-[#EAF1E8] text-[#34422A]">
+                    رابط تفاعلي
                   </span>
-                  <div className="flex-1">
-                    <label className="block text-[11px] font-semibold text-gray-500 mb-1">
-                      زر رابط URL (فتح الموقع)
-                    </label>
-                    <input
-                      type="text"
-                      value={button1Label}
-                      onChange={(e) => setButton1Label(e.target.value)}
-                      className="w-full h-9 px-3 rounded-lg border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#4b5940]"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={buttonLabel}
+                    onChange={(e) => setButtonLabel(e.target.value)}
+                    className="h-9 px-3 rounded-[8px] border border-[#E5E8E2] text-xs text-[#181D17] bg-white flex-1 focus:outline-none focus:border-[#4B5940]"
+                    placeholder="فتح الموقع في الخرائط"
+                  />
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-700 text-xs font-bold flex items-center justify-center">
-                    2
-                  </span>
-                  <div className="flex-1">
-                    <label className="block text-[11px] font-semibold text-gray-500 mb-1">
-                      زر رابط URL (دليل التعليمات)
-                    </label>
-                    <input
-                      type="text"
-                      value={button2Label}
-                      onChange={(e) => setButton2Label(e.target.value)}
-                      className="w-full h-9 px-3 rounded-lg border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#4b5940]"
-                    />
-                  </div>
-                </div>
+                <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-white text-[#454840] border border-[#E5E8E2]">
+                  تطبيق الواتساب
+                </span>
               </div>
             </div>
 
-            {/* Submit & Cancel */}
-            <div className="flex items-center gap-3">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 h-12 rounded-xl bg-[#4b5940] hover:bg-[#3d4934] text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors disabled:opacity-50"
-              >
-                <Check className="w-4 h-4" />
-                <span>{isSubmitting ? "جارٍ إرسال القالب للاعتماد..." : "اعتماد وحفظ القالب (Meta API)"}</span>
-              </button>
-
-              <Link
-                href="/automation/?tab=templates"
-                className="px-6 h-12 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold flex items-center justify-center transition-colors"
-              >
-                إلغاء
-              </Link>
+            {/* Meta Cloud API Notice Card [1:24243] */}
+            <div className="bg-[#F1F5EB] rounded-[16px] p-4 flex items-start gap-3 border border-[#E5E8E2]/60">
+              <ShieldCheck className="w-5 h-5 text-[#4B5940] shrink-0 mt-0.5" />
+              <div className="space-y-1 text-xs text-[#454840]">
+                <div className="font-bold text-[#181D17]">تنويه اعتماد Meta Cloud API المباشر</div>
+                <p className="leading-relaxed text-[11.5px]">
+                  يخضع محتوى القالب لفحص الامتثال التلقائي الفوري لسياسات المراسلة للأعمال التجارية. تضمن المنصة ربط المتغيرات بسياق المعاملة التشغيلية لمنع تصنيف الرسائل كترويجية.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Left Column: Live Realistic WhatsApp Smartphone Mockup (5 Cols) [1:24708] */}
-          <div className="lg:col-span-5 sticky top-24">
-            <div className="bg-[#111b21] rounded-[36px] p-3 shadow-2xl border-4 border-gray-800 overflow-hidden text-right">
-              {/* Phone Speaker Notch Area */}
-              <div className="pt-2 pb-3 px-6 flex items-center justify-between text-gray-400 text-[10px]">
-                <div className="flex items-center gap-1">
-                  <span>94%</span>
-                  <div className="w-4 h-2 border border-gray-400 rounded-2xs flex items-center p-0.5">
-                    <div className="w-full h-full bg-gray-400" />
-                  </div>
-                </div>
-                <div className="w-16 h-3 bg-black rounded-full" />
-                <span>09:41</span>
-              </div>
+          {/* Section 3: إعدادات الحالة والحوكمة [1:24243] */}
+          <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm space-y-5">
+            <div className="flex items-center gap-2 pb-3.5 border-b border-[#F3F4F6]">
+              <SlidersHorizontal className="w-5 h-5 text-[#4B5940]" />
+              <h2 className="text-[16px] font-bold text-[#181D17]">إعدادات الحالة والحوكمة</h2>
+            </div>
 
-              {/* WhatsApp App Header */}
-              <div className="bg-[#202c33] px-4 py-3 rounded-t-2xl flex items-center justify-between border-b border-gray-700/50">
-                <div className="flex items-center gap-3 text-gray-300">
-                  <span className="text-xs">⋮</span>
-                  <span className="text-xs">📞</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div>
-                    <div className="text-xs font-bold text-white flex items-center gap-1 justify-end">
-                      <span>أبراج للضيافة</span>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                    </div>
-                    <div className="text-[10px] text-emerald-400">حساب أعمال موثّق</div>
+            {/* 3 Radio Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Card 1: تفعيل فوري */}
+              <div
+                onClick={() => setGovernanceStatus("active")}
+                className={`p-4 rounded-[16px] border transition-all cursor-pointer space-y-2 ${
+                  governanceStatus === "active"
+                    ? "bg-[#F1F5EB] border-[#4B5940] shadow-2xs ring-1 ring-[#4B5940]"
+                    : "bg-[#FAFBF9] border-[#E5E8E2] hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    governanceStatus === "active" ? "border-[#4B5940] bg-[#4B5940]" : "border-gray-400"
+                  }`}>
+                    {governanceStatus === "active" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#34422a] flex items-center justify-center text-white text-xs font-bold">
-                    أ
-                  </div>
-                </div>
-              </div>
 
-              {/* WhatsApp Chat Body */}
-              <div className="bg-[#efeae2] p-4 min-h-[460px] flex flex-col justify-between space-y-3">
-                {/* Date separator */}
-                <div className="text-center">
-                  <span className="px-3 py-1 rounded-full bg-white/90 text-gray-600 text-[10px] font-semibold shadow-xs">
-                    اليوم
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#D8E8CB] text-[#34422A] flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#34422A]" />
+                    <span>مفعلة</span>
                   </span>
                 </div>
 
-                {/* Message Bubble */}
-                <div className="bg-[#e7ffdb] rounded-2xl rounded-tr-none p-3.5 shadow-sm border border-[#d6f0c8] space-y-2 text-right">
-                  {/* Header text if enabled */}
-                  {headerType === "text" && headerText && (
-                    <div className="text-xs font-bold text-[#181d17] pb-1 border-b border-[#cde8bd]">
-                      {headerText}
-                    </div>
-                  )}
+                <div className="font-bold text-xs text-[#181D17]">تفعيل فوري</div>
+                <p className="text-[11px] text-[#75786F] leading-relaxed">
+                  يصبح القالب متاحاً فوراً لمحركات الأتمتة والرسائل اللحظية.
+                </p>
+              </div>
 
-                  {/* Body Text */}
-                  <div className="text-xs text-[#181d17] leading-relaxed whitespace-pre-line">
-                    {previewBodyFormatted}
+              {/* Card 2: حفظ كمسودة */}
+              <div
+                onClick={() => setGovernanceStatus("draft")}
+                className={`p-4 rounded-[16px] border transition-all cursor-pointer space-y-2 ${
+                  governanceStatus === "draft"
+                    ? "bg-[#F1F5EB] border-[#4B5940] shadow-2xs ring-1 ring-[#4B5940]"
+                    : "bg-[#FAFBF9] border-[#E5E8E2] hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    governanceStatus === "draft" ? "border-[#4B5940] bg-[#4B5940]" : "border-gray-400"
+                  }`}>
+                    {governanceStatus === "draft" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
 
-                  {/* Footer Text */}
-                  {footerText && (
-                    <div className="text-[10px] text-gray-500 pt-1 border-t border-[#cde8bd]">
-                      {footerText}
-                    </div>
-                  )}
-
-                  {/* Message Time and Read ticks */}
-                  <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400 font-mono pt-1">
-                    <span>14:32</span>
-                    <CheckCheck className="w-3 h-3 text-blue-500" />
-                  </div>
-
-                  {/* Buttons */}
-                  {(button1Label || button2Label) && (
-                    <div className="pt-2 border-t border-[#cde8bd] space-y-1">
-                      {button1Label && (
-                        <div className="w-full py-1.5 px-3 rounded-lg bg-white text-blue-600 text-[11px] font-semibold flex items-center justify-center gap-1 shadow-2xs">
-                          <span>{button1Label}</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </div>
-                      )}
-                      {button2Label && (
-                        <div className="w-full py-1.5 px-3 rounded-lg bg-white text-blue-600 text-[11px] font-semibold flex items-center justify-center gap-1 shadow-2xs">
-                          <span>{button2Label}</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#FAFBF9] text-[#75786F] border border-[#E5E8E2] flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#75786F]" />
+                    <span>مسودة</span>
+                  </span>
                 </div>
 
-                {/* Bottom interactive note */}
-                <div className="p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-white/60 text-center">
-                  <p className="text-[11px] text-gray-600">
-                    معاينة حية دقيقة: تتغير محتويات الهاتف لحظياً مع كتابتك للنص والمتغيرات.
-                  </p>
+                <div className="font-bold text-xs text-[#181D17]">حفظ كمسودة</div>
+                <p className="text-[11px] text-[#75786F] leading-relaxed">
+                  يُحفظ القالب للتعديل لاحقاً دون نشره في خطوط الأتمتة المباشرة.
+                </p>
+              </div>
+
+              {/* Card 3: إيقاف مؤقت */}
+              <div
+                onClick={() => setGovernanceStatus("paused")}
+                className={`p-4 rounded-[16px] border transition-all cursor-pointer space-y-2 ${
+                  governanceStatus === "paused"
+                    ? "bg-[#F1F5EB] border-[#4B5940] shadow-2xs ring-1 ring-[#4B5940]"
+                    : "bg-[#FAFBF9] border-[#E5E8E2] hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    governanceStatus === "paused" ? "border-[#4B5940] bg-[#4B5940]" : "border-gray-400"
+                  }`}>
+                    {governanceStatus === "paused" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#E5EAE0] text-[#75786F] flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#75786F]" />
+                    <span>متوقفة</span>
+                  </span>
+                </div>
+
+                <div className="font-bold text-xs text-[#181D17]">إيقاف مؤقت</div>
+                <p className="text-[11px] text-[#75786F] leading-relaxed">
+                  إيقاف الإرسال التلقائي للقالب مع الاحتفاظ ببياناته وإحصاءاته.
+                </p>
+              </div>
+            </div>
+
+            {/* Global platform application checkbox */}
+            <div className="p-4 rounded-[16px] bg-[#F1F5EB] border border-[#E5E8E2]/60 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Building2 className="w-5 h-5 text-[#4B5940] shrink-0" />
+                <div>
+                  <div className="font-bold text-xs text-[#181D17]">
+                    تطبيق على جميع العقارات المشتركة في المنصة
+                  </div>
+                  <div className="text-[11px] text-[#75786F] mt-0.5">
+                    عند التفعيل، سيكون هذا القالب الافتراضي لكافة الأصول العقارية المدارة آلياً.
+                  </div>
                 </div>
               </div>
+
+              <input
+                type="checkbox"
+                checked={applyGlobally}
+                onChange={(e) => setApplyGlobally(e.target.checked)}
+                className="w-5 h-5 rounded accent-[#34422A] cursor-pointer"
+              />
             </div>
           </div>
         </div>
-      </form>
 
-      {/* Preview Modal */}
-      {previewModalOpen && (
-        <PreviewTemplateModal
-          isOpen={previewModalOpen}
-          onClose={() => setPreviewModalOpen(false)}
-          template={{
-            id: templateCode,
-            templateCode,
-            title: templateName,
-            category: category as any,
-            categoryLabel: "الحجوزات",
-            triggerLabel: "عند إنشاء حجز مؤكد",
-            language,
-            variables: ["{guest_name}", "{property_name}"],
-            status: "active",
-            statusLabel: "مفعلة",
-            lastModifiedDate: "اليوم",
-            lastModifiedAuthor: "م. طارق العسيري",
-            content: messageBody,
-          }}
-        />
-      )}
+        {/* Left Column: Live Realistic Smartphone Mockup (4 Cols) [1:24243] */}
+        <div className="lg:col-span-4 sticky top-6 space-y-2.5">
+          {/* Header above smartphone */}
+          <div className="flex items-center justify-between px-1">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D8E8CB] text-[#34422A]">
+              بيانات تجريبية
+            </span>
+
+            <div className="flex items-center gap-1.5 font-bold text-xs text-[#181D17]">
+              <span>المعاينة الحية التفاعلية</span>
+              <Smartphone className="w-4 h-4 text-[#4B5940]" />
+            </div>
+          </div>
+
+          {/* Smartphone Frame [1:24243] */}
+          <div className="bg-[#111B21] rounded-[44px] p-3 shadow-2xl border-[7px] border-[#1E231C] overflow-hidden text-right">
+            {/* Phone Top Notch / Status Bar */}
+            <div className="pt-1.5 pb-2 px-5 flex items-center justify-between text-gray-400 text-[10px] font-mono">
+              <div className="flex items-center gap-1">
+                <span>94%</span>
+                <div className="w-3.5 h-2 border border-gray-400 rounded-2xs flex items-center p-0.5">
+                  <div className="w-full h-full bg-gray-400" />
+                </div>
+              </div>
+              <div className="w-14 h-2.5 bg-black rounded-full" />
+              <span>09:30</span>
+            </div>
+
+            {/* WhatsApp App Bar */}
+            <div className="bg-[#1F2C34] px-3 py-2.5 rounded-t-[20px] flex items-center justify-between border-b border-gray-700/50">
+              <div className="flex items-center gap-2.5 text-gray-300">
+                <MoreVertical className="w-3.5 h-3.5 cursor-pointer" />
+                <Phone className="w-3.5 h-3.5 cursor-pointer" />
+                <Video className="w-3.5 h-3.5 cursor-pointer" />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div>
+                  <div className="text-[11px] font-bold text-white flex items-center gap-1 justify-end">
+                    <span>أبراج لإدارة الأصول</span>
+                    <BadgeCheck className="w-3 h-3 text-[#3E8A5A] fill-[#3E8A5A]/20" />
+                  </div>
+                  <div className="text-[9.5px] text-[#3E8A5A]">حساب أعمال رسمي موثّق</div>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-[#34422A] flex items-center justify-center text-white text-[10px] font-bold">
+                  <Building2 className="w-3.5 h-3.5 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* WhatsApp Chat Body */}
+            <div className="bg-[#EFECE6] p-3.5 min-h-[440px] flex flex-col justify-between space-y-3">
+              {/* Date Badge */}
+              <div className="text-center">
+                <span className="px-3 py-0.5 rounded-full bg-white/90 text-[#75786F] text-[10px] font-semibold shadow-2xs">
+                  اليوم
+                </span>
+              </div>
+
+              {/* Chat Message Bubble */}
+              <div className="bg-[#E7FFDB] rounded-[16px] rounded-tr-none p-3 shadow-xs border border-[#D5ECC9] space-y-1.5 text-right">
+                <div className="text-[11.5px] text-[#181D17] leading-relaxed whitespace-pre-line font-cairo">
+                  {previewFormattedText}
+                </div>
+
+                {/* Timestamp and Read Status */}
+                <div className="flex items-center justify-start gap-1 text-[9.5px] text-[#75786F] pt-1">
+                  <span>09:30 ص</span>
+                  <CheckCheck className="w-3 h-3 text-[#53BDEB]" />
+                </div>
+              </div>
+
+              {/* Action Button Preview */}
+              {buttonLabel && (
+                <div className="w-full py-2 px-3 rounded-[10px] bg-white text-[#181D17] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs border border-[#E5E8E2]">
+                  <MapPin className="w-3 h-3 text-[#4B5940]" />
+                  <span>{buttonLabel}</span>
+                </div>
+              )}
+
+              {/* End-to-end Encrypted Notice */}
+              <div className="flex items-center justify-center gap-1 text-[9.5px] text-[#75786F]">
+                <Lock className="w-3 h-3" />
+                <span>محادثة مشفرة بالكامل بين الطرفين</span>
+              </div>
+
+              {/* Simulated Input Bar */}
+              <div className="flex items-center gap-2 pt-1">
+                <div className="w-8 h-8 rounded-full bg-[#00A884] flex items-center justify-center text-white shrink-0">
+                  <Send className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[10px] text-[#75786F] flex items-center justify-between border border-[#E5E8E2]">
+                  <Mic className="w-3.5 h-3.5 text-[#75786F]" />
+                  <span>الرسائل التلقائية مفعلة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Caption below phone */}
+          <p className="text-[11px] text-[#75786F] text-center leading-relaxed px-2">
+            معاينة افتراضية للبيانات المستبدلة تلقائياً عند الإرسال الفعلي للضيف عبر خوادم برّاق.
+          </p>
+        </div>
+      </div>
+
+      {/* Sticky Bottom Actions Bar [1:24243] */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E8E2] px-6 py-3.5 shadow-lg">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Status Telemetry */}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+            <div>
+              <span className="font-bold text-[#181D17]">
+                جاهز للحفظ والاعتماد في محرك الأتمتة المركزي
+              </span>
+              <span className="text-[#75786F] ms-2 text-[11px]">
+                آخر فحص للامتثال: قبل لحظات
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Link
+              href="/automation/?tab=templates"
+              className="px-5 py-2.5 rounded-[12px] bg-white hover:bg-gray-50 border border-[#E5E8E2] text-[#181D17] text-xs font-semibold transition-colors cursor-pointer"
+            >
+              إلغاء
+            </Link>
+
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleSave("draft")}
+              className="px-5 py-2.5 rounded-[12px] bg-[#EAF1E8] hover:bg-[#DEE8DC] text-[#34422A] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+            >
+              حفظ كمسودة
+            </button>
+
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => handleSave("active")}
+              className="px-5 py-2.5 rounded-[12px] bg-[#34422A] hover:bg-[#2B3723] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Check className="w-4 h-4" />
+              <span>{isSubmitting ? "جارٍ الحفظ والاعتماد..." : "حفظ القالب"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
