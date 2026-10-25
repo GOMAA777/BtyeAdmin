@@ -233,7 +233,7 @@ export function FullOperationsLogView({ unitId: propUnitId }: FullOperationsLogV
       {/* 4. Operations Log Core Container (Figma 1:20906) */}
       <div className="bg-white rounded-[16px] p-6 border border-[#EBEBEB] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] shadow-xs space-y-6">
         {/* Category Tabs Navigation (Figma 1:20907) */}
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="bg-[#f1f5eb] p-[6px] rounded-[12px] flex items-center gap-[8px]">
             <button
               type="button"
@@ -357,7 +357,7 @@ export function FullOperationsLogView({ unitId: propUnitId }: FullOperationsLogV
         {/* Vertical Operational Timeline Section (Figma 1:20953) */}
         <div className="relative pr-[24px] space-y-8">
           {/* Continuous Timeline Spine */}
-          <div className="absolute right-[23px] top-[24px] bottom-[24px] w-[2px] bg-[#dfe4db]" />
+          <div className="absolute right-[47px] top-[24px] bottom-[24px] w-[2px] bg-[#dfe4db]" />
 
           {/* TIMELINE GROUP 1: 18 سبتمبر 2026 (Cleaning Track) */}
           {(filterCategory === "all" || filterCategory === "cleaning") && (
