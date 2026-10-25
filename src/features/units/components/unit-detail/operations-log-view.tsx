@@ -527,8 +527,8 @@ export function OperationsLogView({
 
       {/* 4. CHRONOLOGICAL AUDIT TIMELINE LAYOUT (Figma Node 1:16060) */}
       <div className="relative space-y-6 pt-2">
-        {/* Continuous Vertical Guide Line behind icons */}
-        <div className="absolute end-[23px] top-[24px] bottom-[24px] w-[2px] bg-[#DFE4DB] hidden sm:block pointer-events-none" />
+        {/* Continuous Vertical Guide Line behind icons on the right in RTL */}
+        <div className="absolute start-[23px] top-[24px] bottom-[24px] w-[2px] bg-[#DFE4DB] hidden sm:block pointer-events-none" />
 
         {filteredEvents.length === 0 ? (
           <div className="bg-white rounded-[16px] p-12 text-center border border-[#E5E8E2]">
@@ -557,7 +557,31 @@ export function OperationsLogView({
               key={evt.id}
               className="flex items-start gap-4 relative w-full group"
             >
-              {/* Event Card Container */}
+              {/* 1. Timeline Node Icon (On the Right in RTL) */}
+              <div
+                className={`${evt.nodeBg} drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] size-[48px] flex items-center justify-center shrink-0 z-10`}
+              >
+                {evt.nodeIconType === "booking" && (
+                  <CalendarCheck className="w-5 h-5 text-[#34422A]" />
+                )}
+                {evt.nodeIconType === "price" && (
+                  <Tag className="w-5 h-5 text-[#34422A]" />
+                )}
+                {evt.nodeIconType === "lock" && (
+                  <KeyRound className="w-5 h-5 text-[#171D18]" />
+                )}
+                {evt.nodeIconType === "amenities" && (
+                  <Building2 className="w-5 h-5 text-[#34422A]" />
+                )}
+                {evt.nodeIconType === "weekend" && (
+                  <Percent className="w-5 h-5 text-[#34422A]" />
+                )}
+                {evt.nodeIconType === "creation" && (
+                  <Sparkles className="w-5 h-5 text-white" />
+                )}
+              </div>
+
+              {/* 2. Event Card Container (After icon, to the Left in RTL) */}
               <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#EEF2E6] rounded-[16px] p-5 sm:p-6 flex-1 space-y-4">
                 {/* Header row */}
                 <div className="border-b border-[#F1F5EB] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -646,30 +670,6 @@ export function OperationsLogView({
                     <span>{evt.hash}</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Timeline Node Icon (Centered on vertical guide line) */}
-              <div
-                className={`${evt.nodeBg} drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] size-[48px] flex items-center justify-center shrink-0 z-10`}
-              >
-                {evt.nodeIconType === "booking" && (
-                  <CalendarCheck className="w-5 h-5 text-[#34422A]" />
-                )}
-                {evt.nodeIconType === "price" && (
-                  <Tag className="w-5 h-5 text-[#34422A]" />
-                )}
-                {evt.nodeIconType === "lock" && (
-                  <KeyRound className="w-5 h-5 text-[#171D18]" />
-                )}
-                {evt.nodeIconType === "amenities" && (
-                  <Building2 className="w-5 h-5 text-[#34422A]" />
-                )}
-                {evt.nodeIconType === "weekend" && (
-                  <Percent className="w-5 h-5 text-[#34422A]" />
-                )}
-                {evt.nodeIconType === "creation" && (
-                  <Sparkles className="w-5 h-5 text-white" />
-                )}
               </div>
             </div>
           ))
