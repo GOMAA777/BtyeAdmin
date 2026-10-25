@@ -91,13 +91,21 @@ export function UnitSidebarCards({
         </div>
 
         {/* Action Button: عرض سجل العقار بالكامل */}
-        <Link
-          href={`/properties/${propertyId}/`}
+        <button
+          type="button"
+          onClick={() => {
+            if (onOpenOperationsLog) {
+              onOpenOperationsLog();
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }
+          }}
           className="bg-[#E5EAE0] hover:bg-[#D8E0D2] rounded-[12px] px-4 py-2.5 flex items-center justify-center gap-2 font-bold text-[#181D17] text-[12px] leading-[18px] w-full transition-colors cursor-pointer select-none"
         >
           <span>عرض سجل العقار بالكامل</span>
           <i className="lucide-icon icon-external-link size-[13.5px] shrink-0" />
-        </Link>
+        </button>
       </div>
 
       {/* 2. Property Owner Card (مالك العقار المعتمد) */}

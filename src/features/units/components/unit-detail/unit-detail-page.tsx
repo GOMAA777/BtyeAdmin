@@ -16,18 +16,25 @@ import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
 
 interface UnitDetailPageProps {
   unitId?: string;
+  initialShowOperationsLog?: boolean;
 }
 
-export function UnitDetailPage({ unitId = "1" }: UnitDetailPageProps) {
+export function UnitDetailPage({
+  unitId = "1",
+  initialShowOperationsLog = false,
+}: UnitDetailPageProps) {
   // Find matching unit or fallback to Unit 204
   const unit = initialUnits.find((u) => u.id === unitId || u.unitNumber === unitId) ?? initialUnits[0];
-
-  useSetBreadcrumbTitle(`وحدة ${unit.unitNumber}`, `#${unit.unitNumber}`);
 
   // Interactive modal states
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
   const [showCodeModal, setShowCodeModal] = useState(false);
-  const [showOperationsLog, setShowOperationsLog] = useState(false);
+  const [showOperationsLog, setShowOperationsLog] = useState(initialShowOperationsLog);
+
+  useSetBreadcrumbTitle(
+    showOperationsLog ? `سجل نشاط الوحدة ${unit.unitNumber}` : `وحدة ${unit.unitNumber}`,
+    `#${unit.unitNumber}`
+  );
 
   // If Operations Log view is active [1:15620]
   if (showOperationsLog) {
