@@ -27,6 +27,21 @@ import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { cn } from "@/lib/utils";
 import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+
+const PROPERTY_TYPE_OPTIONS = [
+  "عمارة سكنية تجارية",
+  "مجمع سكني",
+  "أبراج سكنية",
+  "فيلا استثمارية",
+];
+
+const CITY_OPTIONS = [
+  "الرياض",
+  "جدة",
+  "الدمام",
+  "الخبر",
+];
 
 interface AddPropertyFormProps {
   onSuccess?: () => void;
@@ -78,7 +93,7 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 lg:space-y-10 pb-36 animate-in fade-in duration-300">
+    <form onSubmit={handleSubmit} className="space-y-8 lg:space-y-10 animate-in fade-in duration-300">
       {/* 1. Page Header matching Screenshot 1 */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#E2E6DC] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-2xs">
         {/* Right side in RTL: Title & Subtitle */}
@@ -255,19 +270,13 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
                 <label className="block text-xs font-bold text-[#172115] text-right">
                   نوع العقار<span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <select
-                    value={propertyType}
-                    onChange={(e) => setPropertyType(e.target.value)}
-                    className="w-full bg-[#F1F5EB] border border-[#E0E5D8]/70 focus:bg-white focus:border-[#CCD5C5] rounded-2xl h-12 pr-4 pl-10 text-xs text-[#172115] font-semibold appearance-none focus:outline-none transition-all cursor-pointer text-right"
-                  >
-                    <option value="عمارة سكنية تجارية">عمارة سكنية تجارية</option>
-                    <option value="مجمع سكني">مجمع سكني</option>
-                    <option value="أبراج سكنية">أبراج سكنية</option>
-                    <option value="فيلا استثمارية">فيلا استثمارية</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#7D8A78] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={propertyType}
+                  onChange={setPropertyType}
+                  options={PROPERTY_TYPE_OPTIONS}
+                  placeholder="اختر نوع العقار..."
+                  ariaLabel="نوع العقار"
+                />
               </div>
 
               {/* المدينة on the left in RTL */}
@@ -275,19 +284,13 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
                 <label className="block text-xs font-bold text-[#172115] text-right">
                   المدينة<span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <select
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-[#F1F5EB] border border-[#E0E5D8]/70 focus:bg-white focus:border-[#CCD5C5] rounded-2xl h-12 pr-4 pl-10 text-xs text-[#172115] font-semibold appearance-none focus:outline-none transition-all cursor-pointer text-right"
-                  >
-                    <option value="الرياض">الرياض</option>
-                    <option value="جدة">جدة</option>
-                    <option value="الدمام">الدمام</option>
-                    <option value="الخبر">الخبر</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#7D8A78] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={city}
+                  onChange={setCity}
+                  options={CITY_OPTIONS}
+                  placeholder="اختر المدينة..."
+                  ariaLabel="المدينة"
+                />
               </div>
             </div>
 
