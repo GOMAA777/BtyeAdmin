@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Sparkles, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { OperationTask } from "../types";
@@ -14,6 +15,7 @@ interface OperationsTableProps {
 }
 
 export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
+  const router = useRouter();
   const [assignTask, setAssignTask] = useState<OperationTask | null>(null);
   const getStatusBadge = (status: OperationTask["status"], label: string) => {
     switch (status) {
@@ -82,7 +84,13 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
                 return (
                   <tr
                     key={task.id}
-                    onClick={() => onSelectTask?.(task)}
+                    onClick={() => {
+                      if (onSelectTask) {
+                        onSelectTask(task);
+                      } else {
+                        router.push(detailHref);
+                      }
+                    }}
                     className="hover:bg-[#F9FAF8] transition-colors cursor-pointer group"
                   >
                     {/* نوع العملية */}
