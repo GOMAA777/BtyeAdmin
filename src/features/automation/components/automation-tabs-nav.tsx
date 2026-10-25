@@ -1,6 +1,8 @@
 "use client";
 
 import { Sliders, MessageSquare, History } from "lucide-react";
+import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
 import { AutomationMainTab } from "../types";
 
 interface AutomationTabsNavProps {
@@ -21,6 +23,7 @@ export function AutomationTabsNav({
   counts = { rules: 12, templates: 8, logs: 1420 },
 }: AutomationTabsNavProps) {
   const selectedTab = activeTab || currentTab || "rules";
+
   const tabs = [
     {
       id: "rules" as const,
@@ -43,9 +46,9 @@ export function AutomationTabsNav({
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-2 border border-[#DCE2D7] shadow-xs flex items-center justify-start gap-2 overflow-x-auto no-scrollbar font-cairo">
+    <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[6px] flex items-center gap-[8px] font-cairo overflow-x-auto w-fit select-none">
       {tabs.map((tab) => {
-        const isSelected = selectedTab === tab.id;
+        const isActive = selectedTab === tab.id;
         const Icon = tab.icon;
 
         return (
@@ -53,22 +56,39 @@ export function AutomationTabsNav({
             key={tab.id}
             type="button"
             onClick={() => onTabChange?.(tab.id)}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs md:text-sm font-semibold transition-all shrink-0 cursor-pointer select-none ${
-              isSelected
-                ? "bg-[#EBF0E6] text-[#4B5940] font-bold border border-[#CCD4C6]/60 shadow-xs"
-                : "text-[#687163] hover:text-[#252A24] hover:bg-[#EFF2EB] border border-transparent"
-            }`}
+            className={cn(
+              "relative px-[16px] py-[10px] rounded-[12px] flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors cursor-pointer whitespace-nowrap",
+              isActive
+                ? "font-bold text-[#34422a]"
+                : "font-semibold text-[#454840] hover:text-[#181d17] hover:bg-[#f6fbf1]/50"
+            )}
           >
-            <Icon className={`w-4 h-4 ${isSelected ? "text-[#4B5940]" : "text-[#687163]"}`} />
-            <span>{tab.label}</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                isSelected
-                  ? "bg-white text-[#4B5940] border border-[#CCD4C6]/60"
-                  : "bg-[#EFF2EB] text-[#687163]"
-              }`}
-            >
-              {tab.badge}
+            {isActive && (
+              <motion.div
+                layoutId="automationNavActiveIndicator"
+                className="absolute inset-0 bg-[#f6fbf1] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[12px] z-0"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+
+            <span className="relative z-10 flex items-center gap-[8px]">
+              <Icon
+                className={cn(
+                  "size-[16px] transition-colors",
+                  isActive ? "text-[#34422a]" : "text-[#454840]"
+                )}
+              />
+              <span>{tab.label}</span>
+              <span
+                className={cn(
+                  "px-[8px] py-[2px] rounded-full text-[11px] leading-[16px] transition-colors",
+                  isActive
+                    ? "bg-[#d8e8cb] text-[#5a6952] font-semibold"
+                    : "bg-[#dfe4db] text-[#454840] font-medium"
+                )}
+              >
+                {tab.badge}
+              </span>
             </span>
           </button>
         );

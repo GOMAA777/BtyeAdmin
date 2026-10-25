@@ -153,7 +153,7 @@ export const initialAutomationRules: AutomationRule[] = [
   {
     id: "AUT-108",
     ruleCode: "AUT-108",
-    title: "تأكيد الحجز الجديد (بعد المغادرة)",
+    title: "تأكيد الحجز الجديد",
     description: "إرسال تفاصيل الإيصال الفوري وتأكيد الموعد للنزيل فور الاعتماد",
     category: "confirm_checkout",
     categoryLabel: "واتساب وحجوزات",

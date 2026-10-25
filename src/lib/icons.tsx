@@ -259,3 +259,76 @@ export const Car: LucideIcon = ({ className, size, color, style }) => {
 // Common aliases used in components
 export const CalendarIcon = Calendar;
 export const CalendarCheck2 = CalendarCheck;
+
+export const Ban: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m4.9 4.9 14.2 14.2" />
+    </svg>
+  );
+};
+
+export const BatteryLow: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <rect width="16" height="10" x="2" y="7" rx="2" ry="2" />
+      <line x1="22" x2="22" y1="11" y2="13" />
+      <line x1="6" x2="6" y1="11" y2="13" />
+    </svg>
+  );
+};
+
+export const GitBranch: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <line x1="6" x2="6" y1="3" y2="15" />
+      <circle cx="18" cy="6" r="3" />
+      <circle cx="6" cy="18" r="3" />
+      <path d="M18 9a9 9 0 0 1-9 9" />
+    </svg>
+  );
+};
+
