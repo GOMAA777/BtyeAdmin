@@ -21,7 +21,6 @@ export function useAutomationRulesManager(
   const [isPauseOpen, setIsPauseOpen] = useState(false);
   const [isActivateOpen, setIsActivateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   const filteredRules = useMemo(() => {
     return rules.filter((rule) => {
@@ -53,6 +52,16 @@ export function useAutomationRulesManager(
     } else {
       setIsActivateOpen(true);
     }
+  };
+
+  const handlePauseRule = (rule: AutomationRule) => {
+    setActiveRuleForModal(rule);
+    setIsPauseOpen(true);
+  };
+
+  const handleActivateRule = (rule: AutomationRule) => {
+    setActiveRuleForModal(rule);
+    setIsActivateOpen(true);
   };
 
   const handleDeleteRule = (rule: AutomationRule) => {
@@ -98,17 +107,17 @@ export function useAutomationRulesManager(
     isPauseOpen,
     isActivateOpen,
     isDeleteOpen,
-    openDropdownId,
     filteredRules,
     setSearchQuery,
     setStatusFilter,
     setIsEmptyPreview,
-    setOpenDropdownId,
     setIsPauseOpen,
     setIsActivateOpen,
     setIsDeleteOpen,
     handleExport,
     handleToggleStatus,
+    handlePauseRule,
+    handleActivateRule,
     handleDeleteRule,
     confirmPause,
     confirmActivate,

@@ -5,24 +5,16 @@ import {
   Plus,
   Download,
   Search,
-  MoreVertical,
   CheckCircle2,
   Clock,
-  Sparkles,
-  Wrench,
-  ShieldAlert,
   Send,
   Building2,
   ChevronLeft,
   ChevronRight,
   Share2,
   RotateCcw,
-  Eye,
-  Edit,
-  Pause,
-  Play,
-  Trash2,
 } from "lucide-react";
+import { AutomationRuleActionDropdown } from "./automation-rule-action-dropdown";
 import { AutomationMainTab } from "../../types";
 import { AutomationTabsNav } from "../automation-tabs-nav";
 import { PauseRuleModal } from "./modals/pause-rule-modal";
@@ -45,17 +37,17 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
     isPauseOpen,
     isActivateOpen,
     isDeleteOpen,
-    openDropdownId,
     filteredRules,
     setSearchQuery,
     setStatusFilter,
     setIsEmptyPreview,
-    setOpenDropdownId,
     setIsPauseOpen,
     setIsActivateOpen,
     setIsDeleteOpen,
     handleExport,
     handleToggleStatus,
+    handlePauseRule,
+    handleActivateRule,
     handleDeleteRule,
     confirmPause,
     confirmActivate,
@@ -198,8 +190,8 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
           </div>
 
           {/* 3. Rules Table */}
-          <div className="bg-white rounded-3xl border border-[#EBEBEB] shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="bg-white rounded-3xl border border-[#EBEBEB] shadow-sm">
+            <div className="overflow-x-auto overflow-y-hidden rounded-t-3xl">
               <table className="w-full text-right border-collapse">
                 <thead>
                   <tr className="border-b border-[#F3F4F6] text-xs font-medium text-[#6B7280] bg-[#FAFBF9]">
@@ -278,69 +270,15 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
                           </div>
                         </td>
 
-                        {/* Actions Menu */}
-                        <td className="py-4 px-4 text-center relative">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setOpenDropdownId(openDropdownId === rule.id ? null : rule.id)
-                            }
-                            className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors mx-auto"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-
-                          {openDropdownId === rule.id && (
-                            <div
-                              className="absolute left-4 top-12 z-30 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 p-1.5 text-right text-xs divide-y divide-gray-50"
-                              onClick={() => setOpenDropdownId(null)}
-                            >
-                              <div className="space-y-0.5 pb-1">
-                                <Link
-                                  href={`/automation/rules/${rule.id}/`}
-                                  className="w-full px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-50 text-gray-700"
-                                >
-                                  <Eye className="w-3.5 h-3.5 text-gray-400" />
-                                  <span>تفاصيل القاعدة</span>
-                                </Link>
-                                <Link
-                                  href={`/automation/rules/${rule.id}/edit/`}
-                                  className="w-full px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-50 text-gray-700"
-                                >
-                                  <Edit className="w-3.5 h-3.5 text-gray-400" />
-                                  <span>تعديل القاعدة</span>
-                                </Link>
-                              </div>
-
-                              <div className="space-y-0.5 pt-1">
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleStatus(rule)}
-                                  className="w-full px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-50 text-gray-700"
-                                >
-                                  {isPaused ? (
-                                    <>
-                                      <Play className="w-3.5 h-3.5 text-[#16A34A]" />
-                                      <span>تفعيل القاعدة</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Pause className="w-3.5 h-3.5 text-amber-600" />
-                                      <span>إيقاف القاعدة</span>
-                                    </>
-                                  )}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteRule(rule)}
-                                  className="w-full px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-red-50 text-red-600"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                  <span>حذف القاعدة</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                        {/* Actions Menu — exact Figma node 1:23723 implementation */}
+                        <td className="py-4 px-4 text-center whitespace-nowrap">
+                          <AutomationRuleActionDropdown
+                            rule={rule}
+                            onPause={handlePauseRule}
+                            onActivate={handleActivateRule}
+                            onDelete={handleDeleteRule}
+                            className="mx-auto"
+                          />
                         </td>
                       </tr>
                     );
