@@ -16,6 +16,7 @@ import { UnitSidebarCards } from "./unit-sidebar-cards";
 import { AccessCodeModal } from "./access-code-modal";
 import { ShowCodeModal } from "./show-code-modal";
 import { OperationsLogView } from "./operations-log-view";
+import { UnitOperationsLogView } from "./unit-operations-log-view";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
 
 interface UnitDetailPageProps {
@@ -49,24 +50,43 @@ export function UnitDetailPage({
   const isCleaning = currentStatus === "cleaning";
   const isMaintenance = currentStatus === "maintenance";
 
-  // Interactive modal states
+  // Interactive modal and subview states
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
   const [showCodeModal, setShowCodeModal] = useState(false);
-  const [showOperationsLog, setShowOperationsLog] = useState(initialShowOperationsLog);
+  const [activeSubView, setActiveSubView] = useState<"none" | "operations" | "activity">(
+    initialShowOperationsLog ? "operations" : "none"
+  );
 
   useSetBreadcrumbTitle(
-    showOperationsLog
+    activeSubView === "operations"
+      ? `سجل العمليات — وحدة ${unit.unitNumber}`
+      : activeSubView === "activity"
       ? `سجل نشاط الوحدة ${unit.unitNumber}`
       : `وحدة ${unit.unitNumber}`,
     `#${unit.unitNumber}`
   );
 
-  // If Operations Log view is active [1:15620]
-  if (showOperationsLog) {
+  // If Operations Log view (Figma 1:15457) is active
+  if (activeSubView === "operations") {
+    return (
+      <div className="space-y-6 pb-12" dir="rtl">
+        <UnitOperationsLogView
+          onBack={() => setActiveSubView("none")}
+          onViewDetails={() => setActiveSubView("activity")}
+          unitNumber={unit.unitNumber}
+          propertyName={unit.propertyName}
+          ownerName={unit.ownerName}
+        />
+      </div>
+    );
+  }
+
+  // If Activity Log view (Figma 1:15927) is active
+  if (activeSubView === "activity") {
     return (
       <div className="space-y-6 pb-12" dir="rtl">
         <OperationsLogView
-          onBack={() => setShowOperationsLog(false)}
+          onBack={() => setActiveSubView("operations")}
           unitNumber={unit.unitNumber}
           propertyName={unit.propertyName}
         />
@@ -94,7 +114,7 @@ export function UnitDetailPage({
         floor={unit.floor}
         iotStatus="متصل ونشط IoT"
         iotSubtitle="ربط القفل السحابي"
-        onOpenOperationsLog={() => setShowOperationsLog(true)}
+        onOpenOperationsLog={() => setActiveSubView("operations")}
         onOpenAccessCodeModal={() => setShowAccessCodeModal(true)}
       />
 
@@ -200,7 +220,7 @@ export function UnitDetailPage({
           {/* 6. ADMINISTRATIVE ACTIVITY TIMELINE CARD */}
           <UnitActivityTimelineCard
             variant={currentStatus}
-            onOpenOperationsLog={() => setShowOperationsLog(true)}
+            onOpenOperationsLog={() => setActiveSubView("activity")}
           />
         </div>
 
@@ -218,7 +238,7 @@ export function UnitDetailPage({
             ownerPropertiesCount="3 مجمعات عقارية"
             ownerPayoutRate="مباشر إلى الحساب البنكي"
             ownerId={unit.ownerId}
-            onOpenOperationsLog={() => setShowOperationsLog(true)}
+            onOpenOperationsLog={() => setActiveSubView("operations")}
           />
         </div>
       </div>

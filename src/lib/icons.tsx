@@ -209,6 +209,28 @@ export const Wrench = createIcon("icon-wrench", "Wrench");
 export const X = createIcon("icon-x", "X");
 export const XCircle = createIcon("icon-x-circle", "XCircle");
 export const Zap = createIcon("icon-zap", "Zap");
+export const Gauge: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="m12 14 4-4" />
+      <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+    </svg>
+  );
+};
 export const Car: LucideIcon = ({ className, size, color, style }) => {
   const customFontSize = typeof size === "number" ? `${size}px` : size;
   return (
