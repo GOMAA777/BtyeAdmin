@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackButton } from "@/components/shared/back-button";
 import { ArrowLeft } from "lucide-react";
 
 interface PropertyDetailHeaderProps {
@@ -27,13 +27,13 @@ export function PropertyDetailHeader({
       </div>
 
       <div className="flex items-center gap-3 self-start md:self-auto shrink-0 flex-wrap">
-        <Link
-          href={fallbackHref}
+        <BackButton
+          fallbackHref={fallbackHref}
           className="h-11 px-6 bg-[#F1F5EB] hover:bg-[#E5EBDD] text-[#181D17] rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-colors cursor-pointer select-none"
         >
           <span>العودة إلى العقارات</span>
           <ArrowLeft className="w-4 h-4 text-[#181D17]" />
-        </Link>
+        </BackButton>
       </div>
     </div>
   );

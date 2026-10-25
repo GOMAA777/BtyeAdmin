@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/back-button";
 import {
   ArrowRight,
   Sliders,
@@ -90,12 +91,10 @@ export function EditRuleView({ rule }: EditRuleViewProps) {
       {/* Top Header Card */}
       <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link
-            href={`/automation/rules/${ruleCode}/`}
+          <BackButton
+            fallbackHref={`/automation/rules/${ruleCode}/`}
             className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-[#181d17]">تعديل قاعدة الأتمتة</h1>

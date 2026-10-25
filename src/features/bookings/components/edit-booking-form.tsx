@@ -96,7 +96,18 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
   };
 
   const handleCancel = () => {
-    router.back();
+    if (typeof window !== "undefined") {
+      const depth = parseInt(sessionStorage.getItem("hb:app-nav-depth") || "0", 10);
+      const isSameOriginReferrer = Boolean(
+        document.referrer && document.referrer.startsWith(window.location.origin)
+      );
+
+      if (window.history.length > 1 && (depth > 0 || isSameOriginReferrer)) {
+        router.back();
+        return;
+      }
+    }
+    router.push(`/bookings/${bookingId}/`);
   };
 
   const copyBookingCode = () => {

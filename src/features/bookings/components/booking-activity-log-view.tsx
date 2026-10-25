@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/back-button";
 import { resolveAssetUrl } from "@/lib/constants";
 import {
   ArrowLeft,
@@ -139,14 +140,15 @@ export function BookingActivityLogView({
         {/* Action Buttons (Figma Node 1:11890) */}
         <div className="flex items-center gap-3 shrink-0">
           {/* Back Button (Node 1:11896) */}
-          <button
-            type="button"
-            onClick={() => router.back()}
+          <BackButton
+            fallbackHref={
+              summary.bookingCode ? `/bookings/${summary.bookingCode}/` : "/bookings/"
+            }
             className="bg-white hover:bg-[#F9FAF7] border border-[#E5E8E2] text-[#252A24] text-[14px] font-medium h-[42px] px-4 rounded-[12px] flex items-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-all cursor-pointer select-none active:scale-98"
           >
             <span>العودة</span>
             <ArrowLeft className="w-3.5 h-3.5 text-[#252A24]" />
-          </button>
+          </BackButton>
 
           {/* Export PDF Button (Node 1:11891) */}
           <button

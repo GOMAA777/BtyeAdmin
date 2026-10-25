@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { BackButton } from "@/components/shared/back-button";
 
 interface OperationRecord {
   id: string;
@@ -252,7 +253,7 @@ export function UnitOperationsLogView({
           </button>
 
           {/* Back to Unit Details */}
-          {onBack && (
+          {onBack ? (
             <button
               type="button"
               onClick={onBack}
@@ -261,6 +262,14 @@ export function UnitOperationsLogView({
               <span>العودة للوحدة</span>
               <ArrowRight className="w-3.5 h-3.5 shrink-0 text-[#252A24]" />
             </button>
+          ) : (
+            <BackButton
+              fallbackHref="/units/"
+              className="bg-white hover:bg-[#F6F8F4] border border-[#E5E8E2] text-[#252A24] rounded-[12px] h-[44px] px-4 text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer select-none"
+            >
+              <span>العودة للوحدة</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0 text-[#252A24]" />
+            </BackButton>
           )}
         </div>
       </div>

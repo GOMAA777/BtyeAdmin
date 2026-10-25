@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/back-button";
 import {
   Building2,
   Sliders,
@@ -79,12 +80,10 @@ export function CreateMaintenanceTicketView() {
       {/* Header */}
       <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm">
         <div className="flex items-center gap-3">
-          <Link
-            href="/operations/"
+          <BackButton
+            fallbackHref="/operations/"
             className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          />
           <div>
             <h1 className="text-2xl font-bold text-[#1F2937]">إنشاء بلاغ صيانة جديد</h1>
             <p className="text-xs text-[#6B7280] mt-1">
@@ -533,13 +532,13 @@ export function CreateMaintenanceTicketView() {
                 <span>إنشاء البلاغ وتثبيت الحالة</span>
               </button>
 
-              <Link
-                href="/operations/"
+              <BackButton
+                fallbackHref="/operations/"
                 className="w-full py-3 px-5 rounded-2xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>إلغاء والعودة لجدول البلاغات</span>
-              </Link>
+              </BackButton>
 
               <p className="text-[10px] text-center text-[#9CA3AF] leading-relaxed">
                 بالضغط على "إنشاء البلاغ"، يتم تفويض وتوثيق أمر العمل فورياً وفق السياسات الإجرائية.

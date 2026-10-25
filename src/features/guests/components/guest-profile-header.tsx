@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowLeft, FileText } from "lucide-react";
+import { BackButton } from "@/components/shared/back-button";
 import { toast } from "sonner";
 
 interface GuestProfileHeaderProps {
@@ -38,13 +38,13 @@ export function GuestProfileHeader({ guestName = "خالد العتيبي" }: Gu
         </button>
 
         {/* Back to Bookings Button */}
-        <Link
-          href="/bookings/"
+        <BackButton
+          fallbackHref="/bookings/"
           className="bg-[#4B5940] hover:bg-[#3D4B33] text-white h-[44px] px-6 rounded-[12px] text-[14px] font-semibold flex items-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-all cursor-pointer select-none active:scale-98"
         >
           <span>العودة إلى الحجوزات</span>
           <ArrowLeft className="w-3.5 h-3.5 text-white stroke-[2.2]" />
-        </Link>
+        </BackButton>
       </div>
     </div>
   );

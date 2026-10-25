@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
+import { BackButton } from "@/components/shared/back-button";
 import { MaintenanceStartModal } from "./maintenance-start-modal";
 
 interface MaintenanceDetailViewProps {
@@ -61,12 +62,10 @@ export function MaintenanceDetailView({ ticketId = "MT-2048" }: MaintenanceDetai
       <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/operations/"
+            <BackButton
+              fallbackHref="/operations/"
               className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            />
             <h1 className="text-2xl font-bold text-[#1F2937]">
               بلاغ صيانة {ticketId}
             </h1>

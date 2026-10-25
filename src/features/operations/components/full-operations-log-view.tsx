@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { BackButton } from "@/components/shared/back-button";
 import { OperationsAdvancedFilterDrawer } from "./operations-advanced-filter-drawer";
 import { OperationFilterState, initialOperationFilterState } from "../types";
 
@@ -64,12 +65,10 @@ export function FullOperationsLogView({ unitId = "204" }: FullOperationsLogViewP
       <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/operations/"
+            <BackButton
+              fallbackHref="/operations/"
               className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            />
             <h1 className="text-2xl font-bold text-[#1F2937]">
               سجل التشغيل — الوحدة {unitId}
             </h1>

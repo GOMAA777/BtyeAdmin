@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/back-button";
 import {
   ArrowLeft,
   FileDown,
@@ -134,16 +135,15 @@ export function PropertyActivityLogView({
         {/* Action Buttons */}
         <div className="flex items-center gap-[12px] shrink-0">
           {/* Back Button */}
-          <button
-            type="button"
-            onClick={() => router.back()}
+          <BackButton
+            fallbackHref={`/properties/${propertyId}/`}
             className="bg-white hover:bg-[#f6f8f4] border border-[#e5e8e2] rounded-[12px] px-[17px] py-[11px] flex items-center gap-[8px] transition-colors cursor-pointer select-none active:scale-[0.98]"
           >
             <span className="text-[#252a24] text-[14px] font-medium leading-[20px]">
               العودة
             </span>
             <ArrowLeft className="size-[14px] text-[#252a24]" />
-          </button>
+          </BackButton>
 
           {/* Export PDF Button */}
           <button
