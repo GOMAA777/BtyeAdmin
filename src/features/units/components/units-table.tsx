@@ -298,7 +298,13 @@ export function UnitsTable() {
 
                     {/* 7. الحالة */}
                     <td className="py-3 px-4 text-start">
-                      {renderStatusBadge(unit.status)}
+                      <Link
+                        href={`/units/${unit.id}/`}
+                        className="inline-flex cursor-pointer hover:opacity-85 transition-opacity"
+                        title={`عرض تفاصيل الوحدة (${unit.unitNumber})`}
+                      >
+                        {renderStatusBadge(unit.status)}
+                      </Link>
                     </td>
 
                     {/* 8. الحجز الحالي */}

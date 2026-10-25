@@ -25,7 +25,7 @@ export default function UnitRoutePage({ params }: PageProps) {
 
 async function UnitRouteContent({ params }: PageProps) {
   const { id } = await params;
-  return <UnitDetailPage unitId={id} />;
+  return <UnitDetailPage unitId={id} key={id} />;
 }
 
 function UnitDetailSkeleton() {

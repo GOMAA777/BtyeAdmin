@@ -31,10 +31,12 @@ export function UnitDetailPage({
   // Find matching unit or fallback to Unit 204
   const unit = initialUnits.find((u) => u.id === unitId || u.unitNumber === unitId) ?? initialUnits[0];
 
-  // Dynamic status: available (Figma 1:16492) vs occupied (Figma 1:14682)
-  const initialMode = statusOverride ?? (unit.status === "available" ? "available" : "occupied");
-  const [currentStatus, setCurrentStatus] = useState<"available" | "occupied">(initialMode);
-  const isAvailable = currentStatus === "available";
+  // Dynamic status: available (Figma 1:16492) vs occupied/unavailable (Figma 1:14682)
+  const isAvailable =
+    statusOverride !== undefined
+      ? statusOverride === "available"
+      : unit.status === "available";
+  const currentStatus: "available" | "occupied" = isAvailable ? "available" : "occupied";
 
   // Interactive modal states
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
@@ -61,49 +63,22 @@ export function UnitDetailPage({
 
   return (
     <div className="space-y-6 pb-12" dir="rtl">
-      {/* Visual State Preview Switcher (Allows seamless toggle between Available 1:16492 and Occupied 1:14682) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F1F5EB] border border-[#E2E6DC] rounded-[14px] p-2.5 px-4 text-xs">
-        <div className="flex items-center gap-2 text-[#454840]">
-          <span className="font-bold text-[#181D17]">معاينة نمط التصميم المعتمد من Figma:</span>
-          <span className="text-[#75786F]">
-            {isAvailable ? "تفاصيل الوحدة المتاحة (node-id: 1-16492)" : "تفاصيل الوحدة المشغولة (node-id: 1-14682)"}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 bg-white p-1 rounded-[10px] border border-[#E2E6DC] self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setCurrentStatus("available")}
-            className={cn(
-              "px-3 py-1 rounded-[8px] font-bold text-[11px] transition-colors cursor-pointer",
-              isAvailable
-                ? "bg-[#34422A] text-white shadow-xs"
-                : "text-[#75786F] hover:text-[#181D17]"
-            )}
-          >
-            متاحة للاستقبال (1-16492)
-          </button>
-          <button
-            type="button"
-            onClick={() => setCurrentStatus("occupied")}
-            className={cn(
-              "px-3 py-1 rounded-[8px] font-bold text-[11px] transition-colors cursor-pointer",
-              !isAvailable
-                ? "bg-[#34422A] text-white shadow-xs"
-                : "text-[#75786F] hover:text-[#181D17]"
-            )}
-          >
-            مشغولة - نزيل حالي (1-14682)
-          </button>
-        </div>
-      </div>
-
       {/* Top Hero Card with Unit Details */}
       <UnitHeroCard
         unitNumber={unit.unitNumber}
         status={currentStatus}
+        statusLabel={
+          isAvailable
+            ? "متاحة للاستقبال"
+            : unit.status === "cleaning"
+            ? "تحت التنظيف"
+            : unit.status === "maintenance"
+            ? "تحت الصيانة"
+            : "مشغولة (نزيل حالي)"
+        }
         propertyName={unit.propertyName}
         location="الرياض — حي العليا"
-        floor="الطابق الثاني"
+        floor={unit.floor}
         iotStatus="متصل ونشط IoT"
         iotSubtitle="ربط القفل السحابي"
         onOpenOperationsLog={() => setShowOperationsLog(true)}
@@ -123,11 +98,11 @@ export function UnitDetailPage({
           {/* Section: بيانات ومواصفات الوحدة */}
           <UnitSpecsCard
             unitNumber={unit.unitNumber}
-            unitType="استوديو فندقي"
-            floorLevel="الطابق الثاني (2)"
+            unitType={unit.type === "استوديو" ? "استوديو فندقي" : unit.type}
+            floorLevel={`${unit.floor} (${unit.floorNumber})`}
             actualArea="45"
             capacity="2 ضيوف كحد أقصى"
-            basePrice="250"
+            basePrice={String(unit.pricePerNight)}
             pricingModel="يومي (لكل ليلة)"
             systemEntryDate="10 سبتمبر 2026"
           />
@@ -135,20 +110,20 @@ export function UnitDetailPage({
           {/* Section: Booking Card (Scheduled for Available, Active for Occupied) */}
           <UnitActiveBookingCard
             variant={isAvailable ? "scheduled" : "active"}
-            bookingId="BK-10482"
+            bookingId={unit.currentBookingCode || (isAvailable ? "BK-10490" : "BK-10482")}
             guestName="خالد العتيبي"
             guestPhone="+966 54 887 2311"
             guestInitial="خ"
             stayDates="18 سبتمبر — 21 سبتمبر 2026"
             stayRemaining="متبقي ليلتان (تسجيل الخروج: 12:00 م)"
-            totalAmount="750.00"
+            totalAmount={String(unit.pricePerNight * 3) + ".00"}
             paymentStatus="مدفوع بالكامل عبر منصة شريكة"
             channelName={
               isAvailable
                 ? "قناة الحجز: بوابة Whatsapp المزامنة"
                 : "قناة الحجز: بوابة Booking المزامنة"
             }
-            bookingRef="معرف الحجز: BK-10482"
+            bookingRef={`معرف الحجز: ${unit.currentBookingCode || (isAvailable ? "BK-10490" : "BK-10482")}`}
           />
 
           {/* Section: نظام وكود الدخول الذكي */}
