@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Sparkles, Wrench } from "lucide-react";
+import { toast } from "sonner";
 import { OperationTask } from "../types";
+import { OperationActionDropdown } from "./operation-action-dropdown";
+import { CleaningAssignModal } from "./cleaning-assign-modal";
 
 interface OperationsTableProps {
   tasks: OperationTask[];
@@ -10,6 +14,7 @@ interface OperationsTableProps {
 }
 
 export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
+  const [assignTask, setAssignTask] = useState<OperationTask | null>(null);
   const getStatusBadge = (status: OperationTask["status"], label: string) => {
     switch (status) {
       case "needs_cleaning":
@@ -57,12 +62,13 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
               <th className="py-4 px-5">تاريخ الإنشاء</th>
               <th className="py-4 px-5">الحالة</th>
               <th className="py-4 px-5">المسؤول</th>
+              <th className="py-4 px-5 text-center">الإجراءات</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F3F4F6] text-sm">
             {tasks.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-[#9CA3AF]">
+                <td colSpan={9} className="py-12 text-center text-[#9CA3AF]">
                   لا توجد مهام أو بلاغات مطابقة لخيارات البحث الحالية
                 </td>
               </tr>
@@ -167,6 +173,17 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
                         </p>
                       )}
                     </td>
+
+                    {/* الإجراءات */}
+                    <td
+                      className="py-4 px-5 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <OperationActionDropdown
+                        task={task}
+                        onAssign={(t) => setAssignTask(t)}
+                      />
+                    </td>
                   </tr>
                 );
               })
@@ -215,6 +232,24 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
           </div>
         </div>
       </div>
+
+      {/* Assign Modal */}
+      {assignTask && (
+        <CleaningAssignModal
+          isOpen={!!assignTask}
+          onClose={() => setAssignTask(null)}
+          onConfirm={(assignee) => {
+            toast.success(
+              `تم تعيين (${assignee}) للمهمة ${assignTask.taskNumber} بنجاح!`
+            );
+            setAssignTask(null);
+          }}
+          taskNumber={assignTask.taskNumber}
+          unitName={assignTask.unitName}
+          propertyName={assignTask.propertyName}
+          ownerName={assignTask.ownerName}
+        />
+      )}
     </div>
   );
 }
