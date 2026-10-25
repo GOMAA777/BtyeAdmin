@@ -1,31 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { BackButton } from "@/components/shared/back-button";
 import {
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  Send,
   MessageSquare,
-  ShieldCheck,
-  Building2,
-  User,
-  Phone,
-  Key,
-  ExternalLink,
-  Download,
-  Share2,
   Lock,
+  Layers,
   Calendar,
-  CheckCheck,
+  User,
+  Building2,
+  Key,
   Check,
-  AlertCircle,
-  RotateCcw,
+  CheckCheck,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
-import { toast } from "sonner";
 import { ExecutionLog } from "../../types";
 
 interface ExecutionLogDetailViewProps {
@@ -33,321 +21,587 @@ interface ExecutionLogDetailViewProps {
 }
 
 export function ExecutionLogDetailView({ log }: ExecutionLogDetailViewProps) {
-  const router = useRouter();
-
-  const handleExportAudit = () => {
-    toast.info("جارٍ إنشاء شهادة التدقيق الرقمية المعتمدة...");
-    setTimeout(() => {
-      toast.success("تم تصدير سجل التدقيق الرقمي بنجاح!");
-    }, 700);
-  };
+  const isFailed = log.status === "failed";
+  const logCodeClean = log.id ? log.id.replace("#", "") : "EX-104829";
 
   return (
-    <div className="space-y-6">
-      {/* Top Header Card [1:25713] */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+    <div className="space-y-[20px] font-cairo" dir="rtl">
+      {/* 1. PAGE HEADER BAR (Figma node 1:25549) */}
+      <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-[16px]">
           <BackButton
             fallbackHref="/automation/?tab=logs"
-            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
+            className="size-[40px] rounded-[12px] bg-[#f1f5eb] hover:bg-[#e5eae0] flex items-center justify-center text-[#34422a] transition-colors shrink-0 mt-0.5 cursor-pointer"
           />
+
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#181d17]">
-                تفاصيل تنفيذ الأتمتة — {log.id}
+            <div className="flex flex-wrap items-center gap-[8px]">
+              <h1 className="text-[24px] font-semibold text-[#181d17] tracking-[-0.6px] leading-[34px]">
+                تفاصيل تنفيذ الأتمتة — {logCodeClean}
               </h1>
-              {log.status === "success" ? (
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#d8e8cb] text-[#34422a] border border-[#c6dcbe] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4b5940]" />
-                  حالة العملية: نجح التوصيل
+
+              {/* Status Chip */}
+              {!isFailed ? (
+                <span className="bg-[#d8e8cb] text-[#34422a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[6px]">
+                  <span>حالة العملية: نجح التوصيل</span>
+                  <span className="bg-[#34422a] size-[8px] rounded-full inline-block" />
                 </span>
               ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                  حالة العملية: تعذر الإرسال
+                <span className="bg-[#ffdad6] text-[#93000a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[6px]">
+                  <span>حالة العملية: فشل الإرسال</span>
+                  <span className="bg-[#ba1a1a] size-[8px] rounded-full inline-block" />
                 </span>
               )}
+
+              {/* Action Type Chip */}
+              <span className="bg-[#e5eae0] text-[#454840] text-[11px] font-medium px-[12px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                <span>نوع الإجراء: {log.actionBadgeLabel || "إرسال قالب WhatsApp"}</span>
+                <MessageSquare className="size-[12px] text-[#454840]" />
+              </span>
+
+              {/* Read Only Audit History Chip */}
+              <span className="bg-[#dde4dc] text-[#394039] text-[11px] font-medium px-[12px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                <span>سجل تاريخي للقراءة فقط</span>
+                <Lock className="size-[11px] text-[#394039]" />
+              </span>
             </div>
-            <p className="text-xs text-[#454840] mt-1">
+
+            <p className="text-[#454840] text-[13px] font-normal leading-[20px] mt-[4px]">
               سجل التدقيق الشامل لعملية التشغيل التلقائي وحالة تسليم الرسالة المشفرة.
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ebefe6] text-[#454840]">
-            نوع الإجراء: {log.actionBadgeLabel}
-          </span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
-            سجل تاريخي للقراءة فقط
-          </span>
-        </div>
       </div>
 
-      {/* Main Grid: 8 Cols for Process & Message, 4 Cols for Technical Diagnostics */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Right Column: Execution Data & Timeline (8 Cols) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Section A: Execution Metadata Bento [1:25738] */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-[#181d17] pb-3 border-b border-[#F3F4F6]">
-              ملخص مسار التنفيذ والارتباط المباشر
-            </h2>
+      {/* 2. Main Operational 2-Column Desktop Grid (Figma node 1:25572) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] items-start">
+        {/* RIGHT COLUMN IN RTL (8 cols out of 12) - Execution Data, Template Resolution, Payload */}
+        <div className="lg:col-span-8 flex flex-col gap-[24px]">
+          {/* SECTION A: Execution Metadata & Linked Context Bento (Figma node 1:25574) */}
+          <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col gap-[16px]">
+            {/* Header */}
+            <div className="border-b border-[#e5eae0]/60 pb-[16px] flex items-center justify-between">
+              <div className="flex items-center gap-[12px]">
+                <div className="size-[40px] rounded-[12px] bg-[#ebefe6] flex items-center justify-center text-[#4b5940]">
+                  <Layers className="size-[20px]" />
+                </div>
+                <h2 className="font-bold text-[18px] text-[#181d17] leading-[28px]">
+                  ملخص مسار التنفيذ والارتباط المباشر
+                </h2>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-              <div className="p-3.5 rounded-2xl bg-[#FBFDFB] border border-gray-100">
-                <span className="text-[11px] text-gray-400">القاعدة المرتبطة</span>
-                <div className="font-bold text-[#181d17] mt-1">{log.ruleName}</div>
-                <div className="font-mono text-[11px] text-[#4b5940] mt-0.5">#{log.ruleId}</div>
+            {/* Metric Grid (4 Cards) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-[16px]">
+              {/* Card 1: Execution ID */}
+              <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col justify-between border border-[#e5eae0]/60">
+                <span className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  معرّف التنفيذ
+                </span>
+                <div className="font-bold text-[18px] text-[#34422a] leading-[28px] mt-[6px]">
+                  {logCodeClean}
+                </div>
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px] mt-[4px]">
+                  {isFailed ? "غير مكتمل" : "معالج بنجاح"}
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#FBFDFB] border border-gray-100">
-                <span className="text-[11px] text-gray-400">رقم الحجز المرجعي</span>
-                <div className="font-bold font-mono text-[#34422a] mt-1">{log.bookingId}</div>
-                <div className="text-[11px] text-emerald-700 mt-0.5">حجز مؤكد ومدفوع</div>
+              {/* Card 2: Active Rule */}
+              <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col justify-between border border-[#e5eae0]/60">
+                <span className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  القاعدة المفعّلة
+                </span>
+                <div className="font-semibold text-[14px] text-[#34422a] leading-[20px] truncate mt-[6px]" title={log.ruleName}>
+                  {log.ruleName || "إرسال تفاصيل الوصول"}
+                </div>
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px] mt-[4px]">
+                  معرّف القاعدة: #{log.ruleId || "RUL-882"}
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#FBFDFB] border border-gray-100">
-                <span className="text-[11px] text-gray-400">النزيل المستلم</span>
-                <div className="font-bold text-[#181d17] mt-1">{log.guestName}</div>
-                <div className="font-mono text-[11px] text-gray-500 mt-0.5">{log.guestPhone}</div>
+              {/* Card 3: Scheduled Trigger */}
+              <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col justify-between border border-[#e5eae0]/60">
+                <span className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  المحفز المجدول
+                </span>
+                <div className="font-semibold text-[14px] text-[#181d17] leading-[20px] mt-[6px]">
+                  قبل الوصول بـ 24 س
+                </div>
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px] mt-[4px]">
+                  توقيت آلي مجدول
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#FBFDFB] border border-gray-100">
-                <span className="text-[11px] text-gray-400">العقار والوحدة</span>
-                <div className="font-bold text-[#181d17] mt-1">{log.propertyName}</div>
-                <div className="text-[11px] text-gray-500 mt-0.5">{log.unitName}</div>
+              {/* Card 4: Latency & Network */}
+              <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col justify-between border border-[#e5eae0]/60">
+                <span className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  زمن الاستجابة والشبكة
+                </span>
+                <div className="font-bold text-[18px] text-[#34422a] leading-[28px] mt-[6px]">
+                  {log.responseTime || "4.2 ثانية"}
+                </div>
+                <span className="font-medium text-[11px] text-[#54624c] leading-[16px] mt-[4px]">
+                  ضمن المعدل المثالي
+                </span>
+              </div>
+            </div>
+
+            {/* Entity Context Strip */}
+            <div className="bg-[rgba(229,234,224,0.4)] rounded-[12px] p-[16px] flex flex-col gap-[12px] border border-[#e5eae0]/70">
+              <div className="font-bold text-[12px] text-[#454840] leading-[18px]">
+                الكيان المرتبط وسياق الحجز
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-[16px]">
+                {/* 1. Booking ref */}
+                <div className="bg-white rounded-[8px] p-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0]/80 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-[11px] text-[#454840] leading-[16px] block">
+                      رقم الحجز
+                    </span>
+                    <span className="font-bold text-[12px] text-[#34422a] leading-[18px]">
+                      {log.bookingId || "BK-10482"}
+                    </span>
+                  </div>
+                  <Calendar className="size-[16px] text-[#34422a]" />
+                </div>
+
+                {/* 2. Guest */}
+                <div className="bg-white rounded-[8px] p-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0]/80 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-[11px] text-[#454840] leading-[16px] block">
+                      النزيل المستلم
+                    </span>
+                    <span className="font-semibold text-[12px] text-[#181d17] leading-[18px] block">
+                      {log.guestName || "خالد العتيبي"}
+                    </span>
+                    <span className="font-normal text-[11px] text-[#75786f] leading-[16px]">
+                      {log.guestPhone || "+966 50 123 4567"}
+                    </span>
+                  </div>
+                  <User className="size-[16px] text-[#454840]" />
+                </div>
+
+                {/* 3. Property */}
+                <div className="bg-white rounded-[8px] p-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0]/80 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-[11px] text-[#454840] leading-[16px] block">
+                      العقار
+                    </span>
+                    <span className="font-semibold text-[12px] text-[#181d17] leading-[18px] block">
+                      {log.propertyName || "عمارة النخيل"}
+                    </span>
+                    <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                      الرياض - حي النخيل
+                    </span>
+                  </div>
+                  <Building2 className="size-[16px] text-[#454840]" />
+                </div>
+
+                {/* 4. Unit */}
+                <div className="bg-white rounded-[8px] p-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0]/80 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-[11px] text-[#454840] leading-[16px] block">
+                      الوحدة
+                    </span>
+                    <span className="font-semibold text-[12px] text-[#181d17] leading-[18px] block">
+                      {log.unitName || "شقة فندقية 204"}
+                    </span>
+                    <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                      الدور الثاني
+                    </span>
+                  </div>
+                  <Key className="size-[16px] text-[#454840]" />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Timings Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-[8px] text-[11px] font-medium text-[#75786f]">
+              <div>
+                <span>وقت الإطلاق: {log.date || "18 سبتمبر 2026"} — {log.time || "09:00:14 ص"}</span>
+                <span className="mx-2">•</span>
+                <span>تأكيد الاستلام: 18 سبتمبر 2026 — 09:00:18 ص</span>
+              </div>
+              <div className="text-[#54624c]">
+                سيرفر: me-central-riyadh-02
               </div>
             </div>
           </div>
 
-          {/* Section B: Detailed Execution Timeline */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-[#181d17] pb-3 border-b border-[#F3F4F6]">
-              مخطط زمني تفصيلي لمراحل التنفيذ (Execution Timeline)
-            </h2>
+          {/* SECTION B: Generated Message & Variables Resolution (Figma node 1:25678) */}
+          <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col gap-[20px]">
+            {/* Header */}
+            <div className="border-b border-[#e5eae0]/60 pb-[16px] flex items-center justify-between flex-wrap gap-2">
+              <h2 className="font-bold text-[18px] text-[#181d17] leading-[28px]">
+                الرسالة المولّدة عند التنفيذ
+              </h2>
+              <span className="bg-[#ebefe6] text-[#454840] font-medium text-[11px] px-[12px] py-[4px] rounded-[6px] inline-flex items-center gap-[6px]">
+                <span>قالب WhatsApp Business معتمد من Meta</span>
+                <ShieldCheck className="size-[13px] text-[#4b5940]" />
+              </span>
+            </div>
 
-            <div className="relative pl-4 space-y-4 before:absolute before:right-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 text-xs text-right">
-              {/* Step 1 */}
-              <div className="flex items-start gap-3 relative">
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-xs font-bold z-10">
-                  <Check className="w-3.5 h-3.5" />
+            {/* Grid of Preview and Resolved Variables */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-[24px] items-start">
+              {/* Left in Desktop Grid (7 cols) - Resolved Variables Table */}
+              <div className="md:col-span-7 flex flex-col gap-[8px]">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                    قيم المتغيرات المستبدلة ديناميكيًا
+                  </span>
+                  <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                    8 متغيرات تم التحقق منها بنجاح
+                  </span>
                 </div>
-                <div className="flex-1 p-3 rounded-2xl bg-[#FBFDFB] border border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#181d17]">
-                      استقبال محفز الحجز من المنصة (Booking Created Event)
-                    </span>
-                    <span className="text-[11px] font-mono text-gray-400">09:00:10 ص</span>
+
+                <div className="bg-[#f1f5eb] rounded-[12px] border border-[#e5eae0] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] overflow-hidden">
+                  {/* Table Header */}
+                  <div className="bg-[rgba(229,234,224,0.6)] px-[16px] py-[8px] flex items-center justify-between text-[11px] font-bold text-[#454840]">
+                    <span>اسم المتغير في القالب</span>
+                    <span>القيمة المستخرجة من السجل</span>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    تم استلام حدث تأكيد الحجز فورياً عبر Webhook الداخلي للمنظومة.
+
+                  {/* Rows */}
+                  <div className="divide-y divide-[#e5eae0]/40 text-[12px]">
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{guest_name}}`}</span>
+                      <span className="font-semibold text-[#181d17]">{log.guestName || "خالد العتيبي"}</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{property_name}}`}</span>
+                      <span className="font-semibold text-[#181d17]">{log.propertyName || "عمارة النخيل"}</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{unit_number}}`}</span>
+                      <span className="font-bold text-[#181d17]">204</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{smart_lock_pin}}`}</span>
+                      <span className="font-bold text-[#34422a] bg-[#ebefe6] px-1.5 py-0.5 rounded">482913</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{checkin_date}}`}</span>
+                      <span className="font-normal text-[#181d17]">18 سبتمبر 2026</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{checkin_time}}`}</span>
+                      <span className="font-normal text-[#181d17]">02:00 م</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{checkout_date}}`}</span>
+                      <span className="font-normal text-[#181d17]">21 سبتمبر 2026</span>
+                    </div>
+
+                    <div className="px-[16px] py-[8px] flex items-center justify-between">
+                      <span className="font-mono text-[#75786f]">{`{{map_link}}`}</span>
+                      <span className="font-normal text-[11px] text-[#2563eb] truncate max-w-[180px]">maps.abraj.sa/loc/nakheel-204</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] font-normal text-[#75786f] leading-[16.5px] mt-[4px]">
+                  * تم استخراج المتغيرات في زمن حقيقي لحظي من قاعدة بيانات إدارة الأصول ومزامنتها مع محرك قفل الباب الذكي Tuya/Yale Gateway.
+                </p>
+              </div>
+
+              {/* Right in Desktop Grid (5 cols) - Realistic WhatsApp Chat Preview Card */}
+              <div className="md:col-span-5 bg-[#f1f5eb] rounded-[16px] p-[16px] flex flex-col gap-[8px] border border-[#e5eae0]">
+                <div className="font-bold text-[11px] text-[#454840] leading-[16px]">
+                  معاينة تسليم الشاشة (مستلم)
+                </div>
+
+                {/* Chat Mock */}
+                <div className="bg-[#efeae2] rounded-[12px] shadow-[0px_1px_2px_rgba(0,0,0,0.05)] overflow-hidden border border-[#d8d0c5]">
+                  {/* WhatsApp Header */}
+                  <div className="bg-[#075e54] text-white px-[12px] py-[10px] flex items-center justify-between">
+                    <div className="flex items-center gap-[8px]">
+                      <div className="size-[32px] rounded-full bg-white/20 flex items-center justify-center font-bold text-[12px]">
+                        رِ
+                      </div>
+                      <div>
+                        <div className="font-bold text-[12px] leading-[16px] flex items-center gap-1">
+                          <span>ابراج لإدارة الأصول</span>
+                          <span className="text-[10px] bg-white/30 rounded-full px-1">✓</span>
+                        </div>
+                        <div className="text-[10px] text-white/80 leading-[12px] mt-0.5">
+                          حساب تجاري رسمي
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-white/80 font-bold text-[14px]">⋮</div>
+                  </div>
+
+                  {/* Message Bubble Body */}
+                  <div className="p-[12px]">
+                    <div className="bg-white rounded-[8px] p-[12px] text-right text-[12px] leading-[20px] text-[#111b21] shadow-xs space-y-[6px]">
+                      <p>
+                        مرحبًا <strong className="text-[#34422a] font-bold">{log.guestName || "خالد العتيبي"}</strong>،
+                      </p>
+                      <p>
+                        يسعدنا استقبالكم في <strong className="text-[#34422a] font-bold">{log.propertyName || "عمارة النخيل"}</strong> - الوحدة <strong>204</strong>.
+                      </p>
+                      <p>
+                        📅 <strong>تاريخ الوصول:</strong> 18 سبتمبر 2026 الساعة 02:00 م
+                      </p>
+                      <p>
+                        🗓️ <strong>تاريخ المغادرة:</strong> 21 سبتمبر 2026 الساعة 12:00 م
+                      </p>
+                      <div>
+                        🔐 <strong>كود الدخول للباب الذكي:</strong>{" "}
+                        <span className="bg-[#ebefe6] text-[#34422a] font-bold px-[6px] py-[2px] rounded text-[12px] tracking-[0.6px]">
+                          482913
+                        </span>
+                      </div>
+                      <p>
+                        📍 <strong>رابط الموقع:</strong>{" "}
+                        <span className="text-[#2563eb] underline text-[11px]">
+                          https://maps.abraaj.sa/loc/nakheel-204
+                        </span>
+                      </p>
+                      <p className="text-[#111b21]">
+                        نتمنى لكم إقامة ممتعة وخدمة ممتازة!
+                      </p>
+
+                      <div className="flex items-center justify-end gap-[4px] pt-[2px] text-[10px] text-[#6b7280]">
+                        <span>09:00 AM</span>
+                        <CheckCheck className="size-[12px] text-[#34b7f1]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Delivery Status Details */}
+                <div className="bg-[#ebefe6] rounded-[8px] p-[8px] flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-[4px] text-[#34422a] font-semibold">
+                    <CheckCheck className="size-[14px] text-[#34422a]" />
+                    <span>تمت القراءة (Read Receipt)</span>
+                  </div>
+                  <div className="text-[#75786f] font-mono text-[10px]">
+                    MessageID: wamid.HBgM104
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* LEFT COLUMN IN RTL (4 cols out of 12) - Operational Timeline & Audit Metrics */}
+        <div className="lg:col-span-4 flex flex-col gap-[24px]">
+          {/* SECTION A: Step-by-Step Execution Timeline (Figma node 1:25804) */}
+          <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col gap-[16px]">
+            {/* Header */}
+            <div className="border-b border-[#e5eae0]/60 pb-[16px] flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-[18px] text-[#181d17] leading-[28px]">
+                  الخط الزمني الدقيق
+                </h2>
+                <p className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  تسلسل دورة حياة المعالجة اللحظية
+                </p>
+              </div>
+
+              <div className="size-[32px] rounded-full bg-[#d8e8cb] flex items-center justify-center font-bold text-[12px] text-[#34422a]">
+                7/7
+              </div>
+            </div>
+
+            {/* Vertical Timeline Items with Connecting Line */}
+            <div className="relative pr-[12px] flex flex-col gap-[16px]">
+              {/* Vertical connecting line */}
+              <div className="absolute right-[19px] top-[14px] bottom-[14px] w-[2px] bg-[#dfe4db]" />
+
+              {/* Step 1 */}
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      1. اكتشاف المحفز
+                    </span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00 ص</span>
+                  </div>
+                  <p className="font-normal text-[13px] text-[#454840] leading-[20px] mt-[2px]">
+                    مجدول قبل موعد الوصول بـ 24 ساعة للحجز{" "}
+                    <strong className="text-[#34422a] font-bold">BK-10482</strong>.
                   </p>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="flex items-start gap-3 relative">
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-xs font-bold z-10">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1 p-3 rounded-2xl bg-[#FBFDFB] border border-gray-100">
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#181d17]">
-                      مطابقة وفحص الشروط والقيود (Validation Passed)
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      2. تقييم قاعدة الأتمتة
                     </span>
-                    <span className="text-[11px] font-mono text-gray-400">09:00:11 ص</span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00:01 ص</span>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    التحقق من حالة الحجز المؤكد، توفر رقم هاتف صالح، وتوافق نوع الوحدة بنسبة 100%.
+                  <p className="font-normal text-[13px] text-[#454840] leading-[20px] mt-[2px]">
+                    التحقق من نشاط القاعدة، صلاحيات الاشتراك، ومطابقة أولويات المهام.
                   </p>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="flex items-start gap-3 relative">
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-xs font-bold z-10">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1 p-3 rounded-2xl bg-[#FBFDFB] border border-gray-100">
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#181d17]">
-                      استرجاع كود القفل الذكي المشفر من البوابة
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      3. التحقق من الشروط
                     </span>
-                    <span className="text-[11px] font-mono text-gray-400">09:00:12 ص</span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00:02 ص</span>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    توليد الرمز المؤقت (482913) ومزامنته مع قفل باب الوحدة بنجاح.
-                  </p>
+                  <div className="flex flex-col gap-[4px] mt-[4px] text-[11px] font-medium text-[#54624c]">
+                    <div className="flex items-center gap-[4px]">
+                      <Check className="size-[13px] text-[#54624c]" />
+                      <span>{`حالة الحجز = "مؤكد" (متحقق ✓)`}</span>
+                    </div>
+                    <div className="flex items-center gap-[4px]">
+                      <Check className="size-[13px] text-[#54624c]" />
+                      <span>{`سداد العربون = "مدفوع بالكامل" (متحقق ✓)`}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Step 4 */}
-              <div className="flex items-start gap-3 relative">
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-xs font-bold z-10">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1 p-3 rounded-2xl bg-[#FBFDFB] border border-gray-100">
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#181d17]">
-                      إرسال الرسالة عبر Meta WhatsApp Cloud API
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      4. استدعاء وتحميل القالب
                     </span>
-                    <span className="text-[11px] font-mono text-gray-400">09:00:14 ص</span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00:03 ص</span>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    استجابة خادم Meta بالرمز HTTP 200 OK وتعيين معرف الرسالة wamid.HBjgM104.
+                  <p className="font-normal text-[13px] text-[#454840] leading-[20px] mt-[2px]">
+                    استدعاء قالب <span className="font-bold text-[#34422a]">checkin_details</span> المعتمد رسمياً لدى مزود الخدمة.
                   </p>
                 </div>
               </div>
 
               {/* Step 5 */}
-              <div className="flex items-start gap-3 relative">
-                <div className="w-6 h-6 rounded-full bg-[#4b5940] text-white flex items-center justify-center shrink-0 text-xs font-bold z-10">
-                  <CheckCheck className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1 p-3 rounded-2xl bg-[#f6fbf1] border border-[#d8e8cb]">
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#181d17]">
-                      استلام إشعار التسليم والقراءة على جهاز النزيل (Delivered & Read)
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      5. استبدال وتجهيز المتغيرات
                     </span>
-                    <span className="text-[11px] font-mono text-gray-400">09:00:15 ص</span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00:04 ص</span>
                   </div>
-                  <p className="text-[11px] text-[#454840] mt-0.5">
-                    اكتملت دورة المعالجة بزمن إجمالي 4.2 ثانية بنجاح تام.
+                  <p className="font-normal text-[13px] text-[#454840] leading-[20px] mt-[2px]">
+                    استخراج بيانات الضيف وتوليد الرمز السري للباب <span className="font-bold text-[#34422a]">482913</span> بنجاح.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 6 */}
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#34422a] ring-4 ring-white shrink-0 mt-[4px] z-10" />
+                <div className="bg-[#f1f5eb] rounded-[12px] p-[10px] flex-1 border border-[#e5eae0]/60">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[12px] text-[#181d17] leading-[18px]">
+                      6. إرسال الطلب للبوابة
+                    </span>
+                    <span className="font-normal text-[11px] text-[#75786f]">09:00:05 ص</span>
+                  </div>
+                  <p className="font-normal text-[13px] text-[#454840] leading-[20px] mt-[2px]">
+                    تم دفع الطلب إلى Meta Cloud API عبر المسار الآمن TLS 1.3 بنجاح.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 7 (Final Status Webhook) */}
+              <div className="flex items-start gap-[16px] relative">
+                <div className="size-[16px] rounded-full bg-[#3e8a5a] ring-4 ring-white flex items-center justify-center shrink-0 mt-[4px] z-10">
+                  <span className="size-[6px] rounded-full bg-white" />
+                </div>
+                <div className="bg-[rgba(216,232,203,0.4)] border border-[#d8e8cb] rounded-[12px] p-[10px] flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[12px] text-[#34422a] leading-[18px]">
+                      7. تأكيد التسليم والقراءة (Webhook)
+                    </span>
+                    <span className="font-bold text-[11px] text-[#54624c]">09:00:18 ص</span>
+                  </div>
+                  <p className="font-normal text-[13px] text-[#5a6952] leading-[20px] mt-[2px]">
+                    ورد إشعار Webhook: الرسالة تم استلامها وقراءتها من هاتف النزيل مباشرة.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Section C: Resolved Variables Table */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-[#181d17] pb-3 border-b border-[#F3F4F6]">
-              حل المتغيرات الديناميكية (Resolved Template Variables)
-            </h2>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100 text-[#454840] font-bold">
-                    <th className="py-2.5 px-3">المتغير البرمجي</th>
-                    <th className="py-2.5 px-3">القيمة المحلولة والمستبدلة</th>
-                    <th className="py-2.5 px-3">الحقل المصدر</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  <tr>
-                    <td className="py-2.5 px-3 font-mono text-[#ba1a1a]">{"{{1}}"}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#181d17]">{log.guestName}</td>
-                    <td className="py-2.5 px-3 text-gray-500 font-mono text-[11px]">booking.guest_name</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-mono text-[#ba1a1a]">{"{{2}}"}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#181d17]">{log.propertyName}</td>
-                    <td className="py-2.5 px-3 text-gray-500 font-mono text-[11px]">property.name_ar</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-mono text-[#ba1a1a]">{"{{3}}"}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#181d17]">{log.unitName}</td>
-                    <td className="py-2.5 px-3 text-gray-500 font-mono text-[11px]">unit.unit_number</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-mono text-[#ba1a1a]">{"{{4}}"}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#181d17]">18 سبتمبر 2026 (02:00 م)</td>
-                    <td className="py-2.5 px-3 text-gray-500 font-mono text-[11px]">booking.checkin_time</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-mono text-[#ba1a1a]">{"{{5}}"}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#34422a] bg-[#ebefe6] px-2 py-0.5 rounded font-mono">
-                      482913
-                    </td>
-                    <td className="py-2.5 px-3 text-gray-500 font-mono text-[11px]">smart_lock.generated_otp</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Left Column: Diagnostics, Payload & Audit (4 Cols) */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Card 1: Technical Meta Cloud Payload */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-[#181d17] pb-2 border-b border-gray-100">
-              بيانات المعالجة الفنية (Meta Cloud API)
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <span className="text-[11px] text-gray-400">Meta Message ID</span>
-                <div className="font-mono font-semibold text-[#181d17] bg-gray-50 p-2 rounded-lg border border-gray-100 text-[11px] break-all mt-1">
-                  {log.metaCloudMessageId || "wamid.HBjgM104ODkyNTM2MjEwOAAA"}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">رمز استجابة المزود</span>
-                <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                  200 OK (Accepted)
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">زمن المعالجة الإجمالي</span>
-                <span className="font-mono font-bold text-[#181d17]">{log.responseTime || "4.2 ثانية"}</span>
-              </div>
-
-              <div className="flex items-center justify-between py-1.5">
-                <span className="text-gray-500">التشفير المعتمد</span>
-                <span className="font-semibold text-emerald-800 flex items-center gap-1 text-[11px]">
-                  <Lock className="w-3 h-3 text-emerald-600" />
-                  AES-256 E2EE Verified
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Received WhatsApp Bubble Preview */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-3">
+          {/* SECTION B: Audit Safeguards, Compliance & Health Metrics (Figma node 1:25915) */}
+          <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col gap-[16px]">
+            {/* Header */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#181d17]">الرسالة المسلمة لهاتف النزيل</span>
-              <MessageSquare className="w-4 h-4 text-[#4b5940]" />
-            </div>
+              <div>
+                <h2 className="font-bold text-[18px] text-[#181d17] leading-[28px]">
+                  الحوكمة والامتثال الرقابي
+                </h2>
+                <p className="font-medium text-[11px] text-[#454840] leading-[16px]">
+                  الضمانات التشغيلية ومعايير الاعتماد
+                </p>
+              </div>
 
-            <div className="bg-[#efeae2] p-3 rounded-2xl">
-              <div className="bg-[#e7ffdb] rounded-xl rounded-tr-none p-3 border border-[#d6f0c8] space-y-1.5 text-right text-xs leading-relaxed">
-                <div className="font-bold text-[#181d17]">مرحبًا {log.guestName}،</div>
-                <p>
-                  يسعدنا استقبالكم في <span className="font-bold text-[#34422a]">{log.propertyName}</span> - {log.unitName}.
-                </p>
-                <p className="text-[11px] text-gray-700">
-                  🔑 كود القفل الذكي: <span className="font-bold font-mono">482913</span>
-                </p>
-                <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400 font-mono pt-1">
-                  <span>{log.time}</span>
-                  <CheckCheck className="w-3 h-3 text-blue-500" />
-                </div>
+              <div className="size-[36px] rounded-[8px] bg-[#ebefe6] flex items-center justify-center text-[#4b5940]">
+                <ShieldCheck className="size-[18px]" />
               </div>
             </div>
-          </div>
 
-          {/* Card 3: Actions */}
-          <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-3">
-            <button
-              type="button"
-              onClick={handleExportAudit}
-              className="w-full h-11 rounded-xl bg-[#4b5940] hover:bg-[#3d4934] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              <span>تصدير شهادة التدقيق الرقمية (PDF)</span>
-            </button>
+            {/* Informative Safeguards Box */}
+            <div className="bg-[rgba(229,234,224,0.4)] rounded-[12px] p-[16px] flex flex-col gap-[6px] border border-[#e5eae0]/70">
+              <div className="flex items-center gap-[6px] text-[#34422a] font-bold text-[12px]">
+                <ShieldAlert className="size-[14px]" />
+                <span>آلية الحماية والتعافي التلقائي</span>
+              </div>
+              <p className="font-normal text-[13px] text-[#454840] leading-[21px]">
+                في حال حدوث أي إخفاق أو انقطاع، يتم تلقائيًا تسجيل رمز الخطأ البرمجي الدقيق (مثل 408 Timeout أو 131026) ، وإعادة المحاولة مرتين مع إرسال تنبيه فوري عبر لوحة عمليات المشرف المناوب.
+              </p>
+            </div>
 
-            <Link
-              href="/automation/?tab=logs"
-              className="w-full h-11 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold flex items-center justify-center transition-colors"
-            >
-              الرجوع لسجل العمليات الكامل
-            </Link>
+            {/* Quick Telemetry Stats */}
+            <div className="flex flex-col gap-[6px] text-[13px]">
+              {/* Row 1 */}
+              <div className="bg-[#f1f5eb] rounded-[8px] p-[10px] flex items-center justify-between border border-[#e5eae0]/40">
+                <span className="font-normal text-[#454840]">إجمالي وقت المعالجة:</span>
+                <span className="font-bold text-[#34422a]">{log.responseTime || "4.8 ثوانٍ"}</span>
+              </div>
+
+              {/* Row 2 */}
+              <div className="bg-[#f1f5eb] rounded-[8px] p-[10px] flex items-center justify-between border border-[#e5eae0]/40">
+                <span className="font-normal text-[#454840]">حالة بوابة الاتصال:</span>
+                <div className="flex items-center gap-[6px]">
+                  <span className="font-semibold text-[#54624c]">متصل ومستقر (Cloud API)</span>
+                  <span className="size-[8px] rounded-full bg-[#54624c]" />
+                </div>
+              </div>
+
+              {/* Row 3 */}
+              <div className="bg-[#f1f5eb] rounded-[8px] p-[10px] flex items-center justify-between border border-[#e5eae0]/40">
+                <span className="font-normal text-[#454840]">الاعتماد والامتثال:</span>
+                <div className="flex items-center gap-[4px] font-semibold text-[#34422a]">
+                  <span>مطابق لضوابط CITC</span>
+                  <ShieldCheck className="size-[14px] text-[#34422a]" />
+                </div>
+              </div>
+
+              {/* Row 4 */}
+              <div className="bg-[#f1f5eb] rounded-[8px] p-[10px] flex items-center justify-between border border-[#e5eae0]/40">
+                <span className="font-normal text-[#454840]">التكلفة المحسوبة للرسالة:</span>
+                <span className="font-bold text-[#181d17]">0.12 ر.س (Meta Utility)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

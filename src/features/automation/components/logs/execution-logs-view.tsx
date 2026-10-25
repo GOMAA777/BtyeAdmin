@@ -4,21 +4,17 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Search,
-  Filter,
   Download,
   RotateCcw,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Eye,
-  ExternalLink,
-  ChevronDown,
-  Layers,
+  RefreshCw,
   MessageSquare,
   Wrench,
-  ShieldAlert,
-  Smartphone,
-  RefreshCw,
+  Lock,
+  AlertCircle,
+  Clock,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ExecutionLog, AutomationMainTab } from "../../types";
@@ -33,40 +29,29 @@ interface ExecutionLogsViewProps {
 export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [logs, setLogs] = useState<ExecutionLog[]>(initialExecutionLogs);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [actionFilter, setActionFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "in_progress">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Retry modal state
   const [retryTargetLog, setRetryTargetLog] = useState<ExecutionLog | null>(null);
 
-  const statusCounts = useMemo(() => {
-    return {
-      all: 1420,
-      success: 1388,
-      failed: 18,
-      in_progress: 14,
-    };
-  }, []);
-
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
+      const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
-        log.logCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.bookingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.propertyName.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        log.logCode.toLowerCase().includes(q) ||
+        log.guestName.toLowerCase().includes(q) ||
+        log.bookingId.toLowerCase().includes(q) ||
+        log.ruleName.toLowerCase().includes(q) ||
+        log.propertyName.toLowerCase().includes(q);
 
       const matchesStatus =
         statusFilter === "all" || log.status === statusFilter;
 
-      const matchesAction =
-        actionFilter === "all" || log.actionType === actionFilter;
-
-      return matchesSearch && matchesStatus && matchesAction;
+      return matchesSearch && matchesStatus;
     });
-  }, [logs, searchQuery, statusFilter, actionFilter]);
+  }, [logs, searchQuery, statusFilter]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -91,7 +76,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
           ? {
               ...l,
               status: "success",
-              statusSummary: "تمت إعادة المحاولة وتسليم الرسالة بنجاح عبر SMS Fallback",
+              statusSummary: "تم التسليم والقراءة للمستلم (إعادة محاولة ناجحة)",
               responseTime: "2.1 ثانية",
             }
           : l
@@ -102,259 +87,372 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* 3 Main Tabs Nav (with logs active) */}
+    <div className="space-y-[16px] font-cairo" dir="rtl">
+      {/* 1. Internal Navigation Tabs (Figma node 1:25060) */}
       <AutomationTabsNav activeTab="logs" onTabChange={onTabChange} />
 
-      {/* Main Container Card [1:25186] */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-6">
-        {/* Header & Main Actions */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#F3F4F6]">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#181d17]">سجل التنفيذ التشغيلي والرسائل</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#dfe4db] text-[#454840]">
-                1,420 عملية مسجلة
-              </span>
-            </div>
-            <p className="text-xs text-[#454840] mt-1">
-              متابعة حية وفورية لجميع أحداث التشغيل وقواعد الأتمتة ورسائل واتساب المنفذة لحظياً.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#4b5940] ${isRefreshing ? "animate-spin" : ""}`} />
-              <span>تحديث السجل</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#FAFBF9] hover:bg-gray-100 text-[#181d17] border border-gray-200 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5 text-[#4b5940]" />
-              <span>تصدير السجل</span>
-            </button>
-          </div>
+      {/* 2. Top Hero Greeting Bar (Figma node 1:25024) */}
+      <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Right side in RTL: Title & Subtitle */}
+        <div>
+          <h1 className="text-[24px] font-bold text-[#181d17] leading-[34px]">
+            سجل تنفيذ الأتمتة
+          </h1>
+          <p className="text-[13px] font-medium text-[#454840] leading-[20px] mt-[4px]">
+            متابعة جميع عمليات التشغيل التلقائي ونتائجها بدقة لحظية للتدقيق التشغيلي وحوكمة المنصة.
+          </p>
         </div>
 
-        {/* Filters and Search Bar */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-          {/* Status Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
-            <button
-              type="button"
-              onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                statusFilter === "all"
-                  ? "bg-[#34422a] text-white shadow-xs"
-                  : "bg-[#FAFBF9] text-[#454840] hover:bg-gray-100"
-              }`}
-            >
-              <span>الكل</span>
-              <span className="ms-1 text-[10px] opacity-80">(1,420)</span>
-            </button>
+        {/* Left side in RTL: Action Button Group */}
+        <div className="flex items-center gap-[8px] flex-wrap self-end md:self-center">
+          {/* Button 1: Update Data */}
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-[#4b5940] hover:bg-[#3d4934] text-white text-[14px] font-medium h-[44px] px-[20px] rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <span>تحديث البيانات</span>
+            <RefreshCw className={`size-[14px] ${isRefreshing ? "animate-spin" : ""}`} />
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setStatusFilter("success")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                statusFilter === "success"
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "bg-[#FAFBF9] text-emerald-800 hover:bg-emerald-50"
-              }`}
-            >
-              <span>ناجحة</span>
-              <span className="ms-1 text-[10px] opacity-80">(1,388)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setStatusFilter("failed")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                statusFilter === "failed"
-                  ? "bg-red-700 text-white shadow-xs"
-                  : "bg-[#FAFBF9] text-red-800 hover:bg-red-50"
-              }`}
-            >
-              <span>فاشلة / بحاجة تدقيق</span>
-              <span className="ms-1 text-[10px] opacity-80">(18)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setStatusFilter("in_progress")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                statusFilter === "in_progress"
-                  ? "bg-blue-700 text-white shadow-xs"
-                  : "bg-[#FAFBF9] text-blue-800 hover:bg-blue-50"
-              }`}
-            >
-              <span>قيد المعالجة</span>
-              <span className="ms-1 text-[10px] opacity-80">(14)</span>
-            </button>
-          </div>
-
-          {/* Search and Action Filter */}
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-            <div className="relative flex-1 lg:w-72">
-              <Search className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="البحث برقم العملية، الضيف، الحجز..."
-                className="w-full h-10 pr-10 pl-4 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#4b5940] transition-colors"
-              />
-            </div>
-
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl border border-gray-200 text-xs text-[#454840] bg-white focus:outline-none focus:border-[#4b5940] transition-colors"
-            >
-              <option value="all">كافة القنوات</option>
-              <option value="whatsapp">WhatsApp Cloud</option>
-              <option value="cleaning_task">مهام التشغيل (Cleaning)</option>
-              <option value="smart_lock">الأقفال الذكية</option>
-              <option value="security_alert">تنبيهات الأمان</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Execution Logs Table [1:25186] */}
-        <div className="overflow-x-auto rounded-2xl border border-gray-100">
-          <table className="w-full text-right text-xs">
-            <thead>
-              <tr className="bg-[#FAFBF9] border-b border-gray-100 text-[#454840] font-bold">
-                <th className="py-3.5 pr-4">معرّف العملية</th>
-                <th className="py-3.5 px-3">التوقيت</th>
-                <th className="py-3.5 px-3">القاعدة والمحفز</th>
-                <th className="py-3.5 px-3">النزيل والحجز</th>
-                <th className="py-3.5 px-3">العقار والوحدة</th>
-                <th className="py-3.5 px-3">الإجراء والقناة</th>
-                <th className="py-3.5 px-3">الحالة والزمن</th>
-                <th className="py-3.5 pl-4 text-center">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-[#181d17]">
-              {filteredLogs.map((log) => (
-                <tr
-                  key={log.id}
-                  className="hover:bg-[#FAFBF9]/80 transition-colors group"
-                >
-                  {/* Log Code */}
-                  <td className="py-4 pr-4">
-                    <span className="font-mono font-bold text-xs text-[#181d17]">
-                      {log.logCode}
-                    </span>
-                  </td>
-
-                  {/* Date & Time */}
-                  <td className="py-4 px-3 text-[#454840]">
-                    <div className="font-semibold text-xs text-[#181d17]">{log.time}</div>
-                    <div className="text-[11px] text-gray-400">{log.date}</div>
-                  </td>
-
-                  {/* Rule & Trigger */}
-                  <td className="py-4 px-3">
-                    <div className="font-bold text-xs text-[#181d17]">{log.ruleName}</div>
-                    <div className="text-[11px] text-[#454840] mt-0.5">{log.triggerDetails}</div>
-                  </td>
-
-                  {/* Guest & Booking */}
-                  <td className="py-4 px-3">
-                    <div className="font-bold text-xs text-[#181d17]">{log.guestName}</div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#454840] mt-0.5">
-                      <span className="font-mono font-bold text-[#34422a]">{log.bookingId}</span>
-                      <span>•</span>
-                      <span className="font-mono text-gray-400">{log.guestPhone}</span>
-                    </div>
-                  </td>
-
-                  {/* Property & Unit */}
-                  <td className="py-4 px-3 text-[#454840]">
-                    <div className="font-semibold text-xs text-[#181d17]">{log.propertyName}</div>
-                    <div className="text-[11px] text-gray-500">{log.unitName}</div>
-                  </td>
-
-                  {/* Action Badge */}
-                  <td className="py-4 px-3">
-                    <span className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[#ebefe6] text-[#34422a]">
-                      {log.actionBadgeLabel}
-                    </span>
-                  </td>
-
-                  {/* Status & Response Time */}
-                  <td className="py-4 px-3">
-                    {log.status === "success" ? (
-                      <div className="space-y-0.5">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          نجح
-                        </span>
-                        <div className="text-[10px] text-gray-400 font-mono">
-                          {log.responseTime || "1.2 ثانية"}
-                        </div>
-                      </div>
-                    ) : log.status === "failed" ? (
-                      <div className="space-y-0.5">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                          <AlertCircle className="w-3 h-3 text-red-600" />
-                          فشل
-                        </span>
-                        <div className="text-[10px] text-red-600 font-medium">خطأ مزود الخدمة</div>
-                      </div>
-                    ) : (
-                      <div className="space-y-0.5">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                          <Clock className="w-3 h-3 text-blue-600" />
-                          قيد المعالجة
-                        </span>
-                      </div>
-                    )}
-                  </td>
-
-                  {/* Action Buttons */}
-                  <td className="py-4 pl-4 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      {/* View Details link */}
-                      <Link
-                        href={`/automation/logs/${log.id}/`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-[#ebefe6] text-[#454840] hover:text-[#34422a] text-[11px] font-semibold transition-colors"
-                      >
-                        <span>عرض التفاصيل</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
-
-                      {/* Retry button for failed logs */}
-                      {log.status === "failed" && (
-                        <button
-                          type="button"
-                          onClick={() => setRetryTargetLog(log)}
-                          className="px-2 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-semibold flex items-center gap-1 transition-colors"
-                          title="إعادة محاولة"
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                          <span>إعادة</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Button 2: Export Log */}
+          <button
+            type="button"
+            onClick={handleExport}
+            className="bg-white hover:bg-[#f6fbf1] text-[#181d17] text-[14px] font-semibold h-[44px] px-[16px] rounded-[12px] border border-[#e5eae0] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors cursor-pointer"
+          >
+            <span>تصدير السجل</span>
+            <Download className="size-[14px] text-[#4b5940]" />
+          </button>
         </div>
       </div>
 
-      {/* Retry Modal */}
+      {/* 3. Search Field & Status Filter Bar (Figma node 1:25043) */}
+      <div className="bg-white rounded-[16px] border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] p-[16px] flex flex-col md:flex-row md:items-center justify-between gap-[16px]">
+        {/* Right side in RTL: Search Input */}
+        <div className="relative flex-1 max-w-full md:max-w-[480px]">
+          <div className="bg-[#f6f7f4] rounded-[12px] flex items-center pr-[14px] pl-[16px] py-[8px] border border-transparent focus-within:border-[#4b5940] transition-colors">
+            <Search className="size-[15px] text-[#73786f] shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ابحث برقم الحجز، اسم العميل، اسم القاعدة أو معرف العملية..."
+              className="w-full bg-transparent border-0 outline-none pr-[10px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)]"
+            />
+          </div>
+        </div>
+
+        {/* Left side in RTL: Status Segmented Tabs */}
+        <div className="bg-[#f6f7f4] rounded-[12px] p-[4px] flex items-center gap-[4px] self-start md:self-auto overflow-x-auto">
+          {/* All */}
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              statusFilter === "all"
+                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
+                : "text-[#73786f] hover:text-[#252a24]"
+            }`}
+          >
+            الكل (14)
+          </button>
+
+          {/* Success */}
+          <button
+            type="button"
+            onClick={() => setStatusFilter("success")}
+            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              statusFilter === "success"
+                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
+                : "text-[#73786f] hover:text-[#252a24]"
+            }`}
+          >
+            نجح (12)
+          </button>
+
+          {/* Failed */}
+          <button
+            type="button"
+            onClick={() => setStatusFilter("failed")}
+            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              statusFilter === "failed"
+                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
+                : "text-[#73786f] hover:text-[#252a24]"
+            }`}
+          >
+            فشل (2)
+          </button>
+
+          {/* In Progress */}
+          <button
+            type="button"
+            onClick={() => setStatusFilter("in_progress")}
+            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              statusFilter === "in_progress"
+                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
+                : "text-[#73786f] hover:text-[#252a24]"
+            }`}
+          >
+            قيد التنفيذ (2)
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Master Data Table Container (Figma node 1:25083) */}
+      <div className="bg-white rounded-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#e5e8e2] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-[12px]">
+            {/* Header */}
+            <thead>
+              <tr className="bg-[#f9faf8] border-b border-[#e5e8e2] text-[#75786f] font-semibold">
+                <th className="py-[16px] px-[16px] whitespace-nowrap">التاريخ والوقت</th>
+                <th className="py-[16px] px-[8px] whitespace-nowrap">المُعرّف</th>
+                <th className="py-[16px] px-[16px] whitespace-nowrap">
+                  <div>القاعدة</div>
+                  <div>والمحفز</div>
+                </th>
+                <th className="py-[16px] px-[16px] whitespace-nowrap">الحجز والنزيل</th>
+                <th className="py-[16px] px-[16px] whitespace-nowrap">العقار والوحدة</th>
+                <th className="py-[16px] px-[16px] whitespace-nowrap">نوع الإجراء</th>
+                <th className="py-[16px] px-[16px] whitespace-nowrap">
+                  <div>الحالة</div>
+                  <div>والنتيجة</div>
+                </th>
+                <th className="py-[16px] px-[16px] text-center whitespace-nowrap">الإجراء</th>
+              </tr>
+            </thead>
+
+            {/* Body */}
+            <tbody className="divide-y divide-[#f1f5eb] text-[#181d17]">
+              {filteredLogs.map((log) => {
+                const isFailed = log.status === "failed";
+                const isInProgress = log.status === "in_progress";
+
+                return (
+                  <tr
+                    key={log.id}
+                    className={`transition-colors ${
+                      isFailed
+                        ? "bg-[rgba(255,218,214,0.15)] hover:bg-[rgba(255,218,214,0.3)]"
+                        : "hover:bg-[#f6fbf1]/50"
+                    }`}
+                  >
+                    {/* 1. Date & Time */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap">
+                      <div className="font-bold text-[13px] text-[#181d17] leading-[18px]">
+                        {log.date}
+                      </div>
+                      <div className="text-[12px] font-normal text-[#75786f] leading-[20px]">
+                        {log.time}
+                      </div>
+                    </td>
+
+                    {/* 2. Identifier */}
+                    <td className="py-[16px] px-[8px] whitespace-nowrap">
+                      <span
+                        className={`font-bold text-[12px] px-[8px] py-[2px] rounded-[6px] leading-[20px] inline-block ${
+                          isFailed
+                            ? "bg-[#ffdad6] text-[#93000a]"
+                            : "bg-[#ebefe6] text-[#34422a]"
+                        }`}
+                      >
+                        {log.logCode}
+                      </span>
+                    </td>
+
+                    {/* 3. Rule & Trigger */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap max-w-[200px]">
+                      <div className="font-bold text-[13px] text-[#181d17] leading-[20px]">
+                        {log.ruleName}
+                      </div>
+                      <div className="text-[12px] font-normal text-[#454840] leading-[20px]">
+                        {log.triggerDetails}
+                      </div>
+                    </td>
+
+                    {/* 4. Booking & Guest */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap">
+                      <div className="font-bold text-[13px] text-[#181d17] leading-[20px]">
+                        {log.guestName}
+                      </div>
+                      <div className="text-[12px] font-normal text-[#75786f] leading-[20px]">
+                        {log.bookingId}
+                      </div>
+                    </td>
+
+                    {/* 5. Property & Unit */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap">
+                      <div className="font-medium text-[13px] text-[#181d17] leading-[20px]">
+                        {log.propertyName}
+                      </div>
+                      <div className="text-[12px] font-normal text-[#454840] leading-[20px]">
+                        {log.unitName}
+                      </div>
+                    </td>
+
+                    {/* 6. Action Type Pill */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap">
+                      {log.actionType === "whatsapp" && (
+                        <span className="bg-[#d8e8cb] text-[#3d4b36] text-[12px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                          <span>{log.actionBadgeLabel}</span>
+                          <MessageSquare className="size-[12px] text-[#3d4b36]" />
+                        </span>
+                      )}
+                      {log.actionType === "cleaning_task" && (
+                        <span className="bg-[#e5eae0] text-[#181d17] text-[12px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                          <span>{log.actionBadgeLabel}</span>
+                          <Wrench className="size-[12px] text-[#454840]" />
+                        </span>
+                      )}
+                      {log.actionType === "smart_lock" && (
+                        <span className="bg-[#e5eae0] text-[#181d17] text-[12px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                          <span>{log.actionBadgeLabel}</span>
+                          <Lock className="size-[12px] text-[#454840]" />
+                        </span>
+                      )}
+                      {log.actionType === "security_alert" && (
+                        <span className="bg-[#ffdad6] text-[#ba1a1a] text-[12px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                          <span>{log.actionBadgeLabel}</span>
+                          <AlertCircle className="size-[12px] text-[#ba1a1a]" />
+                        </span>
+                      )}
+                    </td>
+
+                    {/* 7. Status & Summary */}
+                    <td className="py-[16px] px-[16px] whitespace-nowrap">
+                      {log.status === "success" && (
+                        <div>
+                          <span className="bg-[#eaf4ee] text-[#2d6a44] text-[12px] font-bold px-[8px] py-[2px] rounded-full inline-flex items-center gap-[6px]">
+                            <span>نجح</span>
+                            <span className="size-[6px] rounded-full bg-[#3e8a5a]" />
+                          </span>
+                          <div className="text-[11px] font-normal text-[#75786f] leading-[18px] mt-[2px]">
+                            {log.statusSummary}
+                          </div>
+                        </div>
+                      )}
+
+                      {isFailed && (
+                        <div>
+                          <span className="bg-[#ffdad6] text-[#ba1a1a] text-[11px] font-bold px-[8px] py-[2px] rounded-full inline-flex items-center gap-[6px]">
+                            <span>فشل الإرسال</span>
+                            <span className="size-[6px] rounded-full bg-[#ba1a1a]" />
+                          </span>
+                          <div className="text-[11px] font-normal text-[#ba1a1a] leading-[18px] mt-[2px]">
+                            {log.statusSummary}
+                          </div>
+                        </div>
+                      )}
+
+                      {isInProgress && (
+                        <div>
+                          <span className="bg-[#e1f0ff] text-[#0060a8] text-[11px] font-bold px-[8px] py-[2px] rounded-full inline-flex items-center gap-[6px]">
+                            <span>قيد التنفيذ</span>
+                            <span className="size-[6px] rounded-full bg-[#0060a8]" />
+                          </span>
+                          <div className="text-[11px] font-normal text-[#75786f] leading-[18px] mt-[2px]">
+                            {log.statusSummary}
+                          </div>
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 8. Action button */}
+                    <td className="py-[16px] px-[16px] text-center whitespace-nowrap">
+                      {isFailed && log.id === "EX-8488" ? (
+                        <button
+                          type="button"
+                          onClick={() => setRetryTargetLog(log)}
+                          className="bg-[#ba1a1a] hover:bg-[#93000a] text-white font-semibold text-[11px] px-[12px] py-[6px] rounded-[8px] transition-colors cursor-pointer inline-flex items-center gap-[6px]"
+                        >
+                          <RotateCcw className="size-[12px]" />
+                          <span>إعادة المحاولة</span>
+                        </button>
+                      ) : isFailed && log.id === "EX-8480" ? (
+                        <button
+                          type="button"
+                          onClick={() => toast.info("فتح شاشة المعالجة اليدوية لعملية الدفع المتعثرة")}
+                          className="bg-[#ebefe6] hover:bg-[#dfe4db] text-[#454840] font-semibold text-[11px] px-[12px] py-[6px] rounded-[8px] transition-colors cursor-pointer"
+                        >
+                          معالجة يدوية
+                        </button>
+                      ) : isInProgress ? (
+                        <button
+                          type="button"
+                          onClick={() => toast.info("عرض قائمة الانتظار الحالية لعمليات الأتمتة")}
+                          className="bg-[#ebefe6] hover:bg-[#dfe4db] text-[#454840] font-semibold text-[11px] px-[12px] py-[6px] rounded-[8px] transition-colors cursor-pointer"
+                        >
+                          تفاصيل الطابور
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/automation/logs/${log.id}/`}
+                          className="bg-[#ebefe6] hover:bg-[#dfe4db] text-[#454840] font-semibold text-[11px] px-[12px] py-[6px] rounded-[8px] transition-colors inline-block"
+                        >
+                          عرض التفاصيل
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Bar */}
+        <div className="p-[16px] border-t border-[#e5e8e2] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#75786f] text-[12px]">
+          <div>
+            عرض <span className="font-bold text-[#181d17]">1 - 7</span> من أصل{" "}
+            <span className="font-bold text-[#181d17]">14 عملية</span> مسجلة
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span>الصفوف لكل صفحة: 10 عمليات</span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled
+                className="size-[28px] rounded-[6px] border border-[#e5e8e2] flex items-center justify-center text-[#75786f] disabled:opacity-40"
+              >
+                <ChevronRight className="size-[14px]" />
+              </button>
+              <button
+                type="button"
+                className="size-[28px] rounded-[6px] bg-[#4b5940] text-white font-bold flex items-center justify-center"
+              >
+                1
+              </button>
+              <button
+                type="button"
+                disabled
+                className="size-[28px] rounded-[6px] border border-[#e5e8e2] flex items-center justify-center text-[#75786f] disabled:opacity-40"
+              >
+                <ChevronLeft className="size-[14px]" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Audit & Immutability Notice Card (Figma node 1:25022 footer) */}
+      <div className="bg-[#f6fbf1] border border-[#d8e8cb] rounded-[16px] p-[16px] flex items-start gap-[12px]">
+        <div className="size-[32px] rounded-[8px] bg-[#d8e8cb] flex items-center justify-center text-[#34422a] shrink-0 mt-0.5">
+          <ShieldCheck className="size-[18px]" />
+        </div>
+        <div>
+          <h3 className="font-bold text-[13px] text-[#181d17] leading-[20px]">
+            سجلات غير قابلة للتعديل أو الحذف
+          </h3>
+          <p className="font-normal text-[12px] text-[#454840] leading-[18px] mt-[2px]">
+            سجلات تنفيذ الأتمتة محفوظة وموثقة رقمياً في مخزن تدقيق غير قابل للتعديل لضمان الامتثال وسياسات المراسلة والتشغيل المعتمدة في المملكة العربية السعودية. يتم توثيق معرف المرسل، حالة الشبكة، وطابع الوقت الزمني لكل استدعاء API بدقة أجزاء الثانية.
+          </p>
+        </div>
+      </div>
+
+      {/* 6. Retry Modal */}
       {retryTargetLog && (
         <RetryExecutionModal
           isOpen={!!retryTargetLog}

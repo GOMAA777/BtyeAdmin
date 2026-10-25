@@ -4,16 +4,11 @@ import { useState } from "react";
 import {
   X,
   RotateCcw,
-  AlertTriangle,
   Building2,
-  User,
-  Phone,
-  FileText,
-  ShieldAlert,
-  Send,
-  MessageSquare,
+  AlertCircle,
+  GitBranch,
+  ShieldCheck,
 } from "lucide-react";
-import { toast } from "sonner";
 import { ExecutionLog } from "../../../types";
 
 interface RetryExecutionModalProps {
@@ -29,7 +24,6 @@ export function RetryExecutionModal({
   onConfirm,
   log,
 }: RetryExecutionModalProps) {
-  const [useSmsFallback, setUseSmsFallback] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
 
   if (!isOpen) return null;
@@ -39,125 +33,172 @@ export function RetryExecutionModal({
     setTimeout(() => {
       setIsRetrying(false);
       onConfirm();
-    }, 700);
+    }, 600);
   };
 
+  const ruleId = log?.ruleId || "RUL-884";
+  const ruleName = log?.ruleName || "تذكير بالمغادرة وإرشادات تسليم المفتاح";
+  const guestName = log?.guestName || "خالد العمري";
+  const guestPhone = log?.guestPhone || "+966 55 *** 9412";
+  const bookingId = log?.bookingId || "BK-10481";
+  const propertyName = log?.propertyName || "فلل حطين";
+  const unitName = log?.unitName || "فيلا 108";
+  const logCode = log?.logCode || "#EX-8488";
+  const timeStr = log?.time || "10:15:02 ص";
+  const dateStr = log?.date || "18 سبتمبر 2026";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100 flex flex-col">
-        {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-start justify-between bg-white">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs font-cairo"
+      dir="rtl"
+    >
+      <div
+        className="bg-white rounded-[16px] w-full max-w-[560px] overflow-hidden shadow-[0px_24px_48px_-12px_rgba(24,29,23,0.18),0px_8px_20px_-4px_rgba(24,29,23,0.08)] border border-[#e5eae0] flex flex-col animate-in fade-in zoom-in-95 duration-150"
+        data-node-id="1:26061"
+      >
+        {/* Modal Header */}
+        <div className="bg-white flex items-center justify-between px-[24px] pt-[24px] pb-[16px] w-full border-b border-[#f1f5eb]">
+          <h2 className="font-bold text-[20px] text-[#181d17] tracking-[-0.5px] leading-[30px]">
+            إعادة محاولة الإرسال؟
+          </h2>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            className="size-[32px] rounded-[8px] flex items-center justify-center text-[#75786f] hover:bg-[#f1f5eb] hover:text-[#181d17] transition-colors cursor-pointer"
+            title="إغلاق"
           >
-            <X className="w-4 h-4" />
+            <X className="size-[16px]" />
           </button>
-
-          <div className="text-right">
-            <h2 className="text-base font-bold text-[#181d17]">إعادة محاولة الإرسال؟</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              إعادة توجيه العملية إلى طابور المعالجة اللحظية لمحرك الأتمتة
-            </p>
-          </div>
         </div>
 
-        {/* Content Body */}
-        <div className="p-6 space-y-4 text-right">
-          {/* Target Operation Info Card */}
-          <div className="p-4 rounded-2xl bg-[#FBFDFB] border border-gray-200 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-              <span className="font-mono text-xs font-bold text-[#ba1a1a] bg-red-50 border border-red-200 px-2 py-0.5 rounded">
-                فشل الإرسال السابق
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#181d17]">
-                  {log?.ruleName || "تذكير بالمغادرة وإرشادات تسليم المفتاح"}
-                </span>
-                <span className="font-mono text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                  {log?.ruleId || "RUL-884"}
+        {/* Modal Body */}
+        <div className="flex flex-col gap-[16px] px-[24px] py-[16px] w-full">
+          {/* Context & Failed Execution Details Card */}
+          <div className="bg-[#f1f5eb] rounded-[12px] p-[16px] flex flex-col gap-[14px] w-full border border-[#e5eae0]">
+            {/* Top Row: Rule Badge & Title */}
+            <div className="bg-[rgba(235,239,230,0.6)] flex items-center justify-between -mx-[16px] -mt-[16px] px-[16px] py-[12px] rounded-t-[12px] border-b border-[#e5eae0]">
+              <div className="flex items-center gap-[8px]">
+                <GitBranch className="size-[16px] text-[#4b5940]" />
+                <span className="font-semibold text-[14px] text-[#181d17] leading-[20px]">
+                  {ruleName}
                 </span>
               </div>
+              <span className="bg-[#dfe4db] text-[#454840] font-bold text-[12px] px-[8px] py-[2px] rounded-[6px] leading-[16px]">
+                {ruleId}
+              </span>
             </div>
 
             {/* Grid of Key Attributes */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-[11px] text-gray-400">اسم الضيف والهاتف</span>
-                <div className="font-bold text-[#181d17] mt-0.5">
-                  {log?.guestName || "خالد العمري"}
-                </div>
-                <div className="text-[11px] text-gray-500 font-mono">
-                  {log?.guestPhone || "+966 55 941 9412"}
+            <div className="grid grid-cols-2 gap-x-[16px] gap-y-[12px] pt-[4px]">
+              {/* Guest name & phone */}
+              <div className="flex flex-col items-start">
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                  اسم الضيف
+                </span>
+                <span className="font-medium text-[14px] text-[#181d17] leading-[20px] mt-[2px]">
+                  {guestName}
+                </span>
+                <span className="font-normal text-[12px] text-[#75786f] leading-[16px]">
+                  {guestPhone}
+                </span>
+              </div>
+
+              {/* Booking reference */}
+              <div className="flex flex-col items-start">
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                  رقم الحجز المرجعي
+                </span>
+                <div className="flex items-center gap-[6px] mt-[2px]">
+                  <span className="font-bold text-[14px] text-[#34422a] leading-[20px]">
+                    {bookingId}
+                  </span>
+                  <span className="size-[6px] rounded-full bg-[#54624c]" />
+                  <span className="font-normal text-[12px] text-[#454840] leading-[16px]">
+                    مؤكد
+                  </span>
                 </div>
               </div>
 
-              <div>
-                <span className="text-[11px] text-gray-400">رقم الحجز المرجعي</span>
-                <div className="font-bold font-mono text-[#34422a] mt-0.5">
-                  {log?.bookingId || "BK-10481"}
+              {/* Property & unit */}
+              <div className="col-span-2 flex flex-col items-start pt-[4px] border-t border-[#e5eae0]/60">
+                <span className="font-medium text-[11px] text-[#75786f] leading-[16px]">
+                  العقار والوحدة المسجلة
+                </span>
+                <div className="flex items-center gap-[6px] mt-[2px]">
+                  <Building2 className="size-[14px] text-[#454840]" />
+                  <span className="font-medium text-[14px] text-[#181d17] leading-[22px]">
+                    {propertyName}
+                  </span>
+                  <span className="font-normal text-[14px] text-[#75786f] leading-[22px]">
+                    /
+                  </span>
+                  <span className="font-normal text-[14px] text-[#454840] leading-[22px]">
+                    {unitName}
+                  </span>
                 </div>
-                <div className="text-[11px] text-emerald-700 font-medium">حجز مؤكد</div>
+              </div>
+            </div>
+
+            {/* Failure Detail Alert Box */}
+            <div className="bg-[rgba(255,218,214,0.4)] rounded-[12px] p-[12px] flex flex-col gap-[6px] border border-[#ffdad6]">
+              <div className="flex items-center gap-[8px]">
+                <AlertCircle className="size-[15px] text-[#ba1a1a]" />
+                <span className="font-bold text-[12px] text-[#ba1a1a] leading-[18px]">
+                  سبب تعثر المحاولة السابقة:
+                </span>
               </div>
 
-              <div className="col-span-2 pt-1 border-t border-gray-100 flex items-center justify-between">
-                <div className="text-gray-500 text-xs">العقار والوحدة:</div>
-                <div className="font-semibold text-[#181d17] text-xs">
-                  {log?.propertyName || "فلل حطين"} / {log?.unitName || "فيلا 108"}
-                </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="font-normal text-[13px] text-[#93000a] leading-[21px]">
+                  تعذر تسليم الرسالة — خطأ في استجابة بوابة واتساب
+                </p>
+                <p className="font-bold text-[12px] text-[#93000a] leading-[16px]" dir="ltr">
+                  (Meta Cloud API Error 131026: Message Undeliverable / خطأ شبكة مؤقت)
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-[6px] border-t border-[#ffdad6]/60 text-[12px] text-[#75786f]">
+                <span>وقت المحاولة: {dateStr} - {timeStr}</span>
+                <span>معرف المحاولة: {logCode.replace("#", "")}</span>
               </div>
             </div>
           </div>
 
-          {/* Failure reason explanation */}
-          <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-red-900">
-              <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
-              <span>السبب الفني لفشل العملية:</span>
-            </div>
-            <p className="text-xs font-mono text-red-800 leading-relaxed bg-white/70 p-2 rounded-lg border border-red-100">
-              {log?.failureReason || "Meta Cloud API Error 131026: Message Undeliverable"}
+          {/* Explanatory Prompt & Safe Audit Assurance Box */}
+          <div className="flex flex-col gap-[10px]">
+            <p className="font-normal text-[14px] text-[#181d17] leading-[21px]">
+              سيتم إعادة محاولة إرسال الرسالة باستخدام البيانات الحالية للحجز وتحديث مؤشرات التوصيل المباشرة.
             </p>
-          </div>
 
-          {/* SMS Fallback Checkbox */}
-          <label className="flex items-start gap-2.5 p-3 rounded-xl border border-gray-200 bg-[#FAFBF9] cursor-pointer hover:bg-gray-50 transition-colors">
-            <input
-              type="checkbox"
-              checked={useSmsFallback}
-              onChange={(e) => setUseSmsFallback(e.target.checked)}
-              className="mt-0.5 rounded text-[#4b5940] focus:ring-[#4b5940]"
-            />
-            <div className="text-xs">
-              <span className="font-bold text-[#181d17]">
-                تفعيل القناة البديلة (SMS Fallback) تلقائياً
-              </span>
-              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
-                في حال تعذر وصول رسالة WhatsApp مجدداً، سيقوم النظام تلقائياً بتحويل الرسالة إلى SMS لضمان استلام النزيل لكود الدخول.
+            <div className="bg-[rgba(229,234,224,0.6)] rounded-[12px] p-[12px] flex items-center justify-between gap-[12px] border border-[#e5eae0]">
+              <p className="font-normal text-[13px] text-[#454840] leading-[21px] flex-1">
+                سيتم إعادة محاولة إرسال الرسالة باستخدام البيانات الحالية للحجز وتحديث مؤشرات التوصيل المباشرة.
               </p>
+              <div className="size-[32px] rounded-[8px] bg-[#dfe4db] flex items-center justify-center text-[#34422a] shrink-0">
+                <ShieldCheck className="size-[16px]" />
+              </div>
             </div>
-          </label>
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-white text-xs font-semibold transition-colors"
-          >
-            إلغاء
-          </button>
-
+        {/* Modal Action Buttons Footer */}
+        <div className="bg-[rgba(241,245,235,0.7)] px-[24px] py-[20px] flex items-center justify-between border-t border-[#e5eae0]">
           <button
             type="button"
             onClick={handleRetry}
             disabled={isRetrying}
-            className="flex-1 py-2.5 rounded-xl bg-[#4b5940] hover:bg-[#3d4934] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors disabled:opacity-50"
+            className="bg-[#4b5940] hover:bg-[#3d4934] text-white font-semibold text-[14px] h-[44px] px-[24px] rounded-[12px] inline-flex items-center gap-[8px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-colors cursor-pointer disabled:opacity-50"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
             <span>{isRetrying ? "جارٍ الإرسال..." : "إعادة المحاولة الآن"}</span>
+            <RotateCcw className={`size-[15px] ${isRetrying ? "animate-spin" : ""}`} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="bg-white hover:bg-[#f6fbf1] text-[#454840] font-semibold text-[14px] h-[44px] px-[24px] rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] transition-colors cursor-pointer"
+          >
+            إلغاء
           </button>
         </div>
       </div>

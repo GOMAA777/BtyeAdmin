@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ExecutionLogDetailView } from "@/features/automation/components/logs/execution-log-detail-view";
 import { initialExecutionLogs } from "@/features/automation/data/mock-automation";
+import { automationLogStaticParams } from "@/lib/static-params";
 
 export const metadata = {
   title: "تفاصيل سجل التنفيذ | منصة إدارة العقارات",
@@ -8,13 +9,7 @@ export const metadata = {
 };
 
 export function generateStaticParams() {
-  const ids = [
-    ...initialExecutionLogs.map((l) => ({ id: l.id })),
-    { id: "EX-104829" },
-    { id: "EX-104828" },
-    { id: "EX-104825" },
-  ];
-  return ids;
+  return automationLogStaticParams();
 }
 
 export default async function ExecutionLogDetailPage({
