@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
+import { BackButton } from "@/components/shared/back-button";
 import { CleaningAssignModal } from "./cleaning-assign-modal";
 import { CleaningStartModal } from "./cleaning-start-modal";
 import { CleaningCompleteModal } from "./cleaning-complete-modal";
@@ -62,13 +63,11 @@ export function CleaningDetailView({ taskId = "CL-10482" }: CleaningDetailViewPr
         {/* Right side in RTL: Title & Metadata */}
         <div>
           <div className="flex items-center gap-[12px] flex-wrap">
-            <Link
-              href="/operations/"
+            <BackButton
+              fallbackHref="/operations/"
               aria-label="العودة لقائمة العمليات"
               className="w-8 h-8 rounded-[10px] bg-[#f1f5eb] hover:bg-[#e4ebdc] flex items-center justify-center text-[#34422a] transition-colors shrink-0"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            />
 
             <h1 className="text-[24px] font-semibold text-[#181d17] tracking-[-0.6px] leading-[34px]">
               مهمة تنظيف {taskId}
@@ -477,9 +476,12 @@ export function CleaningDetailView({ taskId = "CL-10482" }: CleaningDetailViewPr
           <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[24px] space-y-[16px]">
             {/* Header */}
             <div className="border-[#ebefe6] border-b pb-[9px] flex items-center justify-between">
-              <span className="text-[#75786f] text-[11px] font-medium leading-[16px]">
+              <Link
+                href="/operations/log/"
+                className="text-[#75786f] hover:text-[#34422a] text-[11px] font-medium leading-[16px] transition-colors hover:underline"
+              >
                 سجل العمليات الفعلي
-              </span>
+              </Link>
               <h2 className="text-[#181d17] text-[20px] font-semibold leading-[30px]">
                 التسلسل الزمني
               </h2>
@@ -719,6 +721,10 @@ export function CleaningDetailView({ taskId = "CL-10482" }: CleaningDetailViewPr
       <CleaningAssignModal
         isOpen={isAssignModalOpen}
         onClose={() => setIsAssignModalOpen(false)}
+        taskNumber={taskId}
+        unitName="الوحدة 204 (الطابق الثاني)"
+        propertyName="عمارة النخيل (الرياض - حي العليا)"
+        ownerName="محمد العتيبي"
         onConfirm={(newAssignee) => {
           setAssignee(newAssignee);
         }}
@@ -727,10 +733,15 @@ export function CleaningDetailView({ taskId = "CL-10482" }: CleaningDetailViewPr
       <CleaningStartModal
         isOpen={isStartModalOpen}
         onClose={() => setIsStartModalOpen(false)}
+        taskNumber={taskId}
+        unitName="الوحدة 204 (الطابق الثاني)"
+        propertyName="عمارة النخيل — الرياض (حي العليا)"
+        ownerName="محمد العتيبي (OWN-4491)"
+        assigneeName={assignee === "غير معيّن" ? "أحمد سالم" : assignee.split("(")[0]?.trim() || "أحمد سالم"}
         onConfirm={() => {
           setStatus("in_progress");
           if (assignee === "غير معيّن") {
-            setAssignee("أحمد سالم");
+            setAssignee("أحمد سالم (شركة النقاء للتشغيل الفندقي)");
           }
         }}
       />
@@ -738,6 +749,10 @@ export function CleaningDetailView({ taskId = "CL-10482" }: CleaningDetailViewPr
       <CleaningCompleteModal
         isOpen={isCompleteModalOpen}
         onClose={() => setIsCompleteModalOpen(false)}
+        unitName="الوحدة 204 (الطابق الثاني)"
+        propertyName="عمارة النخيل — حي العليا"
+        ownerName="محمد العتيبي (OWN-4491)"
+        assigneeName={assignee === "غير معيّن" ? "أحمد سالم (مشرف معتمد — النقاء)" : assignee}
         onConfirm={() => {
           setStatus("completed");
         }}
