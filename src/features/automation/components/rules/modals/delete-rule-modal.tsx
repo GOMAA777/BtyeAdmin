@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { X, Trash2, ShieldCheck, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
-import { useConfirm } from "@/hooks/use-confirm";
+import React, { useState } from "react";
 import { AutomationRule } from "../../../types";
+import {
+  CloseIcon,
+  ClockTriggerIcon,
+  ShieldCheckIcon,
+  WarningTriangleIcon,
+  TrashActionIcon,
+} from "./modal-icons";
 
 interface DeleteRuleModalProps {
   isOpen: boolean;
@@ -19,129 +23,179 @@ export function DeleteRuleModal({
   onConfirm,
   rule,
 }: DeleteRuleModalProps) {
-  const confirm = useConfirm();
   const [confirmed, setConfirmed] = useState(false);
 
   if (!isOpen || !rule) return null;
 
-  const handleDelete = async () => {
-    if (!confirmed) {
-      toast.error("يرجى تأكيد الإقرار بالتدقيق الأمني قبل الحذف");
-      return;
-    }
-
-    const ok = await confirm({
-      title: "تأكيد حذف قاعدة الأتمتة",
-      message: `هل أنت متأكد من رغبتك في حذف قاعدة الأتمتة "${rule.title}" (#${rule.ruleCode}) نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.`,
-      confirmLabel: "حذف القاعدة نهائياً",
-      variant: "destructive",
-    });
-    if (!ok) return;
-
+  const handleDelete = () => {
+    if (!confirmed) return;
     onConfirm();
-    toast.success(`تم حذف قاعدة الأتمتة "${rule.title}" وأرشفة سجلاتها التاريخية.`);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-cairo"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-[#EBEBEB] animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white flex flex-col items-start overflow-hidden rounded-[16px] shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] w-full max-w-[560px] animate-in fade-in zoom-in-95 duration-200"
         dir="rtl"
+        onClick={(e) => e.stopPropagation()}
+        data-node-id="1:23093"
+        data-name="حذف قاعدة الأتمتة؟"
       >
-        {/* Header */}
-        <div className="p-6 pb-4 border-b border-[#F3F4F6] relative">
+        {/* Top Section: Title & Close Button */}
+        <div className="flex items-start justify-between pb-[16px] pt-[36px] px-[36px] shrink-0 w-full">
+          {/* Heading 2 */}
+          <h2 className="font-semibold text-[24px] leading-[34px] tracking-[-0.6px] text-[#181d17] text-right">
+            حذف قاعدة الأتمتة؟
+          </h2>
+
+          {/* Button - إغلاق النافذة */}
           <button
             type="button"
             onClick={onClose}
-            className="absolute left-6 top-6 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            className="flex items-center justify-center rounded-[8px] shrink-0 size-[32px] text-[#75786f] hover:bg-[#ebefe6] transition-colors cursor-pointer"
+            aria-label="إغلاق النافذة"
           >
-            <X className="w-4 h-4" />
+            <CloseIcon className="size-[11.67px]" />
           </button>
-          <h2 className="text-xl font-bold text-[#1F2937]">حذف قاعدة الأتمتة؟</h2>
         </div>
 
-        <div className="p-6 space-y-4">
-          {/* Rule Info Card */}
-          <div className="bg-[#FAFBF9] border border-[#EBEBEB] rounded-2xl p-4 text-xs space-y-2.5">
-            <div className="flex items-center justify-between pb-2 border-b border-[#F0F2EE]">
-              <span className="font-bold text-sm text-[#1F2937]">{rule.title}</span>
-              <div className="flex items-center gap-1.5">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-white border border-[#E5E7EB] text-gray-700">
-                  #{rule.ruleCode}
+        {/* Modal Content Body */}
+        <div className="flex flex-col gap-[16px] items-start px-[36px] py-[8px] shrink-0 w-full">
+          {/* Target Rule Summary Card */}
+          <div className="bg-[#f1f5eb] flex flex-col gap-[4px] items-start p-[16px] rounded-[12px] shrink-0 w-full">
+            <div className="flex items-center justify-between shrink-0 w-full">
+              {/* Rule Title & Code */}
+              <div className="flex gap-[8px] items-center shrink-0">
+                <span className="font-semibold text-[14px] leading-[20px] text-[#181d17] text-right">
+                  {rule.title || "إرسال تفاصيل الوصول وموقع الوحدة"}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
+                <span className="bg-[#e5eae0] rounded-[9999px] px-[8px] py-[2px] font-normal text-[11px] leading-[16px] text-[#454840] tracking-[0.55px] text-right">
+                  #{rule.ruleCode || "AUT-102"}
+                </span>
+              </div>
+
+              {/* Status Badge: متوقفة مؤقتاً */}
+              <div className="bg-[#dfe4db] flex gap-[6px] items-center px-[10px] py-[2px] rounded-[9999px] shrink-0">
+                <div className="bg-[#75786f] rounded-[9999px] shrink-0 size-[6px]" />
+                <span className="font-medium text-[11px] leading-[16px] text-[#75786f] text-right">
                   متوقفة مؤقتاً
                 </span>
               </div>
             </div>
 
-            <div className="flex justify-between items-center text-[#6B7280]">
-              <span>المحفز: {rule.triggerLabel}</span>
-              <span>النطاق: {rule.scope}</span>
+            {/* Trigger & Scope Details */}
+            <div className="flex gap-[4px] items-center pt-[4px] shrink-0 w-full flex-wrap text-[13px] leading-[20px]">
+              <div className="flex items-center gap-[4px] shrink-0">
+                <ClockTriggerIcon className="size-[13.33px] text-[#34422A] shrink-0" />
+                <span className="font-medium text-[#181d17]">المحفز:</span>
+                <span className="font-normal text-[#454840]">
+                  {rule.triggerLabel || "قبل موعد الوصول بـ 24 ساعة"}
+                </span>
+              </div>
+
+              <span className="text-[#75786f] px-[4px]">•</span>
+
+              <div className="flex items-center gap-[4px] shrink-0">
+                <span className="font-medium text-[#181d17]">النطاق:</span>
+                <span className="font-normal text-[#454840]">
+                  {rule.scope || "جميع العقارات (18 عقاراً • 142 وحدة)"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <p className="text-xs text-[#4B5563] leading-relaxed">
-            لن يتم حذف سجلات التنفيذ السابقة، ولكن لن يمكن تشغيل هذه القاعدة مرة أخرى عبر البوابات الذكية أو نظام إدارة النزلاء.
-          </p>
-
-          {/* Historical Data Protection Card */}
-          <div className="bg-[#EEF5EE] border border-[#DCE8DC] rounded-2xl p-4 space-y-1 text-xs">
-            <div className="flex items-center gap-2 text-[#1F3D2B] font-bold pb-1 border-b border-[#DFEBDF]">
-              <ShieldCheck className="w-4 h-4" />
-              <span>حفظ وأرشفة السجلات التاريخية</span>
-            </div>
-            <p className="text-[11px] text-[#4B6350] leading-relaxed pt-1">
-              ستبقى السجلات التاريخية وإحصائيات التسليم السابقة لـ 142 عملية منفذة محفوظة في الأرشيف غير القابل للتعديل لأغراض الحوكمة والتدقيق الأمني.
+          {/* Core Contextual Subtext */}
+          <div className="flex flex-col items-end shrink-0 w-full">
+            <p className="font-normal text-[14px] leading-[22.75px] text-[#454840] text-right w-full">
+              لن يتم حذف سجلات التنفيذ السابقة، ولكن لن يمكن تشغيل هذه القاعدة مرة أخرى عبر
+              البوابات الذكية أو نظام إدارة النزلاء.
             </p>
           </div>
 
-          {/* Danger Alert */}
-          <div className="bg-[#FEF2F2] border border-[#FEE2E2] rounded-2xl p-4 space-y-1 text-xs text-[#991B1B]">
-            <div className="flex items-center gap-2 text-[#DC2626] font-bold pb-1 border-b border-[#FCA5A5]">
-              <AlertTriangle className="w-4 h-4" />
-              <span>تحذير أمني تشغيلي</span>
+          {/* Governance & Historical Retention Notice */}
+          <div className="bg-[rgba(229,234,224,0.6)] flex gap-[8px] items-start p-[16px] rounded-[12px] shrink-0 w-full">
+            <div className="bg-[#dfe4db] flex items-center justify-center rounded-[8px] shrink-0 size-[28px] mt-[1px]">
+              <ShieldCheckIcon className="size-[15px] text-[#34422A]" />
             </div>
-            <p className="text-[11px] leading-relaxed pt-1">
-              هذا الإجراء لا يمكن التراجع عنه. فور تأكيد الحذف، سيتم إيقاف كافة الجدولة المستقبلية فوراً وإلغاء ارتباط مفاتيح الوصول الرقمية المعلقة.
-            </p>
+            <div className="flex flex-col gap-[2px] items-start shrink-0 flex-1">
+              <h4 className="font-semibold text-[12px] leading-[18px] text-[#34422a] text-right w-full">
+                حفظ وأرشفة السجلات التاريخية
+              </h4>
+              <p className="font-normal text-[13px] leading-[21.13px] text-[#454840] text-right w-full mt-[2px]">
+                ستبقى السجلات التاريخية وإحصائيات التسليم السابقة لـ{" "}
+                <span className="font-semibold text-[#181d17]">142 عملية منفذة</span>{" "}
+                محفوظة في الأرشيف غير القابل للتعديل لأغراض الحوكمة والتدقيق الأمني.
+              </p>
+            </div>
           </div>
 
-          {/* Confirmation Checkbox */}
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#374151] pt-1">
+          {/* Destructive Impact Warning */}
+          <div className="bg-[rgba(255,218,214,0.4)] flex gap-[8px] items-start p-[16px] rounded-[12px] shrink-0 w-full">
+            <div className="bg-[#ffdad6] flex items-center justify-center rounded-[8px] shrink-0 size-[28px] mt-[1px]">
+              <WarningTriangleIcon className="size-[16.5px] text-[#BA1A1A]" />
+            </div>
+            <div className="flex flex-col gap-[1px] items-start shrink-0 flex-1">
+              <h4 className="font-semibold text-[12px] leading-[18px] text-[#ba1a1a] text-right w-full">
+                تحذير أمني تشغيلي
+              </h4>
+              <p className="font-normal text-[13px] leading-[21.13px] text-[#93000a] text-right w-full mt-[2px]">
+                هذا الإجراء لا يمكن التراجع عنه. فور تأكيد الحذف، سيتم إيقاف كافة الجدولة
+                المستقبلية فوراً وإلغاء ارتباط مفاتيح الوصول الرقمية المعلقة.
+              </p>
+            </div>
+          </div>
+
+          {/* Label - Audit Trail Verification Check */}
+          <label className="flex items-center gap-[10px] cursor-pointer shrink-0 w-full py-[4px]">
             <input
               type="checkbox"
               checked={confirmed}
               onChange={(e) => setConfirmed(e.target.checked)}
-              className="mt-0.5 w-4 h-4 text-[#DC2626] rounded border-gray-300 focus:ring-red-500"
+              className="size-[14px] rounded-[2.5px] border border-[#767676] text-[#dc8c8c] focus:ring-[#dc8c8c] cursor-pointer"
             />
-            <span className="leading-relaxed">
-              أؤكد علمي بتدوين عملية الحذف في سجل التدقيق الإداري العام باسم محمد أحمد (مدير المنصة) مع الختم الزمني المشفر.
+            <span className="font-medium text-[11px] leading-[16.5px] text-[#454840] text-right flex-1 select-none">
+              أؤكد علمي بتدوين عملية الحذف في سجل التدقيق الإداري العام باسم{" "}
+              <span className="font-semibold text-[#181d17]">
+                محمد أحمد (مدير المنصة)
+              </span>{" "}
+              مع الختم الزمني المشفر.
             </span>
           </label>
+        </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3 pt-2">
+        {/* Action Footer */}
+        <div className="pt-[8px] shrink-0 w-full">
+          <div className="bg-[#f1f5eb] flex gap-[16px] items-center justify-start px-[36px] py-[24px] shrink-0 w-full rounded-b-[16px]">
+            {/* Button - Confirm Delete Action */}
             <button
               type="button"
               disabled={!confirmed}
               onClick={handleDelete}
-              className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl text-sm font-bold transition-colors shadow-sm ${
+              className={`flex gap-[8px] h-[44px] items-center px-[36px] rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-colors ${
                 confirmed
-                  ? "bg-[#D97777] hover:bg-[#C96666] text-white cursor-pointer"
-                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  ? "bg-[#dc8c8c] hover:bg-[#cf7b7b] text-white cursor-pointer"
+                  : "bg-[#e5eae0] text-[#a0a59c] cursor-not-allowed opacity-70"
               }`}
             >
-              <Trash2 className="w-4 h-4" />
-              <span>تأكيد حذف القاعدة</span>
+              <TrashActionIcon className="size-[13.5px] text-current" />
+              <span className="font-semibold text-[14px] leading-[20px]">
+                تأكيد حذف القاعدة
+              </span>
             </button>
+
+            {/* Button - Safe Dismissal Action */}
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              className="bg-white hover:bg-[#e4ebdc] text-[#181d17] flex h-[44px] items-center justify-center px-[36px] rounded-[12px] transition-colors cursor-pointer"
             >
-              إلغاء
+              <span className="font-semibold text-[14px] leading-[20px] text-[#181d17]">
+                إلغاء
+              </span>
             </button>
           </div>
         </div>
