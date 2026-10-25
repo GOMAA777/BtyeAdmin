@@ -478,7 +478,7 @@ export function OperationsLogView({
       </div>
 
       {/* 3. FILTER CONTROLS GROUP (Figma Node 1:16033) */}
-      <div className="bg-white border border-[#E5E8E2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="relative z-30 bg-white border border-[#E5E8E2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Right side in RTL: Search Input */}
         <div className="relative w-full md:max-w-[420px]">
           <Search className="w-4 h-4 text-[#75786F] absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -491,20 +491,21 @@ export function OperationsLogView({
           />
         </div>
 
-        {/* Left side in RTL: Dropdowns & Date filter */}
+        {/* Left side in RTL: Filter Controls Group (Figma Node 1:16041) */}
+        {/* In RTL order from right to left: Type Filter -> Performer Filter -> Timeframe Filter */}
         <div className="flex items-center gap-2.5 flex-wrap w-full md:w-auto justify-start md:justify-end">
-          {/* Timeframe filter */}
-          <button
-            type="button"
-            onClick={() => toast.info("نطاق البحث: آخر 30 يوماً افتراضياً")}
-            className="bg-[#F1F5EB] hover:bg-[#E5EAE0] h-[44px] rounded-[12px] px-3.5 flex items-center gap-2 cursor-pointer transition-colors text-[12px] font-semibold text-[#181D17] select-none"
-          >
-            <Calendar className="w-4 h-4 text-[#181D17] shrink-0" />
-            <span>النطاق: آخر 30 يوم</span>
-          </button>
+          {/* 1. Type filter (Figma Node 1:16054) */}
+          <div className="min-w-[154px]">
+            <SelectDropdown
+              value={selectedType}
+              onChange={setSelectedType}
+              options={activityTypeOptions}
+              triggerClassName="h-[44px] bg-[#F1F5EB] border-0 rounded-[12px] px-3.5 text-[12px] font-semibold text-[#181D17] hover:bg-[#E5EAE0]"
+            />
+          </div>
 
-          {/* Performer filter */}
-          <div className="w-[145px]">
+          {/* 2. Performer filter (Figma Node 1:16048) */}
+          <div className="min-w-[125px]">
             <SelectDropdown
               value={selectedPerformer}
               onChange={setSelectedPerformer}
@@ -513,15 +514,15 @@ export function OperationsLogView({
             />
           </div>
 
-          {/* Type filter */}
-          <div className="w-[160px]">
-            <SelectDropdown
-              value={selectedType}
-              onChange={setSelectedType}
-              options={activityTypeOptions}
-              triggerClassName="h-[44px] bg-[#F1F5EB] border-0 rounded-[12px] px-3.5 text-[12px] font-semibold text-[#181D17] hover:bg-[#E5EAE0]"
-            />
-          </div>
+          {/* 3. Timeframe filter (Figma Node 1:16042) */}
+          <button
+            type="button"
+            onClick={() => toast.info("نطاق البحث: آخر 30 يوماً افتراضياً")}
+            className="bg-[#F1F5EB] hover:bg-[#E5EAE0] h-[44px] rounded-[12px] px-3.5 flex items-center justify-between gap-2.5 cursor-pointer transition-colors text-[12px] font-semibold text-[#181D17] select-none min-w-[145px]"
+          >
+            <span>النطاق: آخر 30 يوم</span>
+            <Calendar className="w-4 h-4 text-[#181D17] shrink-0" />
+          </button>
         </div>
       </div>
 

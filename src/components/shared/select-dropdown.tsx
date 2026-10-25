@@ -52,7 +52,7 @@ export function SelectDropdown({
   const calculatePlacement = useCallback(() => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const estimatedHeight = Math.min(normalizedOptions.length * 40 + 16, 240);
+    const estimatedHeight = Math.min(normalizedOptions.length * 42 + 16, 340);
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
@@ -140,7 +140,7 @@ export function SelectDropdown({
         {/* Chevron Icon on Left (start in RTL) */}
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-200",
+            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-200 ms-2",
             isOpen && "rotate-180 text-[#34432E]"
           )}
         />
@@ -153,7 +153,7 @@ export function SelectDropdown({
           role="listbox"
           tabIndex={-1}
           className={cn(
-            "absolute z-50 w-full bg-white rounded-2xl border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-1.5 space-y-1 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-150",
+            "absolute z-50 right-0 min-w-full w-max min-w-[210px] max-w-[calc(100vw-32px)] bg-white rounded-2xl border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-1.5 space-y-1 max-h-[340px] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 [scrollbar-width:thin] [scrollbar-color:#CCD5C5_transparent]",
             placement === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5",
             menuClassName
           )}
@@ -171,7 +171,7 @@ export function SelectDropdown({
                 disabled={opt.disabled}
                 onClick={() => handleSelect(opt.value, opt.disabled)}
                 className={cn(
-                  "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none text-right",
+                  "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none text-right gap-3",
                   isSelected
                     ? "bg-[#EEF2E6] text-[#2E3C29] font-bold"
                     : "text-[#172115] font-medium hover:bg-[#F4F6F0] hover:text-[#2E3C29]",
@@ -179,14 +179,14 @@ export function SelectDropdown({
                 )}
               >
                 {/* Text & optional Icon on Right (RTL start) */}
-                <div className="flex items-center gap-2 truncate">
+                <div className="flex items-center gap-2 min-w-0">
                   {Icon && <Icon className="w-4 h-4 shrink-0 text-[#7D8A78]" />}
-                  <span className="truncate">{opt.label}</span>
+                  <span className="whitespace-nowrap">{opt.label}</span>
                 </div>
 
                 {/* Checkmark on Left when selected */}
                 {isSelected && (
-                  <Check className="w-4 h-4 text-[#34432E] shrink-0 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#34432E] shrink-0 stroke-[2.5] ms-2" />
                 )}
               </button>
             );
