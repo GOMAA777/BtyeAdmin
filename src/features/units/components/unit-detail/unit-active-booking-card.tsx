@@ -4,6 +4,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 interface UnitActiveBookingCardProps {
+  variant?: "active" | "scheduled";
   bookingId?: string;
   guestName?: string;
   guestPhone?: string;
@@ -17,6 +18,7 @@ interface UnitActiveBookingCardProps {
 }
 
 export function UnitActiveBookingCard({
+  variant = "active",
   bookingId = "BK-10482",
   guestName = "خالد العتيبي",
   guestPhone = "+966 54 887 2311",
@@ -25,25 +27,48 @@ export function UnitActiveBookingCard({
   stayRemaining = "متبقي ليلتان (تسجيل الخروج: 12:00 م)",
   totalAmount = "750.00",
   paymentStatus = "مدفوع بالكامل عبر منصة شريكة",
-  channelName = "قناة الحجز: بوابة Booking المزامنة",
+  channelName,
   bookingRef = "معرف الحجز: BK-10482",
 }: UnitActiveBookingCardProps) {
+  const isScheduled = variant === "scheduled";
+  const defaultChannel = isScheduled
+    ? "قناة الحجز: بوابة Whatsapp المزامنة"
+    : "قناة الحجز: بوابة Booking المزامنة";
+  const displayChannelName = channelName || defaultChannel;
+
   return (
     <div
       className="bg-white rounded-[16px] p-5 sm:p-6 relative overflow-hidden shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#E2E6DC] space-y-4"
       dir="rtl"
     >
-      {/* Top Accent Orange Bar */}
-      <div className="absolute top-0 left-0 right-0 h-[6px] bg-[#E99A38]" />
+      {/* Top Accent Bar: Green for Scheduled, Orange for Active */}
+      <div
+        className={`absolute top-0 left-0 right-0 h-[6px] ${
+          isScheduled ? "bg-[#3E8A5A]" : "bg-[#E99A38]"
+        }`}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-[#F1F5EB]/60">
         {/* Right Info: Icon + Title + Subtitle */}
         <div className="flex items-center gap-2.5">
-          <i className="lucide-icon icon-calendar w-[22px] h-[15px] shrink-0 text-[#34422A]" />
+          <svg
+            className="w-[22px] h-[15px] shrink-0 text-[#34422A]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+          </svg>
           <div className="flex flex-col text-right">
             <h3 className="font-bold text-[#181D17] text-[18px] leading-[28px]">
-              الحجز الحالي المسجل
+              {isScheduled ? "الحجز القادم المجدول" : "الحجز الحالي المسجل"}
             </h3>
             <span className="font-medium text-[#75786F] text-[11px] leading-[16px]">
               حجز إشغال مباشر تحت الإدارة
@@ -51,13 +76,15 @@ export function UnitActiveBookingCard({
           </div>
         </div>
 
-        {/* Left Badge: نشط الآن */}
-        <div className="bg-[#FFF4E5] rounded-full px-3 py-1 flex items-center gap-1.5 shrink-0">
-          <span className="bg-[#E99A38] rounded-full size-1.5" />
-          <span className="font-bold text-[#B87114] text-[12px] leading-[18px]">
-            نشط الآن
-          </span>
-        </div>
+        {/* Left Badge: نشط الآن (Only for Active / Occupied variant) */}
+        {!isScheduled && (
+          <div className="bg-[#FFF4E5] rounded-full px-3 py-1 flex items-center gap-1.5 shrink-0">
+            <span className="bg-[#E99A38] rounded-full size-1.5" />
+            <span className="font-bold text-[#B87114] text-[12px] leading-[18px]">
+              نشط الآن
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Inner Information Box: 3 Columns in RTL */}
@@ -90,7 +117,11 @@ export function UnitActiveBookingCard({
           <span className="font-semibold text-[#181D17] text-[12px] leading-[18px]">
             {stayDates}
           </span>
-          <span className="font-bold text-[#E99A38] text-[11px] leading-[16px]">
+          <span
+            className={`font-bold text-[11px] leading-[16px] ${
+              isScheduled ? "text-[#3E8A5A]" : "text-[#E99A38]"
+            }`}
+          >
             {stayRemaining}
           </span>
         </div>
@@ -119,7 +150,7 @@ export function UnitActiveBookingCard({
           </div>
           <span className="text-[#75786F]">•</span>
           <span className="font-medium text-[#75786F] text-[11px] leading-[16px]">
-            {channelName}
+            {displayChannelName}
           </span>
         </div>
 
@@ -130,7 +161,18 @@ export function UnitActiveBookingCard({
           className="flex items-center gap-1.5 font-bold text-[#34422A] text-[12px] leading-[18px] hover:underline cursor-pointer select-none"
         >
           <span>عرض تفاصيل الحجز</span>
-          <i className="lucide-icon icon-arrow-up-right size-[10.7px] shrink-0" />
+          <svg
+            className="size-[11px] shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
         </Link>
       </div>
     </div>

@@ -1,17 +1,21 @@
 "use client";
 
 interface UnitActivityTimelineCardProps {
+  variant?: "available" | "occupied";
   onOpenOperationsLog?: () => void;
 }
 
 export function UnitActivityTimelineCard({
+  variant = "occupied",
   onOpenOperationsLog,
 }: UnitActivityTimelineCardProps) {
+  const isAvailable = variant === "available";
+
   const events = [
     {
       dotColor: "bg-[#E99A38]",
       title: "تم ربط حجز جديد #BK-10482",
-      badge: "Booking.com",
+      badge: isAvailable ? "whatsapp.com" : "Booking.com",
       date: "18 سبتمبر 2026 — 02:45 م",
     },
     {
@@ -95,8 +99,19 @@ export function UnitActivityTimelineCard({
           onClick={onOpenOperationsLog}
           className="bg-[#F1F5EB] hover:bg-[#E5ECE0] rounded-[12px] px-4 py-2 flex items-center gap-1.5 font-bold text-[#34422A] text-[12px] leading-[18px] transition-colors cursor-pointer select-none"
         >
-          <i className="lucide-icon icon-arrow-up-right size-[10.7px] shrink-0" />
           <span>عرض سجل النشاط الكامل</span>
+          <svg
+            className="size-[11px] shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
         </button>
       </div>
     </div>

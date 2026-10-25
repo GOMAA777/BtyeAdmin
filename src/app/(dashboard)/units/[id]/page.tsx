@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { UnitDetailPage } from "@/features/units/components/unit-detail/unit-detail-page";
+import { unitStaticParams } from "@/lib/static-params";
 
 export const metadata = {
   title: "تفاصيل الوحدة السكنية والوصول الذكي | منصة أبراج",
@@ -7,10 +8,7 @@ export const metadata = {
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 10 }, (_, i) => ({ id: String(i + 1) }));
-  const unitIds = Array.from({ length: 5 }, (_, i) => ({ id: `unit-${i + 1}` }));
-  const specialIds = [{ id: "204" }, { id: "U-204" }];
-  return [...numericIds, ...unitIds, ...specialIds];
+  return unitStaticParams();
 }
 
 interface PageProps {
