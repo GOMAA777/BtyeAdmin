@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { MoreHorizontal, Eye, UserPlus, Wrench } from "lucide-react";
+import { MoreHorizontal, Eye, UserPlus, Wrench, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OperationTask } from "../types";
 
@@ -181,14 +181,14 @@ export function OperationActionDropdown({
               <Wrench className="w-4 h-4 shrink-0 text-[#172115]" />
             </Link>
 
-            {/* 4. عرض سجل النشاط */}
+            {/* 4. سجل التشغيل */}
             <Link
-              href="/operations/log/"
+              href={`/operations/log/?unitId=${task.unitId || "204"}`}
               onClick={() => setIsOpen(false)}
               className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-right text-[#172115] hover:bg-[#EEF2E6] hover:text-[#2E3C29]"
             >
-              <span>عرض سجل النشاط</span>
-              <Eye className="w-4 h-4 shrink-0 text-[#172115]" />
+              <span>سجل التشغيل</span>
+              <History className="w-4 h-4 shrink-0 text-[#172115]" />
             </Link>
           </div>,
           document.body
