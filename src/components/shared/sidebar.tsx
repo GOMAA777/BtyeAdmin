@@ -16,7 +16,6 @@ import {
   Wrench,
   Users2,
   Receipt,
-  BarChart3,
   SlidersHorizontal,
   UserCircle2,
   ShieldCheck,
@@ -45,6 +44,7 @@ const isRouteAvailable = (href: string) => {
     "/whatsapp",
     "/automation",
     "/billing",
+    "/team",
     "/styleguide",
     "/settings",
   ].includes(clean);
@@ -68,7 +68,6 @@ const mainNavItems: NavItem[] = [
   { title: "الواتساب", href: "/whatsapp/", icon: MessageSquare },
   { title: "فريق العمل", href: "/team/", icon: Users },
   { title: "الاشتراكات والفوترة", href: "/billing/", icon: Receipt },
-  { title: "التقارير", href: "/reports/", icon: BarChart3 },
 ];
 
 const systemNavItems: NavItem[] = [
