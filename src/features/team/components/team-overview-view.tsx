@@ -20,10 +20,9 @@ import {
   MessageSquare,
   Wrench,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { useTeamManager } from "../controllers/use-team-manager";
 import { SuspendMemberModal } from "./modals/suspend-member-modal";
 import { DeleteMemberModal } from "./modals/delete-member-modal";
@@ -50,7 +49,10 @@ export function TeamOverviewView() {
     setPropertyFilter,
     currentPage,
     setCurrentPage,
+    pageSize,
+    setPageSize,
     totalPages,
+    filteredMembers,
     paginatedMembers,
     resetFilters,
     // Modals
@@ -565,69 +567,22 @@ export function TeamOverviewView() {
       </div>
 
       {/* SECTION 5: PAGINATION BAR */}
-      <div className="bg-white rounded-[16px] p-4 px-6 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <span className="text-[13px] font-medium text-[#75786f] font-cairo">
-          عرض 1 - 8 من أصل 248 اشتراك مسجل
-        </span>
-
-        <div className="flex items-center gap-1 font-cairo text-[13px]">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-[8px] border border-[#dfe4db] text-[#454840] hover:bg-[#f1f5eb] disabled:opacity-50 disabled:pointer-events-none flex items-center gap-1"
-          >
-            <ChevronRight className="size-4" />
-            <span>السابق</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentPage(1)}
-            className={`size-8 rounded-full font-bold flex items-center justify-center transition-colors ${
-              currentPage === 1 ? "bg-[#34422a] text-white" : "text-[#454840] hover:bg-[#f1f5eb]"
-            }`}
-          >
-            1
-          </button>
-
-          <button
-            onClick={() => setCurrentPage(2)}
-            className={`size-8 rounded-full font-bold flex items-center justify-center transition-colors ${
-              currentPage === 2 ? "bg-[#34422a] text-white" : "text-[#454840] hover:bg-[#f1f5eb]"
-            }`}
-          >
-            2
-          </button>
-
-          <button
-            onClick={() => setCurrentPage(3)}
-            className={`size-8 rounded-full font-bold flex items-center justify-center transition-colors ${
-              currentPage === 3 ? "bg-[#34422a] text-white" : "text-[#454840] hover:bg-[#f1f5eb]"
-            }`}
-          >
-            3
-          </button>
-
-          <span className="px-1 text-[#75786f]">...</span>
-
-          <button
-            onClick={() => setCurrentPage(31)}
-            className={`size-8 rounded-full font-bold flex items-center justify-center transition-colors ${
-              currentPage === 31 ? "bg-[#34422a] text-white" : "text-[#454840] hover:bg-[#f1f5eb]"
-            }`}
-          >
-            31
-          </button>
-
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(31, p + 1))}
-            disabled={currentPage === 31}
-            className="px-3 py-1.5 rounded-[8px] border border-[#dfe4db] text-[#454840] hover:bg-[#f1f5eb] disabled:opacity-50 disabled:pointer-events-none flex items-center gap-1"
-          >
-            <span>التالي</span>
-            <ChevronLeft className="size-4" />
-          </button>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={filteredMembers.length}
+        pageSize={pageSize}
+        pageSizeOptions={[4, 8, 12, 16]}
+        onPageChange={(page) => setCurrentPage(page)}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        entityName="عضو"
+        pluralEntityName="أعضاء"
+        registeredLabel="مسجل"
+        className="rounded-[16px] border border-[#dfe4db]/60 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+      />
 
       {/* MODALS */}
       <SuspendMemberModal

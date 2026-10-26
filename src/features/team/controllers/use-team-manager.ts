@@ -28,7 +28,7 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [propertyFilter, setPropertyFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 8;
+  const [pageSize, setPageSize] = useState<number>(8);
 
   // Modals state
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
@@ -329,6 +329,7 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
     currentPage,
     setCurrentPage,
     pageSize,
+    setPageSize,
     totalPages,
     filteredMembers,
     paginatedMembers,

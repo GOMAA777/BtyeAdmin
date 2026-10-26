@@ -22,11 +22,10 @@ import {
   User,
   Pause,
   XCircle,
-  ArrowRight,
-  ArrowLeft,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
 
@@ -35,7 +34,7 @@ export function SubscriptionsListView() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
+  const [pageSize, setPageSize] = useState(8);
   const [activeTab, setActiveTab] = useState<
     "all" | "active" | "trial" | "expiring_soon" | "paused" | "cancelled"
   >("all");
@@ -794,103 +793,24 @@ export function SubscriptionsListView() {
           </table>
         </div>
 
-        {/* 5. Pagination Footer [1:27197] - EXACT FIGMA REPRODUCTION */}
-        <div className="bg-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#e5eae0]">
-          {/* Left side in RTL (Navigation Buttons) */}
-          <div className="flex items-center gap-1.5 order-2 sm:order-1">
-            {/* Previous Button (Right/Start) */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={activePage === 1}
-              className={`bg-[#ebefe6] text-[#454840] rounded-[12px] px-3 py-2 text-[12px] font-semibold flex items-center gap-1.5 transition-colors select-none ${
-                activePage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#dfe4db] cursor-pointer"
-              }`}
-            >
-              <ArrowRight className="size-3 text-current" />
-              <span>السابق</span>
-            </button>
-
-            {/* Page 1 (Active) */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage(1)}
-              className={`rounded-[12px] size-9 flex items-center justify-center text-[12px] transition-colors select-none ${
-                activePage === 1
-                  ? "bg-[#4b5940] text-white font-bold"
-                  : "text-[#181d17] font-semibold hover:bg-[#ebefe6] cursor-pointer"
-              }`}
-            >
-              1
-            </button>
-
-            {/* Page 2 */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage(2)}
-              className={`rounded-[12px] size-9 flex items-center justify-center text-[12px] transition-colors select-none ${
-                activePage === 2
-                  ? "bg-[#4b5940] text-white font-bold"
-                  : "text-[#181d17] font-semibold hover:bg-[#ebefe6] cursor-pointer"
-              }`}
-            >
-              2
-            </button>
-
-            {/* Page 3 */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage(3)}
-              className={`rounded-[12px] size-9 flex items-center justify-center text-[12px] transition-colors select-none ${
-                activePage === 3
-                  ? "bg-[#4b5940] text-white font-bold"
-                  : "text-[#181d17] font-semibold hover:bg-[#ebefe6] cursor-pointer"
-              }`}
-            >
-              3
-            </button>
-
-            {/* Ellipsis */}
-            <span className="text-[#454840] font-bold text-[14px] w-7 text-center select-none">
-              ...
-            </span>
-
-            {/* Page 31 */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage(31)}
-              className={`rounded-[12px] size-9 flex items-center justify-center text-[12px] transition-colors select-none ${
-                activePage === 31
-                  ? "bg-[#4b5940] text-white font-bold"
-                  : "text-[#181d17] font-semibold hover:bg-[#ebefe6] cursor-pointer"
-              }`}
-            >
-              31
-            </button>
-
-            {/* Next Button (Left/End) */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={activePage === totalPages}
-              className={`bg-[#ebefe6] text-[#454840] rounded-[12px] px-3 py-2 text-[12px] font-semibold flex items-center gap-1.5 transition-colors select-none ${
-                activePage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-[#dfe4db] cursor-pointer"
-              }`}
-            >
-              <span>التالي</span>
-              <ArrowLeft className="size-3 text-current" />
-            </button>
-          </div>
-
-          {/* Right side in RTL: "عرض 1 - 8 من أصل 248 اشتراك مسجل" */}
-          <div className="flex items-center gap-1.5 text-[12px] text-[#454840] font-semibold order-1 sm:order-2">
-            <span>عرض</span>
-            <span className="font-bold text-[#181d17]">1 - 8</span>
-            <span>من أصل</span>
-            <span className="font-bold text-[#181d17]">248</span>
-            <span>اشتراك مسجل</span>
-          </div>
-        </div>
+        {/* 5. Table Footer / Pagination */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 8, 10, 20]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="اشتراك"
+          pluralEntityName="اشتراكات"
+          registeredLabel="مسجل"
+        />
       </div>
 
       {/* 6. Quick Reference / Policy Notice Banner [1:27231] */}
