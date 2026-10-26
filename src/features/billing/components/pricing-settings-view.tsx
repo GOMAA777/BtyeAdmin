@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { usePricingManager } from "../controllers/use-pricing-manager";
 import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
+import { PriceUpdateConfirmationModal } from "./modals/price-update-confirmation-modal";
 
 export function PricingSettingsView() {
   const {
@@ -31,6 +32,9 @@ export function PricingSettingsView() {
     monthlyBasic,
     annualVat,
     annualBasic,
+    isConfirmModalOpen,
+    setIsConfirmModalOpen,
+    handleOpenPublishModal,
     handleSaveDraft,
     handleConfirmPublish,
   } = usePricingManager();
@@ -416,11 +420,22 @@ export function PricingSettingsView() {
           },
           {
             label: "حفظ ونشر التعديلات",
-            onClick: handleConfirmPublish,
+            onClick: handleOpenPublishModal,
             variant: "primary",
             icon: Check,
           },
         ]}
+      />
+
+      {/* Confirmation Modal [1:28400] */}
+      <PriceUpdateConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmPublish}
+        monthlyPrice={monthlyPrice}
+        annualPrice={annualPrice}
+        effectiveDate={effectiveDate}
+        discountPercent={discountPercent}
       />
     </div>
   );

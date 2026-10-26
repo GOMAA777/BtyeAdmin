@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { showFigmaSuccessToast } from "@/components/ui/sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 
 export function usePricingManager() {
@@ -31,6 +32,8 @@ export function usePricingManager() {
   const annualVat = (annualPrice * 0.15 * (100 / 115)).toFixed(2);
   const annualBasic = (annualPrice - parseFloat(annualVat)).toFixed(2);
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
   const handleSaveDraft = async () => {
     const ok = await confirm({
       title: "حفظ مسودة التسعير",
@@ -42,17 +45,16 @@ export function usePricingManager() {
     toast.success("تم حفظ مسودة إعدادات التسعير بنجاح");
   };
 
-  const handleConfirmPublish = async () => {
-    const ok = await confirm({
-      title: "تأكيد حفظ ونشر إعدادات التسعير",
-      message: `هل أنت متأكد من اعتماد ونشر تعرفة الأسعار الجديدة (تاريخ السريان: ${effectiveDate})؟ سيتم تطبيق الأسعار على دورات الفوترة القادمة.`,
-      confirmLabel: "حفظ ونشر التعديلات",
-      variant: "default",
-    });
-    if (!ok) return;
+  const handleOpenPublishModal = () => {
+    setIsConfirmModalOpen(true);
+  };
 
-    toast.success("تم تحديث وجدولة تعرفة الأسعار الجديدة بنجاح", {
-      description: `تاريخ السريان: ${effectiveDate} | السعر السنوي: ${annualPrice} ر.س`,
+  const handleConfirmPublish = async () => {
+    setIsConfirmModalOpen(false);
+    showFigmaSuccessToast({
+      title: "تم تسجيل التحديث بنجاح",
+      version: "V3.3",
+      description: "أُدرجت المعاملة في سجل التدقيق الإداري بواسطة محمد أحمد...",
     });
     router.push("/billing/");
   };
@@ -73,6 +75,9 @@ export function usePricingManager() {
     monthlyBasic,
     annualVat,
     annualBasic,
+    isConfirmModalOpen,
+    setIsConfirmModalOpen,
+    handleOpenPublishModal,
     handleSaveDraft,
     handleConfirmPublish,
   };
