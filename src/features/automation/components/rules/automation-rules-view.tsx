@@ -31,6 +31,8 @@ import { PauseRuleModal } from "./modals/pause-rule-modal";
 import { ActivateRuleModal } from "./modals/activate-rule-modal";
 import { DeleteRuleModal } from "./modals/delete-rule-modal";
 import { useAutomationRulesManager } from "../../controllers/use-automation-rules-manager";
+import { AutomationEmptyStateCard } from "../automation-empty-state-card";
+import { AutomationGraphIcon, AddUserPlusIcon } from "../automation-figma-icons";
 
 interface AutomationRulesViewProps {
   onSelectRule?: (ruleId: string) => void;
@@ -147,103 +149,87 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         </div>
       </div>
 
-      {/* Empty State View [1:26315] */}
-      {isEmptyPreview || filteredRules.length === 0 ? (
-        <div className="bg-white rounded-[16px] p-16 border border-[#e5e8e2] shadow-xs text-center flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 rounded-[16px] bg-[#ebefe6] border border-[#e5e8e2] flex items-center justify-center text-[#4b5940] relative">
-            <Share2 className="w-8 h-8" />
-            <div className="absolute -top-1.5 -end-1.5 w-6 h-6 rounded-full bg-[#4b5940] text-white flex items-center justify-center text-xs font-bold">
-              +
-            </div>
-          </div>
-
-          <div className="max-w-md space-y-1.5">
-            <h3 className="text-xl font-bold text-[#181d17]">لا توجد قواعد أتمتة</h3>
-            <p className="text-xs text-[#454840] leading-relaxed">
-              لم يتم إنشاء أي قواعد أتمتة على المنصة حتى الآن. ابدأ بتهيئة سير العمل التلقائي لإرسال أكواد الدخول الذكية، تنبيهات المغادرة، وتعيين مهام التنظيف آلياً.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <Link
-              href="/automation/rules/new/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#4b5940] text-white text-xs font-bold hover:bg-[#34422a] transition-colors shadow-2xs"
-            >
-              <span>إنشاء قاعدة جديدة</span>
-              <Plus className="w-4 h-4" />
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIsEmptyPreview(false);
-                setSearchQuery("");
-                setStatusFilter("all");
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#e5e8e2] text-xs font-semibold text-[#181d17] hover:bg-[#f6f7f4] transition-colors cursor-pointer"
-            >
-              <span>تحديث الصفحة</span>
-              <RotateCcw className="w-3.5 h-3.5 text-[#181d17]" />
-            </button>
-          </div>
+      {/* 2. Filter & Search Bar (Figma node 1:26232) */}
+      <div className="bg-white border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="relative w-full md:w-[420px] bg-[#f6f7f4] rounded-[12px] flex items-center">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ابحث باسم القاعدة، المحفز، أو الإجراء..."
+            className="w-full bg-transparent py-[8px] pe-[40px] ps-[16px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)] outline-none"
+          />
+          <Search className="size-[15px] absolute end-[14px] top-1/2 -translate-y-1/2 text-[#73786f]" />
         </div>
+
+        <div className="bg-[#f6f7f4] h-[36px] rounded-[12px] p-[2px] flex items-center gap-1 w-full md:w-auto">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={cn(
+              "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
+              statusFilter === "all"
+                ? "bg-white text-[#252a24] shadow-xs"
+                : "text-[#73786f] hover:text-[#252a24]"
+            )}
+          >
+            الكل (2)
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("active")}
+            className={cn(
+              "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
+              statusFilter === "active"
+                ? "bg-white text-[#252a24] shadow-xs"
+                : "text-[#73786f] hover:text-[#252a24]"
+            )}
+          >
+            مفعلة (12)
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("paused")}
+            className={cn(
+              "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
+              statusFilter === "paused"
+                ? "bg-white text-[#252a24] shadow-xs"
+                : "text-[#73786f] hover:text-[#252a24]"
+            )}
+          >
+            متوقفة (2)
+          </button>
+        </div>
+      </div>
+
+      {/* Empty State View [1:26151] vs Table View */}
+      {isEmptyPreview || filteredRules.length === 0 ? (
+        <AutomationEmptyStateCard
+          icon={<AutomationGraphIcon className="size-[40px]" />}
+          title="لا توجد قواعد أتمتة"
+          description={
+            <>
+              <p>لم يتم إنشاء أي قواعد أتمتة على المنصة حتى الآن. ابدأ بتهيئة سير العمل</p>
+              <p>التلقائي لإرسال أكواد الدخول الذكية، تنبيهات المغادرة، وتعيين مهام التنظيف</p>
+              <p>آلياً.</p>
+            </>
+          }
+          secondaryAction={{
+            label: "تحديث الصفحة",
+            onClick: () => {
+              setIsEmptyPreview(false);
+              setSearchQuery("");
+              setStatusFilter("all");
+            },
+          }}
+          primaryAction={{
+            label: "إنشاء قاعدة جديدة",
+            href: "/automation/rules/new/",
+            icon: <AddUserPlusIcon className="size-[16px] text-white" />,
+          }}
+        />
       ) : (
-        <>
-          {/* 2. Filter & Search Bar (Figma node 1:21373) */}
-          <div className="bg-white border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-[420px] bg-[#f6f7f4] rounded-[12px] flex items-center">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث باسم القاعدة، المحفز، أو الإجراء..."
-                className="w-full bg-transparent py-[8px] pe-[40px] ps-[16px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)] outline-none"
-              />
-              <Search className="size-[15px] absolute end-[14px] top-1/2 -translate-y-1/2 text-[#73786f]" />
-            </div>
-
-            <div className="bg-[#f6f7f4] h-[36px] rounded-[12px] p-[2px] flex items-center gap-1 w-full md:w-auto">
-              <button
-                type="button"
-                onClick={() => setStatusFilter("all")}
-                className={cn(
-                  "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
-                  statusFilter === "all"
-                    ? "bg-white text-[#252a24] shadow-xs"
-                    : "text-[#73786f] hover:text-[#252a24]"
-                )}
-              >
-                الكل (2)
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter("active")}
-                className={cn(
-                  "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
-                  statusFilter === "active"
-                    ? "bg-white text-[#252a24] shadow-xs"
-                    : "text-[#73786f] hover:text-[#252a24]"
-                )}
-              >
-                مفعلة (12)
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter("paused")}
-                className={cn(
-                  "px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none",
-                  statusFilter === "paused"
-                    ? "bg-white text-[#252a24] shadow-xs"
-                    : "text-[#73786f] hover:text-[#252a24]"
-                )}
-              >
-                متوقفة (2)
-              </button>
-            </div>
-          </div>
-
-          {/* 3. Main High-Fidelity Table Container (Figma node 1:21411) */}
-          <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-right border-collapse">
                 <thead>
@@ -418,8 +404,8 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
               </div>
             </div>
           </div>
-        </>
-      )}
+        )
+      }
 
       {/* Confirmation Modals */}
       <PauseRuleModal

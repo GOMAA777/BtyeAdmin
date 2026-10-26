@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BackButton } from "@/components/shared/back-button";
 import {
   ArrowRight,
   ShieldCheck,
@@ -28,6 +27,7 @@ import {
   Download,
   Receipt,
   Layers,
+  ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SubscriptionDetailData } from "../types";
@@ -55,65 +55,47 @@ export function SubscriptionDetailView({
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* 1. Header Bar [1:27619] */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <BackButton
-            fallbackHref="/billing/"
-            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-          />
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#181d17]">تفاصيل الاشتراك</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e5eae0] text-[#34422a]">
-                #{data.subscription.subscriptionCode}
-              </span>
-              {isPaused ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                  معلق مؤقتاً
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#d8e8cb] text-[#34422a]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4b5940]" />
-                  اشتراك نشط
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-[#454840] mt-1">
-              ملف إدارة ومتابعة التعاقدات والحدود التشغيلية المباشرة للأصل العقاري
-            </p>
-          </div>
+      {/* 1. Header Bar [1:27456] - Top Section Hero Greeting Bar */}
+      <div className="bg-white rounded-[16px] p-6 border border-[#EBEBEB] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[24px] font-bold text-[#181d17] leading-[34px] font-cairo">
+            تفاصيل الاشتراك
+          </h1>
+          <p className="text-[13px] text-[#454840] leading-[20px] mt-1 font-cairo">
+            ملف إدارة ومتابعة التعاقدات والحدود التشغيلية المباشرة للأصل العقاري
+          </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
+          {/* Pause / Resume Button */}
           <button
             type="button"
             onClick={handleTogglePause}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-[13px] font-bold transition-colors cursor-pointer font-cairo ${
               isPaused
-                ? "bg-[#d8e8cb] text-[#34422a] hover:bg-[#c6dcbe]"
-                : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                ? "bg-[#d8e8cb] text-[#34422A] hover:bg-[#c6dcbe]"
+                : "bg-[#fee2e2] text-[#ba1a1a] hover:bg-[#fcd0d0]"
             }`}
           >
             {isPaused ? (
               <>
-                <Play className="w-3.5 h-3.5" />
-                <span>إلغاء التعليق وتفعيل الاشتراك</span>
+                <Play className="w-4 h-4 fill-current" />
+                <span>إلغاء التعليق واستئناف الاشتراك</span>
               </>
             ) : (
               <>
-                <Pause className="w-3.5 h-3.5" />
+                <Pause className="w-4 h-4" />
                 <span>تعليق الاشتراك</span>
               </>
             )}
           </button>
 
+          {/* Edit Capacity Button -> Links to Pricing Settings 1:28041 */}
           <Link
             href="/billing/pricing/"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#34422a] hover:bg-[#283320] text-white shadow-sm transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-[13px] font-bold bg-[#34422A] hover:bg-[#283320] text-white shadow-sm transition-colors cursor-pointer font-cairo"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <SlidersHorizontal className="w-4 h-4 text-white" />
             <span>تعديل سعة الشقق</span>
           </Link>
         </div>
@@ -122,21 +104,21 @@ export function SubscriptionDetailView({
       {/* 2. Top 2 Main Cards: Owner Info & Contract Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Right Card: Owner Details */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
+        <div className="bg-white rounded-[16px] p-6 border border-[#EBEBEB] shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ebefe6] text-[#34422a]">
               معتمد رسمياً
             </span>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-[#181d17]">بيانات مالك العقار</h2>
-              <div className="w-8 h-8 rounded-lg bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
+              <h2 className="text-base font-bold text-[#181d17] font-cairo">بيانات مالك العقار</h2>
+              <div className="w-8 h-8 rounded-[8px] bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
             </div>
           </div>
 
           {/* Owner Profile Banner */}
-          <div className="p-4 rounded-2xl bg-[#FAFBF9] border border-gray-100 flex items-center justify-between">
+          <div className="p-4 rounded-[12px] bg-[#FAFBF9] border border-gray-100 flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm text-[#181d17]">{data.owner.name}</span>
@@ -147,32 +129,32 @@ export function SubscriptionDetailView({
               </div>
               <div className="text-xs text-gray-500">{data.owner.company}</div>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-[#ebefe6] text-[#34422a] font-bold text-sm flex items-center justify-center shadow-xs">
+            <div className="w-12 h-12 rounded-[12px] bg-[#ebefe6] text-[#34422a] font-bold text-sm flex items-center justify-center shadow-xs">
               {data.owner.avatarInitials}
             </div>
           </div>
 
           {/* Key Contact Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-gray-50">
+            <div className="p-3 rounded-[10px] bg-gray-50">
               <span className="text-[11px] text-gray-400 block">رقم الجوال</span>
               <span className="font-mono font-bold text-[#181d17] text-xs mt-0.5 block">
                 {data.owner.phone}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-gray-50">
+            <div className="p-3 rounded-[10px] bg-gray-50">
               <span className="text-[11px] text-gray-400 block">البريد الإلكتروني</span>
               <span className="font-mono text-gray-700 text-xs mt-0.5 block truncate">
                 {data.owner.email}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-gray-50">
+            <div className="p-3 rounded-[10px] bg-gray-50">
               <span className="text-[11px] text-gray-400 block">العقار الرئيسي المرتبط</span>
               <span className="font-semibold text-[#181d17] text-xs mt-0.5 block">
                 {data.owner.primaryProperty}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-gray-50">
+            <div className="p-3 rounded-[10px] bg-gray-50">
               <span className="text-[11px] text-gray-400 block">تاريخ الانضمام للمنصة</span>
               <span className="font-medium text-gray-700 text-xs mt-0.5 block">
                 {data.owner.joinDate}
@@ -180,29 +162,29 @@ export function SubscriptionDetailView({
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between text-xs">
+          <div className="pt-2 flex items-center justify-between text-xs border-t border-gray-100">
             <span className="text-gray-400">{data.owner.city}</span>
             <Link
-              href="/owners/1/"
-              className="inline-flex items-center gap-1 font-semibold text-[#4b5940] hover:underline"
+              href={`/owners/${(data.owner as any).id || "1"}/`}
+              className="inline-flex items-center gap-1.5 font-semibold text-[#34422A] hover:underline"
             >
               <span>فتح ملف المالك الشامل</span>
-              <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+              <ChevronLeft className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
         {/* Left Card: Billing & Contract Details */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
+        <div className="bg-white rounded-[16px] p-6 border border-[#EBEBEB] shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#f1f5eb] text-[#34422A] border border-[#d8e8cb]">
               سداد تلقائي نشط عبر Mada
             </span>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-[#181d17]">
+              <h2 className="text-base font-bold text-[#181d17] font-cairo">
                 تفاصيل الفوترة والتسعير التعاقدي
               </h2>
-              <div className="w-8 h-8 rounded-lg bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[8px] bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
                 <Receipt className="w-4 h-4" />
               </div>
             </div>
@@ -210,18 +192,18 @@ export function SubscriptionDetailView({
 
           {/* Pricing Highlight Banner */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 rounded-2xl bg-[#FAFBF9] border border-gray-100">
+            <div className="p-4 rounded-[12px] bg-[#FAFBF9] border border-gray-100">
               <span className="text-[11px] text-gray-400 block">سعر الشقة الشهري</span>
-              <div className="text-xl font-bold font-mono text-[#181d17] mt-1">
+              <div className="text-2xl font-bold font-mono text-[#181d17] mt-1">
                 {data.contract.monthlyPerUnitPrice}{" "}
-                <span className="text-xs font-sans text-gray-500">ر.س / شقة / شهر</span>
+                <span className="text-xs font-sans text-gray-500">ر.س / شهر</span>
               </div>
               <span className="text-[10px] text-gray-400 mt-1 block">تطبيق الفئة المعتمدة B</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#f6fbf1] border border-[#d8e8cb]">
+            <div className="p-4 rounded-[12px] bg-[#f6fbf1] border border-[#d8e8cb]">
               <span className="text-[11px] text-[#454840] block">الإجمالي الشهري الحالي</span>
-              <div className="text-xl font-bold font-mono text-[#34422a] mt-1">
+              <div className="text-2xl font-bold font-mono text-[#34422a] mt-1">
                 {data.contract.totalMonthlyAmount}{" "}
                 <span className="text-xs font-sans text-gray-600">ر.س / شهر</span>
               </div>
@@ -233,31 +215,31 @@ export function SubscriptionDetailView({
 
           {/* Contract Breakdown Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-            <div className="p-2.5 rounded-xl bg-gray-50">
+            <div className="p-2.5 rounded-[10px] bg-gray-50">
               <span className="text-[10px] text-gray-400 block">التجديد القادم</span>
               <span className="font-bold text-[#181d17] text-xs mt-0.5 block">
                 {data.contract.nextRenewalDate}
               </span>
               <span className="text-[10px] text-emerald-700">
-                متبقي {data.contract.daysRemaining} يوماً
+                متبقي {data.contract.daysRemaining} يوماً على الدورة
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-gray-50">
+            <div className="p-2.5 rounded-[10px] bg-gray-50">
               <span className="text-[10px] text-gray-400 block">دورة الفوترة</span>
               <span className="font-bold text-[#181d17] text-xs mt-0.5 block">
-                {data.contract.billingCycleLabel}
+                {data.contract.billingCycleLabel} (تجديد تلقائي)
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-gray-50">
+            <div className="p-2.5 rounded-[10px] bg-gray-50">
               <span className="text-[10px] text-gray-400 block">تاريخ بدء الاشتراك</span>
               <span className="font-bold text-[#181d17] text-xs mt-0.5 block">
                 {data.contract.startDate}
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-gray-50">
+            <div className="p-2.5 rounded-[10px] bg-gray-50">
               <span className="text-[10px] text-gray-400 block">طريقة الدفع</span>
               <span className="font-mono font-bold text-[#181d17] text-xs mt-0.5 block">
                 {data.contract.paymentMethod}
@@ -269,14 +251,14 @@ export function SubscriptionDetailView({
           </div>
 
           {/* Payment method action */}
-          <div className="pt-2 flex items-center justify-between text-xs">
+          <div className="pt-2 flex items-center justify-between text-xs border-t border-gray-100">
             <span className="text-[11px] text-gray-400 font-mono">
-              الفاتورة القادمة تصدر مؤتمتة وتخصم تلقائياً بتاريخ 2026-11-01
+              الفاتورة القادمة تصدر مؤتمتة وتخصم تلقائياً بتاريخ 2026-11-01T00:00:00+03:00
             </span>
             <button
               type="button"
               onClick={() => toast.info("فتح نافذة تعديل البطاقة وطريقة الدفع")}
-              className="text-xs font-semibold text-[#4b5940] hover:underline"
+              className="text-xs font-semibold text-[#34422A] hover:underline cursor-pointer"
             >
               تعديل طريقة الدفع
             </button>
@@ -284,19 +266,19 @@ export function SubscriptionDetailView({
         </div>
       </div>
 
-      {/* 3. Middle Section: Apartment Entitlements [1:27619] */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-5">
+      {/* 3. Middle Section: Apartment Entitlements [1:27455] */}
+      <div className="bg-white rounded-[16px] p-6 border border-[#EBEBEB] shadow-2xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-[#181d17]">
+              <h2 className="text-lg font-bold text-[#181d17] font-cairo">
                 رصيد وسعة الشقق (Apartment Entitlements)
               </h2>
-              <div className="w-7 h-7 rounded-lg bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[8px] bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5 font-cairo">
               توزيع تراخيص الوحدات السكنية المسموح بإدراجها وتأجيرها ضمن المنظومة
             </p>
           </div>
@@ -308,33 +290,33 @@ export function SubscriptionDetailView({
 
         {/* 4 Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+          <div className="p-4 rounded-[12px] bg-gray-50 border border-gray-100">
             <span className="text-xs text-gray-500">الشقق المشتراة (Purchased)</span>
             <div className="text-2xl font-bold font-mono text-[#181d17] mt-1">
-              {data.entitlements.purchasedUnits}
+              {data.entitlements.purchasedUnits} <span className="text-xs font-normal text-gray-500 font-sans">شقق مرخصة</span>
             </div>
             <span className="text-[11px] text-gray-400">سقف الترخيص الحالي</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#f6fbf1] border border-[#d8e8cb]">
+          <div className="p-4 rounded-[12px] bg-[#f6fbf1] border border-[#d8e8cb]">
             <span className="text-xs text-[#454840]">الشقق المستخدمة (Used)</span>
             <div className="text-2xl font-bold font-mono text-[#34422a] mt-1">
-              {data.entitlements.usedUnits}
+              {data.entitlements.usedUnits} <span className="text-xs font-normal text-emerald-800 font-sans">شقق نشطة ومربوطة</span>
             </div>
             <span className="text-[11px] text-emerald-800 font-medium">
-              شقق نشطة ومربوطة بالنظام
+              وحدات فعلية في النظام
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200">
+          <div className="p-4 rounded-[12px] bg-amber-50/60 border border-amber-200">
             <span className="text-xs text-amber-900">الشقق المتبقية (Remaining)</span>
             <div className="text-2xl font-bold font-mono text-amber-900 mt-1">
-              {data.entitlements.remainingUnits}
+              {data.entitlements.remainingUnits} <span className="text-xs font-normal text-amber-800 font-sans">شقق شاغرة للربط</span>
             </div>
             <span className="text-[11px] text-amber-700">جاهزة لإضافة وحدات جديدة</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+          <div className="p-4 rounded-[12px] bg-gray-50 border border-gray-100">
             <span className="text-xs text-gray-500">نسبة استهلاك السعة</span>
             <div className="text-2xl font-bold font-mono text-[#181d17] mt-1">
               {data.entitlements.usagePercentage}%
@@ -346,7 +328,7 @@ export function SubscriptionDetailView({
         </div>
 
         {/* Horizontal Dual-Color Capacity Bar */}
-        <div className="space-y-2 p-4 rounded-2xl bg-[#FAFBF9] border border-gray-100">
+        <div className="space-y-2 p-4 rounded-[12px] bg-[#FAFBF9] border border-gray-100">
           <div className="flex items-center justify-between text-xs font-semibold">
             <span className="flex items-center gap-1.5 text-[#34422a]">
               <span className="w-2.5 h-2.5 rounded-full bg-[#34422a]" />
@@ -387,7 +369,7 @@ export function SubscriptionDetailView({
             {data.entitlements.units.map((unit) => (
               <div
                 key={unit.id}
-                className="p-3 rounded-2xl bg-gray-50 border border-gray-200 text-right space-y-1 hover:border-[#4b5940] transition-colors"
+                className="p-3 rounded-[12px] bg-gray-50 border border-gray-200 text-right space-y-1 hover:border-[#4b5940] transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -406,25 +388,25 @@ export function SubscriptionDetailView({
       {/* 4. Bottom 2-Column Split: Invoices Table & Audit Trail */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Right Column: Invoices Table (7 Cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
+        <div className="lg:col-span-7 bg-white rounded-[16px] p-6 border border-[#EBEBEB] shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
               للقراءة فقط (سجل مقفل)
             </span>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-[#181d17]">
+              <h2 className="text-base font-bold text-[#181d17] font-cairo">
                 الفواتير الصادرة وسجل السداد
               </h2>
-              <div className="w-8 h-8 rounded-lg bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[8px] bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
                 <Receipt className="w-4 h-4" />
               </div>
             </div>
           </div>
-          <p className="text-xs text-gray-500 -mt-2">
+          <p className="text-xs text-gray-500 -mt-2 font-cairo">
             سجل فواتير ZATCA الإلكترونية الضريبية المعتمدة
           </p>
 
-          <div className="overflow-x-auto rounded-2xl border border-gray-100">
+          <div className="overflow-x-auto rounded-[12px] border border-gray-100">
             <table className="w-full text-right text-xs">
               <thead>
                 <tr className="bg-[#FAFBF9] border-b border-gray-100 text-[#454840] font-bold">
@@ -462,14 +444,14 @@ export function SubscriptionDetailView({
         </div>
 
         {/* Left Column: Audit Timeline (5 Cols) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm space-y-4">
+        <div className="lg:col-span-5 bg-white rounded-[16px] p-6 border border-[#EBEBEB] shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <span className="text-xs text-gray-400 font-mono">6 أحداث مسجلة</span>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-[#181d17]">
+              <h2 className="text-base font-bold text-[#181d17] font-cairo">
                 سجل التدقيق والتتبع الزمني
               </h2>
-              <div className="w-8 h-8 rounded-lg bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[8px] bg-[#ebefe6] text-[#34422a] flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
             </div>
@@ -479,7 +461,7 @@ export function SubscriptionDetailView({
             {data.auditTimeline.map((ev) => (
               <div key={ev.id} className="relative flex items-start gap-3">
                 <div
-                  className={`w-4 h-4 rounded-full mt-0.5 shrink-0 z-10 ring-4 ring-white ${
+                  className={`w-3.5 h-3.5 rounded-full mt-0.5 shrink-0 z-10 ring-4 ring-white ${
                     ev.type === "renewal" || ev.type === "payment"
                       ? "bg-emerald-500"
                       : ev.type === "upgrade"
@@ -489,7 +471,7 @@ export function SubscriptionDetailView({
                       : "bg-[#34422a]"
                   }`}
                 />
-                <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100 flex-1 space-y-1">
+                <div className="p-3 rounded-[12px] bg-gray-50 border border-gray-100 flex-1 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#181d17] text-xs">{ev.title}</span>
                     <span className="text-[10px] text-gray-400 font-mono">

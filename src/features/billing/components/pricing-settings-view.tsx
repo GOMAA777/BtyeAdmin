@@ -2,7 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
+import {
+  Check,
+  Clock3,
+  Calendar,
+  Sparkles,
+  Users,
+  CalendarDays,
+  ArrowRight,
+} from "lucide-react";
 import { usePricingManager } from "../controllers/use-pricing-manager";
+import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
 
 export function PricingSettingsView() {
   const {
@@ -27,127 +37,50 @@ export function PricingSettingsView() {
 
   return (
     <div
-      className="content-stretch flex flex-col items-start relative w-full min-h-screen pb-24"
+      className="content-stretch flex flex-col items-start relative w-full pb-24 space-y-6"
       dir="rtl"
       data-name="تعديل سعة الشقق"
     >
-      {/* SECTION 0: TOP HERO GREETING BAR */}
-      <div className="w-full bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-6 mb-6">
+      {/* SECTION 0: TOP HERO GREETING BAR [1:28043] */}
+      <div className="w-full bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-6 border border-[#EBEBEB]">
         <div className="flex flex-col items-start gap-1">
-          <h1 className="font-['Cairo'] font-bold text-[#181d17] text-[24px] leading-[34px]">
+          <h1 className="font-cairo font-bold text-[#181d17] text-[24px] leading-[34px]">
             إعدادات التسعير
           </h1>
-          <p className="font-['Cairo'] font-medium text-[#454840] text-[13px] leading-[20px]">
+          <p className="font-cairo font-medium text-[#454840] text-[13px] leading-[20px]">
             التحكم في سعر الاشتراك لكل شقة ودورة الفوترة وقواعد التسعير الديناميكي للمنظومة.
           </p>
         </div>
       </div>
 
-      {/* SECTION 1: Current Pricing Cards */}
-      <div className="w-full space-y-4 mb-8">
+      {/* SECTION 1: Current Pricing Cards [1:28052] */}
+      <div className="w-full space-y-4">
         <div className="flex items-center justify-between">
-          <div className="font-['Cairo'] font-bold text-[#181d17] text-[20px] leading-[30px]">
+          <div className="font-cairo font-bold text-[#181d17] text-[20px] leading-[30px]">
             التسعير الحالي الساري
           </div>
-          <div className="font-['Cairo'] font-semibold text-[#454840] text-[12px] leading-[18px]">
+          <div className="font-cairo font-semibold text-[#454840] text-[12px] leading-[18px]">
             الخطة النشطة المعتمدة في بوابات الدفع
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Card 1: Annual Plan */}
-          <div className="bg-[rgba(242,225,192,0.3)] flex flex-col justify-between overflow-hidden p-6 relative rounded-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[rgba(242,225,192,0.6)]">
-            <div className="absolute bg-[#695d43] h-[6px] left-0 right-0 top-0" />
-
-            <div className="space-y-4 pt-1">
-              {/* Header row */}
-              <div className="flex items-start justify-between">
-                <div className="flex gap-2 items-center">
-                  <div className="bg-[#f2e1c0] flex items-center justify-center rounded-[12px] size-[40px] shrink-0">
-                    <i className="lucide-icon icon-sparkles size-5 text-[#695d43]" />
-                  </div>
-                  <div>
-                    <div className="flex gap-2 items-center">
-                      <h3 className="font-['Cairo'] font-bold text-[#181d17] text-[18px] leading-[28px]">
-                        الاشتراك السنوي
-                      </h3>
-                      <span className="bg-[#695d43] px-2 py-0.5 rounded-[4px] font-['Cairo'] font-bold text-[11px] text-white">
-                        الأكثر كفاءة
-                      </span>
-                    </div>
-                    <div className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
-                      دورة الفوترة: كل 365 يوماً
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#d8e8c7] flex gap-1.5 items-center px-3 py-1 rounded-full">
-                  <span className="bg-[#34422a] rounded-full size-1.5" />
-                  <span className="font-['Cairo'] font-bold text-[#3d4b33] text-[11px] leading-[16px]">
-                    نشط ومعتمد
-                  </span>
-                </div>
-              </div>
-
-              {/* Price display */}
-              <div className="flex items-baseline gap-2">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[56px] leading-[68px] tracking-tight">
-                  999
-                </span>
-                <span className="font-['Cairo'] font-semibold text-[#454840] text-[18px]">
-                  ر.س
-                </span>
-                <span className="bg-[#ebefe6] px-2 py-0.5 rounded-[8px] font-['Cairo'] font-medium text-[#454840] text-[11px]">
-                  لكل شقة / سنة
-                </span>
-              </div>
-
-              {/* VAT Breakdown Box */}
-              <div className="bg-[rgba(255,255,255,0.85)] flex flex-col gap-1.5 p-3 rounded-[8px] border border-white">
-                <div className="flex items-center justify-between font-['Cairo'] text-[11px]">
-                  <span className="text-[#454840]">شامل 15% ضريبة القيمة المضافة (VAT):</span>
-                  <span className="font-bold text-[#181d17]">130.30 ر.س ضريبة</span>
-                </div>
-                <div className="flex items-center justify-between font-['Cairo'] text-[11px]">
-                  <span className="text-[#454840]">المبلغ الخاضع للضريبة (الأساسي):</span>
-                  <span className="font-bold text-[#181d17]">868.70 ر.س</span>
-                </div>
-                <div className="bg-[rgba(216,232,199,0.4)] flex items-center justify-between px-2 py-1 rounded-[4px] mt-1 font-['Cairo'] text-[11px]">
-                  <span className="font-bold text-[#34422a]">التوفير السنوي الفعلي المعتمد:</span>
-                  <span className="font-bold text-[#34422a]">وفر 189 ر.س للشقة (15.9% خصم)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom active subscribers count */}
-            <div className="mt-4 -mx-6 -mb-6 bg-[rgba(242,225,192,0.5)] flex items-center justify-between px-6 py-3 border-t border-[rgba(242,225,192,0.8)]">
-              <div className="flex gap-1.5 items-center font-['Cairo'] text-[12px] text-[#454840]">
-                <i className="lucide-icon icon-users size-4 opacity-80 text-[#454840]" />
-                <span className="font-semibold">عدد المشتركين النشطين:</span>
-              </div>
-              <div className="font-['Cairo'] text-[12px]">
-                <strong className="text-[#181d17]">64 مالك </strong>
-                <span className="text-[#454840]">(976 شقة مرخصة)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Monthly Plan */}
-          <div className="bg-white flex flex-col justify-between overflow-hidden p-6 relative rounded-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-gray-100">
+          {/* Card 1: Monthly Plan (Rightmost in RTL) */}
+          <div className="bg-white flex flex-col justify-between overflow-hidden p-6 relative rounded-[16px] shadow-2xs border border-[#EBEBEB]">
             <div className="absolute bg-[#4b5940] h-[6px] left-0 right-0 top-0" />
 
             <div className="space-y-4 pt-1">
               {/* Header row */}
               <div className="flex items-start justify-between">
-                <div className="flex gap-2 items-center">
-                  <div className="bg-[#ebefe6] flex items-center justify-center rounded-[12px] size-[40px] shrink-0">
-                    <i className="lucide-icon icon-calendar size-5 text-[#34422A]" />
+                <div className="flex gap-3 items-center">
+                  <div className="bg-[#ebefe6] flex items-center justify-center rounded-[12px] size-[40px] shrink-0 text-[#34422A]">
+                    <Calendar className="w-5 h-5 text-[#34422A]" />
                   </div>
                   <div>
-                    <h3 className="font-['Cairo'] font-bold text-[#181d17] text-[18px] leading-[28px]">
+                    <h3 className="font-cairo font-bold text-[#181d17] text-[18px] leading-[28px]">
                       الاشتراك الشهري
                     </h3>
-                    <div className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
+                    <div className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px]">
                       دورة الفوترة: كل 30 يوماً
                     </div>
                   </div>
@@ -155,7 +88,7 @@ export function PricingSettingsView() {
 
                 <div className="bg-[#d8e8c7] flex gap-1.5 items-center px-3 py-1 rounded-full">
                   <span className="bg-[#34422a] rounded-full size-1.5" />
-                  <span className="font-['Cairo'] font-bold text-[#3d4b33] text-[11px] leading-[16px]">
+                  <span className="font-cairo font-bold text-[#3d4b33] text-[11px] leading-[16px]">
                     نشط ومعتمد
                   </span>
                 </div>
@@ -163,55 +96,131 @@ export function PricingSettingsView() {
 
               {/* Price display */}
               <div className="flex items-baseline gap-2">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[56px] leading-[68px] tracking-tight">
+                <span className="font-cairo font-bold text-[#181d17] text-[56px] leading-[68px] tracking-tight">
                   99
                 </span>
-                <span className="font-['Cairo'] font-semibold text-[#454840] text-[18px]">
+                <span className="font-cairo font-semibold text-[#454840] text-[18px]">
                   ر.س
                 </span>
-                <span className="bg-[#ebefe6] px-2 py-0.5 rounded-[8px] font-['Cairo'] font-medium text-[#454840] text-[11px]">
+                <span className="bg-[#ebefe6] px-2.5 py-1 rounded-[8px] font-cairo font-medium text-[#454840] text-[11px]">
                   لكل شقة / شهر
                 </span>
               </div>
 
               {/* VAT Breakdown Box */}
               <div className="bg-[#f1f5eb] flex flex-col gap-1.5 p-3 rounded-[8px]">
-                <div className="flex items-center justify-between font-['Cairo'] text-[11px]">
+                <div className="flex items-center justify-between font-cairo text-[11px]">
                   <span className="text-[#454840]">شامل 15% ضريبة القيمة المضافة (VAT):</span>
                   <span className="font-bold text-[#181d17]">12.91 ر.س ضريبة</span>
                 </div>
-                <div className="flex items-center justify-between font-['Cairo'] text-[11px]">
+                <div className="flex items-center justify-between font-cairo text-[11px]">
                   <span className="text-[#454840]">المبلغ الخاضع للضريبة (الأساسي):</span>
                   <span className="font-bold text-[#181d17]">86.09 ر.س</span>
                 </div>
-                <div className="h-6" /> {/* Placeholder to balance heights */}
               </div>
             </div>
 
             {/* Bottom active subscribers count */}
-            <div className="mt-4 -mx-6 -mb-6 bg-[rgba(235,239,230,0.5)] flex items-center justify-between px-6 py-3 border-t border-[#e2e7dc]">
-              <div className="flex gap-1.5 items-center font-['Cairo'] text-[12px] text-[#454840]">
-                <i className="lucide-icon icon-users size-4 opacity-80 text-[#454840]" />
+            <div className="mt-5 -mx-6 -mb-6 bg-[rgba(235,239,230,0.5)] flex items-center justify-between px-6 py-3.5 border-t border-[#e2e7dc]">
+              <div className="flex gap-2 items-center font-cairo text-[12px] text-[#454840]">
+                <Users className="w-4 h-4 text-[#454840]" />
                 <span className="font-semibold">عدد المشتركين النشطين:</span>
               </div>
-              <div className="font-['Cairo'] text-[12px]">
+              <div className="font-cairo text-[12px]">
                 <strong className="text-[#181d17]">184 مالك </strong>
                 <span className="text-[#454840]">(1,920 شقة مرخصة)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Annual Plan (Leftmost in RTL) */}
+          <div className="bg-[rgba(242,225,192,0.3)] flex flex-col justify-between overflow-hidden p-6 relative rounded-[16px] shadow-2xs border border-[rgba(242,225,192,0.6)]">
+            <div className="absolute bg-[#695d43] h-[6px] left-0 right-0 top-0" />
+
+            <div className="space-y-4 pt-1">
+              {/* Header row */}
+              <div className="flex items-start justify-between">
+                <div className="flex gap-3 items-center">
+                  <div className="bg-[#f2e1c0] flex items-center justify-center rounded-[12px] size-[40px] shrink-0 text-[#695d43]">
+                    <Sparkles className="w-5 h-5 text-[#695d43]" />
+                  </div>
+                  <div>
+                    <div className="flex gap-2 items-center">
+                      <h3 className="font-cairo font-bold text-[#181d17] text-[18px] leading-[28px]">
+                        الاشتراك السنوي
+                      </h3>
+                      <span className="bg-[#695d43] px-2 py-0.5 rounded-[4px] font-cairo font-bold text-[11px] text-white">
+                        الأكثر كفاءة
+                      </span>
+                    </div>
+                    <div className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px]">
+                      دورة الفوترة: كل 365 يوماً
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#d8e8c7] flex gap-1.5 items-center px-3 py-1 rounded-full">
+                  <span className="bg-[#34422a] rounded-full size-1.5" />
+                  <span className="font-cairo font-bold text-[#3d4b33] text-[11px] leading-[16px]">
+                    نشط ومعتمد
+                  </span>
+                </div>
+              </div>
+
+              {/* Price display */}
+              <div className="flex items-baseline gap-2">
+                <span className="font-cairo font-bold text-[#181d17] text-[56px] leading-[68px] tracking-tight">
+                  999
+                </span>
+                <span className="font-cairo font-semibold text-[#454840] text-[18px]">
+                  ر.س
+                </span>
+                <span className="bg-[#ebefe6] px-2.5 py-1 rounded-[8px] font-cairo font-medium text-[#454840] text-[11px]">
+                  لكل شقة / سنة
+                </span>
+              </div>
+
+              {/* VAT Breakdown Box */}
+              <div className="bg-[rgba(255,255,255,0.85)] flex flex-col gap-1.5 p-3 rounded-[8px] border border-white">
+                <div className="flex items-center justify-between font-cairo text-[11px]">
+                  <span className="text-[#454840]">شامل 15% ضريبة القيمة المضافة (VAT):</span>
+                  <span className="font-bold text-[#181d17]">130.30 ر.س ضريبة</span>
+                </div>
+                <div className="flex items-center justify-between font-cairo text-[11px]">
+                  <span className="text-[#454840]">المبلغ الخاضع للضريبة (الأساسي):</span>
+                  <span className="font-bold text-[#181d17]">868.70 ر.س</span>
+                </div>
+                <div className="bg-[rgba(216,232,199,0.4)] flex items-center justify-between px-2 py-1 rounded-[4px] mt-1 font-cairo text-[11px]">
+                  <span className="font-bold text-[#34422a]">التوفير السنوي الفعلي المعتمد:</span>
+                  <span className="font-bold text-[#34422a]">وفر 189 ر.س للشقة (15.9% خصم)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom active subscribers count */}
+            <div className="mt-5 -mx-6 -mb-6 bg-[rgba(242,225,192,0.5)] flex items-center justify-between px-6 py-3.5 border-t border-[rgba(242,225,192,0.8)]">
+              <div className="flex gap-2 items-center font-cairo text-[12px] text-[#454840]">
+                <Users className="w-4 h-4 text-[#454840]" />
+                <span className="font-semibold">عدد المشتركين النشطين:</span>
+              </div>
+              <div className="font-cairo text-[12px]">
+                <strong className="text-[#181d17]">64 مالك </strong>
+                <span className="text-[#454840]">(976 شقة مرخصة)</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* SECTION 2: Dynamic Form & Live Recalculation Grid */}
+      {/* SECTION 2: Dynamic Form & Live Recalculation Grid [1:28051] */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Form Inputs (Col 7) */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-gray-100 space-y-6">
+        {/* Form Inputs (Col 7 - Right in RTL) */}
+        <div className="lg:col-span-7 bg-white p-6 rounded-[16px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#EBEBEB] space-y-6">
           <div className="space-y-1">
-            <h2 className="font-['Cairo'] font-bold text-[#181d17] text-[20px] leading-[30px]">
+            <h2 className="font-cairo font-bold text-[#181d17] text-[20px] leading-[30px]">
               تعديل الأسعار والمحاكاة الفورية
             </h2>
-            <p className="font-['Cairo'] font-normal text-[#454840] text-[14px] leading-[22px]">
+            <p className="font-cairo font-normal text-[#454840] text-[14px] leading-[22px]">
               قم بتحديث القيم لإصدار تسعيري جديد. يتم تفعيل التسعير عند الوصول لتاريخ السريان المحدد
               أدناه وموافقات الحوكمة.
             </p>
@@ -221,7 +230,7 @@ export function PricingSettingsView() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Field 1: Monthly New Price */}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1 font-['Cairo'] font-semibold text-[14px] text-[#181d17]">
+              <label className="flex items-center gap-1 font-cairo font-semibold text-[14px] text-[#181d17]">
                 <span className="text-[#ba1a1a]">*</span>
                 <span>السعر الشهري الجديد لكل شقة (ر.س)</span>
               </label>
@@ -231,20 +240,20 @@ export function PricingSettingsView() {
                   min="1"
                   value={monthlyPrice}
                   onChange={(e) => setMonthlyPrice(Number(e.target.value) || 0)}
-                  className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] px-4 font-['Cairo'] font-bold text-[#181d17] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#34422a] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]"
+                  className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] px-4 font-cairo font-bold text-[#181d17] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#34422a] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]"
                 />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-['Cairo'] font-semibold text-[#454840] text-[12px]">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-cairo font-semibold text-[#454840] text-[12px]">
                   ر.س
                 </span>
               </div>
-              <p className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
+              <p className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px]">
                 السعر شامل 15% ضريبة القيمة المضافة
               </p>
             </div>
 
             {/* Field 2: Annual New Price */}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1 font-['Cairo'] font-semibold text-[14px] text-[#181d17]">
+              <label className="flex items-center gap-1 font-cairo font-semibold text-[14px] text-[#181d17]">
                 <span className="text-[#ba1a1a]">*</span>
                 <span>السعر السنوي الجديد لكل شقة (ر.س)</span>
               </label>
@@ -254,13 +263,13 @@ export function PricingSettingsView() {
                   min="1"
                   value={annualPrice}
                   onChange={(e) => setAnnualPrice(Number(e.target.value) || 0)}
-                  className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] px-4 font-['Cairo'] font-bold text-[#181d17] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#34422a] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]"
+                  className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] px-4 font-cairo font-bold text-[#181d17] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#34422a] shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]"
                 />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-['Cairo'] font-semibold text-[#454840] text-[12px]">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-cairo font-semibold text-[#454840] text-[12px]">
                   ر.س
                 </span>
               </div>
-              <p className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
+              <p className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px]">
                 السعر المعتمد لكامل فترة 12 شهراً
               </p>
             </div>
@@ -268,7 +277,7 @@ export function PricingSettingsView() {
 
           {/* Field 3: Effective Date */}
           <div className="space-y-1.5">
-            <label className="flex items-center gap-1 font-['Cairo'] font-semibold text-[14px] text-[#181d17]">
+            <label className="flex items-center gap-1 font-cairo font-semibold text-[14px] text-[#181d17]">
               <span className="text-[#ba1a1a]">*</span>
               <span>تاريخ سريان الأسعار الجديدة</span>
             </label>
@@ -277,76 +286,76 @@ export function PricingSettingsView() {
                 type="text"
                 value={effectiveDate}
                 onChange={(e) => setEffectiveDate(e.target.value)}
-                className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] pr-12 pl-4 font-['Cairo'] font-normal text-[#181d17] text-[16px] focus:outline-none focus:ring-2 focus:ring-[#34422a]"
+                className="w-full h-[48px] bg-[#f1f5eb] rounded-[12px] pr-12 pl-4 font-cairo font-normal text-[#181d17] text-[16px] focus:outline-none focus:ring-2 focus:ring-[#34422a]"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <i className="lucide-icon icon-calendar size-5 text-[#75786F]" />
+                <Calendar className="w-5 h-5 text-[#75786F]" />
               </div>
             </div>
           </div>
 
           {/* Field 4: Internal Governance Memo */}
           <div className="space-y-1.5">
-            <label className="font-['Cairo'] font-semibold text-[14px] text-[#181d17]">
+            <label className="font-cairo font-semibold text-[14px] text-[#181d17]">
               ملاحظات (اختياري)
             </label>
             <textarea
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#f1f5eb] rounded-[12px] p-4 font-['Cairo'] font-normal text-[#181d17] text-[14px] leading-[22px] focus:outline-none focus:ring-2 focus:ring-[#34422a] resize-none"
+              className="w-full bg-[#f1f5eb] rounded-[12px] p-4 font-cairo font-normal text-[#181d17] text-[14px] leading-[22px] focus:outline-none focus:ring-2 focus:ring-[#34422a] resize-none"
             />
           </div>
         </div>
 
-        {/* Calculated Comparison Box & Validation Compliance (Col 5) */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-gray-100 space-y-4">
+        {/* Calculated Comparison Box & Validation Compliance (Col 5 - Left in RTL) */}
+        <div className="lg:col-span-5 bg-white p-6 rounded-[16px] shadow-2xs border border-[#EBEBEB] space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-            <h3 className="font-['Cairo'] font-bold text-[#181d17] text-[18px] leading-[28px]">
+            <h3 className="font-cairo font-bold text-[#181d17] text-[18px] leading-[28px]">
               المقارنة المحتسبة رياضياً
             </h3>
-            <span className="bg-[#d8e8c7] text-[#131f0b] px-2 py-0.5 rounded-[4px] font-['Cairo'] font-bold text-[11px]">
+            <span className="bg-[#d8e8c7] text-[#131f0b] px-2.5 py-1 rounded-[6px] font-cairo font-bold text-[11px]">
               تحديث لحظي
             </span>
           </div>
 
           <div className="space-y-3">
             {/* Item 1: Full Year Monthly */}
-            <div className="bg-[#f1f5eb] flex items-center justify-between p-3 rounded-[8px]">
+            <div className="bg-[#f1f5eb] flex items-center justify-between p-3.5 rounded-[12px]">
               <div>
-                <div className="font-['Cairo'] font-bold text-[#181d17] text-[12px] leading-[18px]">
+                <div className="font-cairo font-bold text-[#181d17] text-[13px] leading-[18px]">
                   الإجمالي الشهري لعام كامل
                 </div>
-                <div className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
+                <div className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px] mt-0.5">
                   ({monthlyPrice} ر.س × 12 شهراً)
                 </div>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[20px] leading-[30px]">
+                <span className="font-cairo font-bold text-[#181d17] text-[22px] leading-tight font-mono">
                   {yearlyFromMonthly.toLocaleString()}
                 </span>
-                <span className="font-['Cairo'] font-medium text-[#454840] text-[11px]">
+                <span className="font-cairo font-medium text-[#454840] text-[11px]">
                   ر.س
                 </span>
               </div>
             </div>
 
             {/* Item 2: Direct Annual */}
-            <div className="bg-[#f1f5eb] flex items-center justify-between p-3 rounded-[8px]">
+            <div className="bg-[#f1f5eb] flex items-center justify-between p-3.5 rounded-[12px]">
               <div>
-                <div className="font-['Cairo'] font-bold text-[#181d17] text-[12px] leading-[18px]">
+                <div className="font-cairo font-bold text-[#181d17] text-[13px] leading-[18px]">
                   السعر السنوي المباشر المعتمد
                 </div>
-                <div className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[16px]">
+                <div className="font-cairo font-medium text-[#454840] text-[11px] leading-[16px] mt-0.5">
                   دفعة فوترة واحدة
                 </div>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[20px] leading-[30px]">
+                <span className="font-cairo font-bold text-[#181d17] text-[22px] leading-tight font-mono">
                   {annualPrice.toLocaleString()}
                 </span>
-                <span className="font-['Cairo'] font-medium text-[#454840] text-[11px]">
+                <span className="font-cairo font-medium text-[#454840] text-[11px]">
                   ر.س
                 </span>
               </div>
@@ -355,27 +364,27 @@ export function PricingSettingsView() {
             {/* Item 3: Result Difference */}
             <div className="bg-[rgba(242,225,192,0.4)] p-4 rounded-[12px] space-y-3 border border-[rgba(242,225,192,0.8)]">
               <div className="flex items-center justify-between">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[14px]">
+                <span className="font-cairo font-bold text-[#181d17] text-[14px]">
                   الفارق المحتسب الفعلي (التوفير):
                 </span>
-                <span className="bg-[#34422a] text-white px-2 py-0.5 rounded-[4px] font-['Cairo'] font-bold text-[11px]">
+                <span className="bg-[#34422a] text-white px-2.5 py-0.5 rounded-[4px] font-cairo font-bold text-[11px]">
                   خصم {discountPercent}%
                 </span>
               </div>
 
               <div className="flex items-baseline gap-2">
-                <span className="font-['Cairo'] font-bold text-[#181d17] text-[24px]">
+                <span className="font-cairo font-bold text-[#181d17] text-[24px]">
                   وفر
                 </span>
-                <span className="font-['Cairo'] font-bold text-[#34422a] text-[40px] leading-[52px]">
+                <span className="font-cairo font-bold text-[#34422a] text-[40px] leading-[52px] font-mono">
                   {savings.toLocaleString()}
                 </span>
-                <span className="font-['Cairo'] font-semibold text-[#181d17] text-[18px]">
+                <span className="font-cairo font-semibold text-[#181d17] text-[18px]">
                   ر.س سنوياً لكل شقة
                 </span>
               </div>
 
-              <p className="font-['Cairo'] font-medium text-[#454840] text-[11px] leading-[18px]">
+              <p className="font-cairo font-medium text-[#454840] text-[11px] leading-[18px]">
                 يحقق للمالك وفراً حقيقياً بقيمة {savings} ر.س مع ثبات الإيراد السنوي المدفوع مقدماً
                 للمنصة.
               </p>
@@ -384,41 +393,35 @@ export function PricingSettingsView() {
         </div>
       </div>
 
-      {/* Sticky Bottom Actions Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[rgba(255,255,255,0.95)] backdrop-blur-[8px] shadow-[0px_-4px_16px_0px_rgba(0,0,0,0.06)] border-t border-gray-200 px-8 py-4 flex items-center justify-between">
-        {/* Right side buttons */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleConfirmPublish}
-            className="bg-[#34422a] hover:bg-[#2b3823] text-white px-7 h-[44px] rounded-[12px] font-['Cairo'] font-semibold text-[14px] flex items-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-colors cursor-pointer"
-          >
-            <i className="lucide-icon icon-check size-4 text-white" />
-            <span>حفظ ونشر التعديلات</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSaveDraft}
-            className="bg-[#d8e8cb] hover:bg-[#cbdec0] text-[#5a6952] px-5 h-[44px] rounded-[12px] font-['Cairo'] font-semibold text-[14px] transition-colors cursor-pointer"
-          >
-            حفظ كمسودة
-          </button>
-
-          <Link
-            href="/billing/"
-            className="bg-[#f1f5eb] hover:bg-[#e4ebdc] text-[#181d17] px-6 h-[44px] rounded-[12px] font-['Cairo'] font-semibold text-[14px] flex items-center justify-center transition-colors"
-          >
-            إلغاء
-          </Link>
-        </div>
-
-        {/* Left side auto-save status */}
-        <div className="flex items-center gap-1.5 text-[#75786f] font-['Cairo'] font-medium text-[11px]">
-          <i className="lucide-icon icon-clock-3 size-3.5 opacity-70 text-[#75786f]" />
-          <span>آخر تحديث تلقائي للمسودة منذ دقيقة واحدة</span>
-        </div>
-      </div>
+      {/* Floating Confirmation Bar [1:28041] */}
+      <FloatingConfirmationBar
+        rightContent={
+          <div className="flex items-center gap-2 text-xs text-right">
+            <Clock3 className="w-4 h-4 text-[#75786f] opacity-80 shrink-0" />
+            <span className="text-[#75786f] font-medium text-xs font-cairo">
+              آخر تحديث تلقائي للمسودة منذ دقيقة واحدة
+            </span>
+          </div>
+        }
+        actions={[
+          {
+            label: "إلغاء",
+            href: "/billing/",
+            variant: "secondary",
+          },
+          {
+            label: "حفظ كمسودة",
+            onClick: handleSaveDraft,
+            variant: "draft",
+          },
+          {
+            label: "حفظ ونشر التعديلات",
+            onClick: handleConfirmPublish,
+            variant: "primary",
+            icon: Check,
+          },
+        ]}
+      />
     </div>
   );
 }

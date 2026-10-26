@@ -21,6 +21,11 @@ import { ExecutionLog, AutomationMainTab } from "../../types";
 import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
 import { RetryExecutionModal } from "./modals/retry-execution-modal";
+import { AutomationEmptyStateCard } from "../automation-empty-state-card";
+import {
+  ExecutionLogsDocumentIcon,
+  MetaVerifiedBadgeIcon,
+} from "../automation-figma-icons";
 
 interface ExecutionLogsViewProps {
   onTabChange?: (tab: AutomationMainTab) => void;
@@ -28,6 +33,7 @@ interface ExecutionLogsViewProps {
 
 export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [logs, setLogs] = useState<ExecutionLog[]>(initialExecutionLogs);
+  const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "in_progress">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -105,6 +111,16 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
 
         {/* Left side in RTL: Action Button Group */}
         <div className="flex items-center gap-[8px] flex-wrap self-end md:self-center">
+          {/* Empty state preview toggle for reviewing Figma node 1:26564 */}
+          <button
+            type="button"
+            onClick={() => setIsEmptyPreview((prev) => !prev)}
+            className="bg-white hover:bg-[#f6fbf1] text-[#4b5940] text-[12px] font-semibold h-[44px] px-[14px] rounded-[12px] border border-[#d8e8cb] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[6px] transition-colors cursor-pointer"
+            title="معاينة شاشة الحالة الفارغة حسب تصميم فيجما (1:26564)"
+          >
+            <span>{isEmptyPreview ? "عرض السجلات المعبأة" : "معاينة الحالة الفارغة (Figma)"}</span>
+          </button>
+
           {/* Button 1: Update Data */}
           <button
             type="button"
@@ -200,10 +216,32 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         </div>
       </div>
 
-      {/* 4. Master Data Table Container (Figma node 1:25083) */}
-      <div className="bg-white rounded-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#e5e8e2] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-right text-[12px]">
+      {isEmptyPreview || filteredLogs.length === 0 ? (
+        /* Central Hero Empty State Card (Figma node 1:26564 / 1:26605) */
+        <AutomationEmptyStateCard
+          icon={<ExecutionLogsDocumentIcon className="size-[40px]" />}
+          title="لا توجد عمليات تنفيذ"
+          description={
+            <>
+              <p className="leading-[24.4px] mb-0">
+                ستظهر هنا سجلات تشغيل الأتمتة ونتائجها بمجرد تفعيل القواعد وحدوث المحفزات المجدولة كإرسال
+              </p>
+              <p className="leading-[24.4px]">
+                رسائل الواتساب، إنشاء مهام التنظيف، وتحديث الأقفال الذكية.
+              </p>
+            </>
+          }
+          diagnosticPill={{
+            text: "محرك الأتمتة: في وضع الاستعداد والترقب للعمليات المجدولة",
+            icon: <MetaVerifiedBadgeIcon className="size-[14px]" />,
+          }}
+        />
+      ) : (
+        <>
+          {/* 4. Master Data Table Container (Figma node 1:25083) */}
+          <div className="bg-white rounded-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#e5e8e2] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-right text-[12px]">
             {/* Header */}
             <thead>
               <tr className="bg-[#f9faf8] border-b border-[#e5e8e2] text-[#75786f] font-semibold">
@@ -451,6 +489,8 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
           </p>
         </div>
       </div>
+        </>
+      )}
 
       {/* 6. Retry Modal */}
       {retryTargetLog && (

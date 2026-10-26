@@ -28,6 +28,12 @@ import { initialWhatsAppTemplates } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
 import { PreviewTemplateModal } from "./modals/preview-template-modal";
 import { PauseTemplateModal } from "./modals/pause-template-modal";
+import { AutomationEmptyStateCard } from "../automation-empty-state-card";
+import {
+  WhatsAppCaptionsIcon,
+  MetaPolicyShieldIcon,
+  MetaVerifiedBadgeIcon,
+} from "../automation-figma-icons";
 
 interface WhatsAppTemplatesViewProps {
   onTabChange?: (tab: AutomationMainTab) => void;
@@ -38,6 +44,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>(initialWhatsAppTemplates);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Active open dropdown menu template id
@@ -132,84 +139,114 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         counts={{ rules: 12, templates: 8, logs: 1420 }}
       />
 
-      {/* Main Container Card [1:23754] */}
-      <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm space-y-6">
-        {/* Top Header & Actions [1:23754] */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#F3F4F6]">
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-[22px] font-bold text-[#181D17]">قوالب واتساب</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#EAF1E8] text-[#34422A] flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#3E8A5A]" />
-                <span>Meta Cloud API معتمد</span>
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#FAFBF9] text-[#75786F] border border-[#EBEFE6]">
-                7 قوالب مسجلة
-              </span>
-            </div>
-            <p className="text-xs text-[#454840] mt-1.5 leading-relaxed">
-              إدارة الرسائل الجاهزة المستخدمة في الأتمتة لضمان جودة وسرعة تواصل المنظومة مع الضيوف والشركاء.
-            </p>
+      {/* 2. Top Header & Actions [1:26440] */}
+      <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-[24px] font-bold text-[#181D17] leading-[34px]">قوالب واتساب</h1>
+            <span className="bg-[#d8e8cb] text-[#3d4b36] rounded-full px-[12px] py-[4px] text-[11px] font-semibold inline-flex items-center gap-[6px]">
+              <MetaVerifiedBadgeIcon className="size-[14px]" />
+              <span>Meta Cloud API معتمد</span>
+            </span>
           </div>
+          <p className="text-[14px] text-[#454840] font-normal mt-1.5 leading-[20px]">
+            إدارة الرسائل الجاهزة المستخدمة في الأتمتة لضمان جودة وسرعة تواصل المنظومة مع الضيوف والشركاء.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <Link
+            href="/automation/templates/new/"
+            className="bg-[#4b5940] hover:bg-[#34422a] rounded-[12px] px-[20px] py-[10px] text-white text-[14px] font-medium leading-[20px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
+          >
+            <span>إنشاء قالب</span>
+            <Plus className="size-[14px]" />
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleSyncWithMeta}
+            disabled={isSyncing}
+            className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5e8e2] text-[#181d17] text-[14px] font-semibold h-[44px] px-[16px] rounded-[12px] inline-flex items-center gap-[8px] hover:bg-[#f6f7f4] transition-colors cursor-pointer disabled:opacity-60"
+          >
+            <RefreshCw className={`size-[14px] text-[#181d17] ${isSyncing ? "animate-spin" : ""}`} />
+            <span>{isSyncing ? "جارٍ المزامنة..." : "مزامنة القوالب"}</span>
+          </button>
+
+          {/* Toggle for empty state view testing */}
+          <button
+            type="button"
+            onClick={() => setIsEmptyPreview(!isEmptyPreview)}
+            className="px-2.5 py-1 text-xs text-[#4b5940] bg-[#ebefe6] rounded-lg border border-[#e5e8e2] hover:underline cursor-pointer"
+          >
+            {isEmptyPreview ? "عرض البيانات" : "معاينة فارغة"}
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Filters and Search Bar [1:26361] */}
+      <div className="bg-white border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Search Input */}
+        <div className="relative w-full md:w-[420px] bg-[#f6f7f4] rounded-[12px] flex items-center">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ابحث باسم القالب، الرمز أو المحفز..."
+            className="w-full bg-transparent py-[8px] pe-[40px] ps-[16px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)] outline-none"
+          />
+          <Search className="size-[15px] absolute end-[14px] top-1/2 -translate-y-1/2 text-[#73786f]" />
+        </div>
+
+        {/* Categories Bar */}
+        <div className="bg-[#f6f7f4] h-[36px] rounded-[12px] p-[2px] flex items-center gap-1 w-full md:w-auto">
+          {categories.map((cat) => (
             <button
+              key={cat.id}
               type="button"
-              onClick={handleSyncWithMeta}
-              disabled={isSyncing}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-xs font-semibold bg-white hover:bg-gray-50 border border-[#E5E8E2] text-[#181D17] shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none ${
+                selectedCategory === cat.id
+                  ? "bg-white text-[#252a24] shadow-xs"
+                  : "text-[#73786f] hover:text-[#252a24]"
+              }`}
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#454840] ${isSyncing ? "animate-spin" : ""}`} />
-              <span>{isSyncing ? "جارٍ المزامنة..." : "مزامنة القوالب مع Meta"}</span>
+              <span>{cat.label}</span>
+              <span className="ms-1 text-[11px] opacity-80">({cat.count})</span>
             </button>
-
-            <Link
-              href="/automation/templates/new/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-xs font-bold bg-[#34422A] hover:bg-[#2B3723] text-white shadow-xs transition-colors cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>إنشاء قالب</span>
-            </Link>
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* Filters and Search Bar [1:23754] */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-          {/* Categories Bar */}
-          <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-[10px] text-xs font-semibold transition-all cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-[#34422A] text-white shadow-2xs"
-                    : "bg-[#FAFBF9] text-[#454840] hover:bg-gray-100 border border-transparent"
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span className="ms-1.5 text-[11px] opacity-80">({cat.count})</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Search Input */}
-          <div className="relative w-full lg:w-80">
-            <Search className="w-4 h-4 text-[#75786F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث باسم القالب، الرمز أو المحفز..."
-              className="w-full h-10 pr-3.5 pl-10 rounded-[12px] border border-[#E5E8E2] text-xs text-[#181D17] placeholder:text-[#75786F] focus:outline-none focus:border-[#4B5940] transition-colors"
-            />
-          </div>
-        </div>
-
-        {/* Templates Table [1:23754] */}
-        <div className="overflow-x-auto rounded-[16px] border border-[#E5E8E2]">
-          <table className="w-full text-right text-xs">
+      {/* 4. Empty State View [1:26359] vs Templates Table */}
+      {isEmptyPreview || filteredTemplates.length === 0 ? (
+        <AutomationEmptyStateCard
+          icon={<WhatsAppCaptionsIcon className="size-[40px]" />}
+          title="لا توجد قوالب واتساب"
+          description={
+            <>
+              <p>يمكنك إنشاء قوالب معتمدة لرسائل تأكيد الحجز، إرسال أكواد الدخول الذكية للوحدات، تذكير موعد</p>
+              <p>المغادرة، واستبيانات تقييم الإقامة مع دعم المتغيرات الديناميكية.</p>
+            </>
+          }
+          secondaryAction={{
+            label: "تحديث الصفحة",
+            onClick: () => {
+              setIsEmptyPreview(false);
+              setSearchQuery("");
+              setSelectedCategory("all");
+            },
+          }}
+          primaryAction={{
+            label: "إنشاء قالب",
+            href: "/automation/templates/new/",
+            icon: <Plus className="size-[16px] text-white" />,
+          }}
+        />
+      ) : (
+        <div className="bg-white rounded-[16px] border border-[#E5E8E2] overflow-hidden space-y-4 p-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-xs">
             <thead>
               <tr className="bg-[#FAFBF9] border-b border-[#E5E8E2] text-[#454840] font-bold">
                 <th className="py-3.5 pr-4">اسم القالب والرمز</th>
@@ -425,15 +462,16 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           </div>
         </div>
       </div>
+    )}
 
-      {/* Bottom Compliance Notice Banner [1:23754] */}
-      <div className="bg-[#F1F5EB] rounded-[18px] p-4 flex items-center gap-3 border border-[#E5E8E2]/60">
-        <div className="w-8 h-8 rounded-full bg-[#EAF1E8] flex items-center justify-center shrink-0">
-          <ShieldCheck className="w-4 h-4 text-[#4B5940]" />
-        </div>
-        <p className="text-xs text-[#454840] leading-relaxed">
+      {/* Bottom Compliance Notice Banner [1:26434] */}
+      <div className="bg-[#f1f5eb] rounded-[16px] p-[16px] flex items-center justify-between gap-[16px] border border-[#e5e8e2]/60">
+        <p className="text-[12px] text-[#454840] font-semibold leading-[19.5px]">
           جميع القوالب معتمدة تلقائياً عبر Meta WhatsApp Business Cloud API لضمان سرعة وموثوقية التسليم، وتخضع لسياسات الجودة والاستخدام المعتمدة في المملكة العربية السعودية ودول الخليج.
         </p>
+        <div className="bg-[#d8e8cb] rounded-[12px] size-[32px] flex items-center justify-center shrink-0">
+          <MetaPolicyShieldIcon className="size-[15px]" />
+        </div>
       </div>
 
       {/* Preview Template Modal [1:24789] */}
