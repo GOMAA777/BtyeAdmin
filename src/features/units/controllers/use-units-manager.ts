@@ -15,7 +15,7 @@ const defaultAdvancedFilters: UnitFilterState = {
 
 export function useUnitsManager(initialData: Unit[] = initialUnits) {
   const [units] = useState<Unit[]>(initialData);
-  const [pageSize, setPageSize] = useState<number>(8);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [tabFilter, setTabFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");

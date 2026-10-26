@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { resolveAssetUrl } from "@/lib/constants";
+import { hardNavigate, resolveAssetUrl } from "@/lib/constants";
+import { AnimatedTabs } from "@/components/shared/animated-tabs";
 import {
   OwnerPropertiesFilterDrawer,
   PropertyFilterState,
@@ -24,8 +25,6 @@ import {
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TableDateCell } from "@/components/shared/table-date-cell";
 import { TablePagination } from "@/components/shared/table-pagination";
-import { motion } from "motion/react";
-
 // Exact Figma SVG Vector: Smart Pass / Ticket Icon (viewBox 0 0 10 14.6667)
 function SmartPassIcon({ className = "w-2.5 h-3.5" }: { className?: string }) {
   return (
@@ -261,13 +260,14 @@ export function OwnerPropertiesTabView({
         </Link>
 
         {/* Primary Action: إضافة عقار للمالك */}
-        <Link
-          href="/properties/new/"
+        <button
+          type="button"
+          onClick={() => hardNavigate("/properties/new/")}
           className="bg-[#2E3C29] hover:bg-[#232F1F] text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
         >
           <Building2 className="w-4 h-4" />
           <span>+ إضافة عقار للمالك</span>
-        </Link>
+        </button>
       </div>
 
       {/* 2. Filter & Search Bar: Search on the Right (first in RTL), Filters on the Left (second in RTL) */}
@@ -314,38 +314,18 @@ export function OwnerPropertiesTabView({
             )}
           </button>
 
-          {/* Filter Tabs Container */}
-          <div className="flex items-center gap-1 p-1 bg-[#F1F5EB] rounded-2xl overflow-x-auto no-scrollbar">
-            {[
+          <AnimatedTabs
+            tabs={[
               { id: "all", label: `الكل (${counts.all})` },
               { id: "available", label: `متاحة (${counts.available})` },
               { id: "reserved", label: `محجوزة (${counts.reserved})` },
-            ].map((tab) => {
-              const isActive = statusFilter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleQuickStatusChange(tab.id as any)}
-                  className={cn(
-                    "relative px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap cursor-pointer select-none transition-colors duration-200",
-                    isActive
-                      ? "text-[#172115] font-bold"
-                      : "text-[#7A8574] hover:text-[#172115] font-medium"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="ownerPropertiesFilterPill"
-                      className="absolute inset-0 bg-white rounded-xl shadow-xs z-0"
-                      transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                    />
-                  )}
-                  <span className="relative z-10">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+            ]}
+            value={statusFilter}
+            onChange={(id) => handleQuickStatusChange(id as any)}
+            layoutId="ownerPropertiesFilterPill"
+            variant="light"
+            trackClassName="bg-[#F1F5EB]"
+          />
         </div>
       </div>
 
@@ -511,7 +491,7 @@ export function OwnerPropertiesTabView({
           fromIndex={fromIndex}
           toIndex={toIndex}
           pageSize={pageSize}
-          pageSizeOptions={[5, 10, 20, 50]}
+          pageSizeOptions={[5, 10]}
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => {
             setPageSize(size);

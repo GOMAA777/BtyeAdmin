@@ -17,7 +17,10 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { hardNavigate } from "@/lib/constants";
+import { AnimatedTabs } from "@/components/shared/animated-tabs";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { ExtendStayModal } from "@/features/bookings/components/extend-stay-modal";
 import { CancelBookingModal } from "@/features/bookings/components/cancel-booking-modal";
 import { ChangeUnitModal } from "@/features/bookings/components/change-unit-modal";
@@ -91,14 +94,14 @@ export function MainBookingsPageView({
         {/* Left Action Group */}
         <div className="flex items-center gap-2.5 w-full md:w-auto">
           {/* Add Booking Primary Action */}
-          <Link
-            href="/bookings/new/"
-            prefetch={true}
+          <button
+            type="button"
+            onClick={() => hardNavigate("/bookings/new/")}
             className="bg-[#4b5940] hover:bg-[#3d4934] text-white text-[14px] font-semibold h-[44px] px-[20px] sm:px-[24px] rounded-[12px] flex items-center justify-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-all cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>إضافة حجز</span>
-          </Link>
+          </button>
 
           {/* Export Secondary Action */}
           <button
@@ -159,36 +162,23 @@ export function MainBookingsPageView({
             />
           </button>
 
-          {/* Segmented Status Tabs Container (Figma node 1:6585) */}
-          <div className="bg-[#f6f7f4] p-[4px] rounded-[12px] flex items-center gap-1 overflow-x-auto no-scrollbar">
-            {[
+          <AnimatedTabs
+            tabs={[
               { id: "all", label: `الكل (${statusCounts.all})` },
               { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },
               { id: "active", label: `الحالية(${statusCounts.active})` },
               { id: "completed", label: `المنتهية(${statusCounts.completed})` },
               { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
-            ].map((tab) => {
-              const isActive = filterStatus === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    setFilterStatus(tab.id as "all" | BookingStatus);
-                    setCurrentPage(1);
-                  }}
-                  className={cn(
-                    "text-[12px] px-3.5 py-1 rounded-[8px] transition-all font-semibold cursor-pointer whitespace-nowrap",
-                    isActive
-                      ? "bg-white text-[#252a24] shadow-xs"
-                      : "text-[#73786f] hover:text-[#252a24]"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+            ]}
+            value={filterStatus}
+            onChange={(id) => {
+              setFilterStatus(id as "all" | BookingStatus);
+              setCurrentPage(1);
+            }}
+            layoutId="bookingsFilterPill"
+            variant="light"
+            trackClassName="bg-[#f6f7f4] rounded-[12px]"
+          />
         </div>
       </div>
 
@@ -419,76 +409,24 @@ export function MainBookingsPageView({
           </table>
         </div>
 
-        {/* 4. TABLE FOOTER / PAGINATION CONTROLS (Matching Figma node 1:6886 & 1:6916) */}
-        <div className="bg-[#f9faf8] border-t border-[#e5e8e2] px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px]">
-          {/* Right in RTL: Records summary and rows per page */}
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* Records summary text */}
-            <div className="flex items-center gap-1 text-[13px] text-[#75786f]">
-              <span>عرض</span>
-              <span className="font-semibold text-[#181d17]">{startIndex + 1}</span>
-              <span>إلى</span>
-              <span className="font-semibold text-[#181d17]">
-                {Math.min(startIndex + rowsPerPage, totalFiltered)}
-              </span>
-              <span>من أصل</span>
-              <span className="font-semibold text-[#181d17]">842</span>
-              <span>حجز مسجل</span>
-            </div>
-
-            {/* Rows per page selector */}
-            <div className="border-r border-[#e5e7eb] pr-4 flex items-center gap-2">
-              <span className="text-[11px] font-medium text-[#54624c]">
-                الصفوف لكل صفحة:
-              </span>
-              <select
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="bg-white border border-[#e5e8e2] rounded-[8px] px-2.5 py-1 text-[#181d17] font-semibold text-[12px] focus:outline-none focus:ring-1 focus:ring-[#4b5940]/40 cursor-pointer"
-              >
-                <option value={10}>10 حجوزات</option>
-                <option value={20}>20 حجزاً</option>
-                <option value={50}>50 حجزاً</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Left in RTL: Pagination Buttons */}
-          <div className="flex items-center gap-1.5">
-            {/* Previous Button (Next in logical LTR, Previous in logical RTL) */}
-            <button
-              type="button"
-              disabled={activePage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="bg-white border border-[#e5e8e2] rounded-[8px] px-3 py-1.5 text-[#181d17] text-[12px] flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#f6f7f4] transition-colors cursor-pointer"
-            >
-              <span>السابق</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#a0a59c]" />
-            </button>
-
-            {/* Active Page Indicator */}
-            <button
-              type="button"
-              className="bg-[#eaf1e8] border border-[#d6ded4] rounded-[8px] px-3.5 py-1 font-bold text-[#4b5940] text-[12px]"
-            >
-              {activePage}
-            </button>
-
-            {/* Next Button */}
-            <button
-              type="button"
-              disabled={activePage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="bg-white border border-[#e5e8e2] rounded-[8px] px-3 py-1.5 text-[#181d17] text-[12px] flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#f6f7f4] transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 text-[#a0a59c]" />
-              <span>التالي</span>
-            </button>
-          </div>
-        </div>
+        {/* 4. TABLE FOOTER / PAGINATION CONTROLS */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={842}
+          fromIndex={startIndex + 1}
+          toIndex={Math.min(startIndex + rowsPerPage, totalFiltered)}
+          pageSize={rowsPerPage}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setRowsPerPage(size);
+            setCurrentPage(1);
+          }}
+          entityName="حجز"
+          pluralEntityName="حجوزات"
+          registeredLabel="مسجل"
+        />
       </div>
 
       {/* Modals */}

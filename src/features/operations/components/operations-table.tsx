@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Sparkles, Wrench } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { OperationTask } from "../types";
 import { OperationActionDropdown } from "./operation-action-dropdown";
 import { CleaningAssignModal } from "./cleaning-assign-modal";
@@ -17,6 +18,14 @@ interface OperationsTableProps {
 export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
   const router = useRouter();
   const [assignTask, setAssignTask] = useState<OperationTask | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalCount = tasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedTasks = tasks.slice(startIndex, startIndex + pageSize);
   const getStatusBadge = (status: OperationTask["status"], label: string) => {
     switch (status) {
       case "needs_cleaning":
@@ -75,7 +84,7 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
                 </td>
               </tr>
             ) : (
-              tasks.map((task) => {
+              paginatedTasks.map((task) => {
                 const isCleaning = task.type === "cleaning";
                 const detailHref = isCleaning
                   ? `/operations/cleaning/${task.id}/`
@@ -200,46 +209,24 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
         </table>
       </div>
 
-      {/* Pagination Footer matching Figma 1:18788 */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-[#F3F4F6] text-xs text-[#6B7280]">
-        <div>
-          <span>عرض 1 إلى 6 من أصل </span>
-          <span className="font-bold text-[#1F2937]">842 حجز مسجل</span>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span>الصفوف لكل صفحة:</span>
-            <span className="font-semibold text-[#1F2937] px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-lg">
-              10 حجوزات
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              disabled
-              className="px-3 py-1 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed flex items-center gap-1"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-              <span>السابق</span>
-            </button>
-            <button
-              type="button"
-              className="w-7 h-7 rounded-lg bg-[#1F3D2B] text-white font-bold flex items-center justify-center"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              className="px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center gap-1"
-            >
-              <span>التالي</span>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Table Footer / Pagination */}
+      <TablePagination
+        currentPage={activePage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        fromIndex={totalCount === 0 ? 0 : startIndex + 1}
+        toIndex={Math.min(startIndex + pageSize, totalCount)}
+        pageSize={pageSize}
+        pageSizeOptions={[5, 10]}
+        onPageChange={(page) => setCurrentPage(page)}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        entityName="عملية"
+        pluralEntityName="عمليات"
+        registeredLabel="مسجلة"
+      />
 
       {/* Assign Modal */}
       {assignTask && (

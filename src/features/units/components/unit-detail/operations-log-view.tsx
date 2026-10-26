@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
 import { BackButton } from "@/components/shared/back-button";
+import { TablePagination } from "@/components/shared/table-pagination";
 
 interface OperationsLogViewProps {
   onBack?: () => void;
@@ -69,6 +70,7 @@ export function OperationsLogView({
   const [selectedType, setSelectedType] = useState("all");
   const [selectedPerformer, setSelectedPerformer] = useState("all");
   const [activePage, setActivePage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Exact 6 events from Figma Node 1:15927
   const events: ActivityEvent[] = useMemo(
@@ -289,6 +291,15 @@ export function OperationsLogView({
       return matchSearch && matchType && matchPerformer;
     });
   }, [events, search, selectedType, selectedPerformer]);
+
+  const totalFiltered = filteredEvents.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const currentPage = Math.min(activePage, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedEvents = filteredEvents.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   // Activity type dropdown options
   const activityTypeOptions = [
@@ -561,7 +572,7 @@ export function OperationsLogView({
             </button>
           </div>
         ) : (
-          filteredEvents.map((evt) => (
+          paginatedEvents.map((evt) => (
             <div
               key={evt.id}
               className="flex items-start gap-4 relative w-full group"
@@ -686,85 +697,24 @@ export function OperationsLogView({
       </div>
 
       {/* 5. ELEGANT PAGINATION CONTROLS (Figma Node 1:16324) */}
-      <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#EEF2E6] rounded-[16px] p-2 flex items-center justify-between">
-        {/* Right side in RTL: Counter */}
-        <div className="text-[#75786F] text-[11px] font-medium px-3">
-          عرض 1 - {filteredEvents.length} من إجمالي 18 حدثاً
-        </div>
-
-        {/* Left side in RTL: Pagination Buttons */}
-        <div className="flex items-center gap-1">
-          {/* Next Button (chevron-left in RTL) */}
-          <button
-            type="button"
-            onClick={() => {
-              if (activePage < 3) setActivePage((p) => p + 1);
-            }}
-            disabled={activePage === 3}
-            className={`rounded-[12px] size-[36px] flex items-center justify-center transition-colors ${
-              activePage === 3
-                ? "bg-[#F1F5EB] opacity-50 cursor-not-allowed text-[#181D17]"
-                : "bg-[#F1F5EB] hover:bg-[#E5EAE0] text-[#181D17] cursor-pointer"
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-
-          {/* Page 3 */}
-          <button
-            type="button"
-            onClick={() => setActivePage(3)}
-            className={`rounded-[12px] size-[36px] flex items-center justify-center text-[12px] transition-colors cursor-pointer ${
-              activePage === 3
-                ? "bg-[#34422A] text-white font-bold"
-                : "text-[#181D17] font-semibold hover:bg-[#F1F5EB]"
-            }`}
-          >
-            3
-          </button>
-
-          {/* Page 2 */}
-          <button
-            type="button"
-            onClick={() => setActivePage(2)}
-            className={`rounded-[12px] size-[36px] flex items-center justify-center text-[12px] transition-colors cursor-pointer ${
-              activePage === 2
-                ? "bg-[#34422A] text-white font-bold"
-                : "text-[#181D17] font-semibold hover:bg-[#F1F5EB]"
-            }`}
-          >
-            2
-          </button>
-
-          {/* Page 1 */}
-          <button
-            type="button"
-            onClick={() => setActivePage(1)}
-            className={`rounded-[12px] size-[36px] flex items-center justify-center text-[12px] transition-colors cursor-pointer ${
-              activePage === 1
-                ? "bg-[#34422A] text-white font-bold"
-                : "text-[#181D17] font-semibold hover:bg-[#F1F5EB]"
-            }`}
-          >
-            1
-          </button>
-
-          {/* Prev Button (chevron-right in RTL) */}
-          <button
-            type="button"
-            onClick={() => {
-              if (activePage > 1) setActivePage((p) => p - 1);
-            }}
-            disabled={activePage === 1}
-            className={`rounded-[12px] size-[36px] flex items-center justify-center transition-colors ${
-              activePage === 1
-                ? "bg-[#F1F5EB] opacity-50 cursor-not-allowed text-[#181D17]"
-                : "bg-[#F1F5EB] hover:bg-[#E5EAE0] text-[#181D17] cursor-pointer"
-            }`}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+      <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#EEF2E6] rounded-[16px] overflow-hidden">
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setActivePage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setActivePage(1);
+          }}
+          entityName="حدث"
+          pluralEntityName="أحداث"
+          registeredLabel="مسجل"
+        />
       </div>
     </div>
   );

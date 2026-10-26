@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { BackButton } from "@/components/shared/back-button";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { OperationsAdvancedFilterDrawer } from "./operations-advanced-filter-drawer";
 import { OperationFilterState, initialOperationFilterState } from "../types";
 
@@ -40,10 +41,17 @@ interface FullOperationsLogViewProps {
 export function FullOperationsLogView({ unitId: propUnitId }: FullOperationsLogViewProps) {
   const searchParams = useSearchParams();
   const unitId = propUnitId || searchParams?.get("unitId") || "204";
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [filterCategory, setFilterCategory] = useState<"all" | "cleaning" | "maintenance">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<OperationFilterState>(initialOperationFilterState);
+
+  const totalCount: number = 24;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -785,33 +793,24 @@ export function FullOperationsLogView({ unitId: propUnitId }: FullOperationsLogV
           )}
         </div>
 
-        {/* 5. Pagination & Audit Meta Footer (Figma 1:21225) */}
-        <div className="border-t border-[rgba(197,200,189,0.3)] pt-[17px] flex items-center justify-between text-xs text-[#75786f]">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="size-[36px] rounded-[8px] bg-[#ebefe6] flex items-center justify-center text-[#181d17] hover:bg-[#dfe4db] transition-colors cursor-pointer"
-              title="الصفحة التالية"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <span className="px-2 text-[11px] font-semibold text-[#181d17]">
-              صفحة 1 من 3
-            </span>
-            <button
-              type="button"
-              disabled
-              className="size-[36px] rounded-[8px] bg-[#ebefe6] opacity-50 flex items-center justify-center text-[#181d17] cursor-not-allowed"
-              title="الصفحة السابقة"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-          </div>
-
-          <span className="text-[11px] font-medium text-[#75786f]">
-            إجمالي السجلات: 24 حركة تشغيلية موثقة
-          </span>
-        </div>
+        {/* 5. Pagination & Audit Meta Footer */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          fromIndex={totalCount === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalCount)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="حركة تشغيلية"
+          pluralEntityName="عمليات"
+          registeredLabel="موثقة"
+        />
       </div>
 
       {/* Advanced Filter Drawer */}

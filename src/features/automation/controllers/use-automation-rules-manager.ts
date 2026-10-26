@@ -10,6 +10,8 @@ export function useAutomationRulesManager(
 ) {
   const [rules, setRules] = useState<AutomationRule[]>(initialRules);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "paused">(
     "all"
   );
@@ -40,6 +42,12 @@ export function useAutomationRulesManager(
       return true;
     });
   }, [rules, statusFilter, searchQuery]);
+
+  const totalFiltered = filteredRules.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedRules = filteredRules.slice(startIndex, startIndex + pageSize);
 
   const handleExport = () => {
     toast.success("جاري تصدير قائمة قواعد الأتمتة...");
@@ -122,5 +130,14 @@ export function useAutomationRulesManager(
     confirmPause,
     confirmActivate,
     confirmDelete,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    totalFiltered,
+    totalPages,
+    activePage,
+    startIndex,
+    paginatedRules,
   };
 }

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TablePagination } from "@/components/shared/table-pagination";
 import {
   OwnerActivityFilterDrawer,
   ActivityFilterState,
@@ -333,6 +334,8 @@ export function OwnerActivityTabView() {
   const [events] = useState<AuditEvent[]>(defaultAuditEvents);
   const [selectedEventId, setSelectedEventId] = useState<string>("aud-1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [activityFilters, setActivityFilters] = useState<ActivityFilterState>({
     category: "all",
@@ -391,6 +394,12 @@ export function OwnerActivityTabView() {
 
     return result;
   }, [events, activityFilters, searchQuery]);
+
+  const totalFiltered = filteredEvents.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + pageSize);
 
   return (
     <div className="space-y-6">
@@ -538,7 +547,7 @@ export function OwnerActivityTabView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EEF2E6]">
-                {filteredEvents.map((event) => {
+                {paginatedEvents.map((event) => {
                   const Icon = event.actionIcon;
                   const isSelected = event.id === selectedEventId;
                   return (
@@ -619,51 +628,30 @@ export function OwnerActivityTabView() {
           </div>
 
           {/* Table Footer */}
-          <div className="pt-4 border-t border-[#E2E6DC] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="text-[#7D8A78] font-medium order-3 sm:order-1">
-              عرض {filteredEvents.length} من أصل 24 عملية تدقيق مسجلة
-            </div>
-
-            <div className="order-1 sm:order-2">
+          <div className="pt-2">
+            <div className="px-6 py-2 bg-[#FAFBF9] border-t border-[#E2E6DC] flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#059669]">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>سجلات التدقيق غير قابلة للتعديل أو المسح</span>
               </span>
             </div>
-
-            <div className="flex items-center gap-1 order-2 sm:order-3">
-              <button
-                type="button"
-                disabled
-                className="px-2.5 py-1 rounded-lg border border-[#E2E6DC] text-[#A2ADA0] cursor-not-allowed select-none"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-lg bg-[#2E3C29] text-white font-bold border border-[#2E3C29] select-none text-xs"
-              >
-                1
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-lg border border-[#E2E6DC] text-[#172115] hover:bg-[#F6F8F4] select-none text-xs"
-              >
-                2
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-lg border border-[#E2E6DC] text-[#172115] hover:bg-[#F6F8F4] select-none text-xs"
-              >
-                3
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-lg border border-[#E2E6DC] text-[#172115] hover:bg-[#F6F8F4] select-none"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <TablePagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              totalCount={totalFiltered}
+              fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+              toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+              pageSize={pageSize}
+              pageSizeOptions={[5, 10]}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              entityName="عملية تدقيق"
+              pluralEntityName="عمليات"
+              registeredLabel="مسجلة"
+            />
           </div>
         </div>
 

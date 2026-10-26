@@ -34,6 +34,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
 
@@ -41,6 +42,8 @@ export function SubscriptionsListView() {
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [activeTab, setActiveTab] = useState<
     "all" | "active" | "trial" | "expiring_soon" | "paused" | "cancelled"
   >("all");
@@ -153,6 +156,15 @@ export function SubscriptionsListView() {
       return matchesSearch && matchesTab && matchesCycle && matchesStatus;
     });
   }, [subscriptions, searchQuery, activeTab, billingCycleFilter, statusFilter]);
+
+  const totalFiltered = filteredSubscriptions.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedSubscriptions = filteredSubscriptions.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -500,7 +512,7 @@ export function SubscriptionsListView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-[#181d17]">
-              {filteredSubscriptions.map((sub) => (
+              {paginatedSubscriptions.map((sub) => (
                 <tr
                   key={sub.id}
                   onClick={() => router.push(`/billing/${sub.id}/`)}
@@ -740,48 +752,24 @@ export function SubscriptionsListView() {
           </table>
         </div>
 
-        {/* 5. Pagination [1:27197] */}
-        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 gap-3 text-xs text-[#454840]">
-          <div>عرض 1 - 8 من أصل 248 اشتراك مسجل</div>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              className="px-3 py-1.5 rounded-[8px] border border-gray-200 text-[#75786f] hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-1"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-              <span>السابق</span>
-            </button>
-            <span className="w-8 h-8 rounded-[8px] bg-[#34422A] text-white font-bold flex items-center justify-center shadow-2xs">
-              1
-            </span>
-            <button
-              type="button"
-              className="w-8 h-8 rounded-[8px] hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer text-[#454840]"
-            >
-              2
-            </button>
-            <button
-              type="button"
-              className="w-8 h-8 rounded-[8px] hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer text-[#454840]"
-            >
-              3
-            </button>
-            <span className="px-1 text-gray-400">...</span>
-            <button
-              type="button"
-              className="w-8 h-8 rounded-[8px] hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer text-[#454840]"
-            >
-              31
-            </button>
-            <button
-              type="button"
-              className="px-3 py-1.5 rounded-[8px] border border-gray-200 text-[#75786f] hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-1"
-            >
-              <span>التالي</span>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+        {/* 5. Pagination */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={248}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="اشتراك"
+          pluralEntityName="اشتراكات"
+          registeredLabel="مسجل"
+        />
       </div>
 
       {/* 6. Quick Reference / Policy Notice Banner [1:27231] */}

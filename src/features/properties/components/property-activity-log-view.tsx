@@ -24,6 +24,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import {
   PropertyActivityEvent,
   PropertyActivitySummary,
@@ -48,9 +49,16 @@ export function PropertyActivityLogView({
   const [selectedEventId, setSelectedEventId] = useState<string>("prop-evt-1");
   const [isInspectorOpen, setIsInspectorOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const summary = initialSummary;
   const events = initialEvents;
+
+  const totalEvents = events.length;
+  const totalPages = Math.max(1, Math.ceil(totalEvents / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedEvents = events.slice(startIndex, startIndex + pageSize);
 
   // Selected event for the left inspector
   const activeEvent =
@@ -215,7 +223,7 @@ export function PropertyActivityLogView({
 
             {/* Events List */}
             <div className="space-y-[24px]">
-              {events.map((event) => {
+              {paginatedEvents.map((event) => {
                 const isActive = selectedEventId === event.id;
 
                 return (
@@ -439,89 +447,24 @@ export function PropertyActivityLogView({
           </div>
 
           {/* 4. Minimalist Pagination Bar */}
-          <div className="bg-white border border-[#ebefe6] rounded-[16px] p-[9px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
-            {/* Right: Record count */}
-            <div className="text-[13px] font-normal text-[#454840] leading-[20px] pr-2">
-              عرض 1–8 من إجمالي 386 حدثاً
-            </div>
-
-            {/* Left: Pagination Buttons */}
-            <div className="flex items-center gap-[4px] self-center sm:self-auto">
-              {/* Next / التالي */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(20, p + 1))}
-                className="bg-[#f1f5eb] hover:bg-[#e4ebd9] rounded-[8px] px-[12px] py-[4px] text-[11px] font-medium text-[#181d17] leading-[16px] transition-colors cursor-pointer"
-              >
-                التالي
-              </button>
-
-              {/* Page 20 */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage(20)}
-                className={`size-[28px] rounded-[8px] flex items-center justify-center text-[11px] font-medium leading-[16px] transition-colors cursor-pointer ${
-                  currentPage === 20
-                    ? "bg-[#34422a] text-white font-bold"
-                    : "text-[#181d17] hover:bg-[#f1f5eb]"
-                }`}
-              >
-                20
-              </button>
-
-              {/* Ellipsis */}
-              <span className="text-[#75786f] text-[14px] px-[4px] select-none">
-                ...
-              </span>
-
-              {/* Page 3 */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage(3)}
-                className={`size-[28px] rounded-[8px] flex items-center justify-center text-[11px] font-medium leading-[16px] transition-colors cursor-pointer ${
-                  currentPage === 3
-                    ? "bg-[#34422a] text-white font-bold"
-                    : "text-[#181d17] hover:bg-[#f1f5eb]"
-                }`}
-              >
-                3
-              </button>
-
-              {/* Page 2 */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage(2)}
-                className={`size-[28px] rounded-[8px] flex items-center justify-center text-[11px] font-medium leading-[16px] transition-colors cursor-pointer ${
-                  currentPage === 2
-                    ? "bg-[#34422a] text-white font-bold"
-                    : "text-[#181d17] hover:bg-[#f1f5eb]"
-                }`}
-              >
-                2
-              </button>
-
-              {/* Page 1 */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage(1)}
-                className={`size-[28px] rounded-[8px] flex items-center justify-center text-[11px] font-medium leading-[16px] transition-colors cursor-pointer ${
-                  currentPage === 1
-                    ? "bg-[#34422a] text-white font-bold"
-                    : "text-[#181d17] hover:bg-[#f1f5eb]"
-                }`}
-              >
-                1
-              </button>
-
-              {/* Previous / السابق */}
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="bg-[#f1f5eb] hover:bg-[#e4ebd9] opacity-60 rounded-[8px] px-[12px] py-[4px] text-[11px] font-medium text-[#181d17] leading-[16px] transition-colors cursor-pointer"
-              >
-                السابق
-              </button>
-            </div>
+          <div className="bg-white border border-[#ebefe6] rounded-[16px] overflow-hidden shadow-2xs">
+            <TablePagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              totalCount={totalEvents}
+              fromIndex={totalEvents === 0 ? 0 : startIndex + 1}
+              toIndex={Math.min(startIndex + pageSize, totalEvents)}
+              pageSize={pageSize}
+              pageSizeOptions={[5, 10]}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              entityName="حدث"
+              pluralEntityName="أحداث"
+              registeredLabel="مسجل"
+            />
           </div>
         </div>
 

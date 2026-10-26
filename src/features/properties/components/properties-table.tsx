@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { Eye, SlidersHorizontal, Building2, Trash2, ChevronDown } from "lucide-react";
+import { Eye, SlidersHorizontal, Building2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { APP_CONFIG } from "@/lib/constants";
 import { PropertyStatus } from "../types";
 import { PropertiesFilters } from "./properties-filters";
 import { PropertiesAdvancedFilterDrawer } from "./properties-advanced-filter-drawer";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { usePropertiesManager } from "../controllers/use-properties-manager";
 
 export function PropertiesTable() {
@@ -36,19 +36,6 @@ export function PropertiesTable() {
     handleResetFilters,
     handleDeleteProperty,
   } = usePropertiesManager();
-
-  const [isPageSizeMenuOpen, setIsPageSizeMenuOpen] = useState(false);
-  const pageSizeMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (pageSizeMenuRef.current && !pageSizeMenuRef.current.contains(e.target as Node)) {
-        setIsPageSizeMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const renderStatusBadge = (status: PropertyStatus) => {
     if (status === "active") {
@@ -124,12 +111,12 @@ export function PropertiesTable() {
                           <i className="lucide-icon icon-building-2 w-[15px] h-[15px] text-[#4B5940]" />
                         </div>
                         <div>
-                          <Link
-                            href={`/properties/${property.id}/`}
+                          <a
+                            href={`${APP_CONFIG.basePath || ""}/properties/${property.id}/`}
                             className="font-semibold text-[14px] leading-[20px] text-[#181D17] hover:text-[#4B5940] transition-colors block text-right"
                           >
                             {property.title}
-                          </Link>
+                          </a>
                           <div className="text-[11px] font-medium leading-[16px] text-[#54624C] mt-0.5 text-right">
                             {property.type} · #{property.code}
                           </div>
@@ -264,95 +251,24 @@ export function PropertiesTable() {
           </table>
         </div>
 
-        {/* 3. Table Footer / Pagination (Figma node 1:4965) */}
-        <div className="border-t border-[#E5E8E2] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white text-xs text-[#54624C]">
-          {/* Records Summary & Rows Per Page (Right in RTL) */}
-          <div className="flex flex-wrap items-center gap-4 text-[12px] font-semibold text-[#54624C]">
-            <p className="leading-[18px]">
-              عرض <span className="text-[#181D17] font-semibold">{fromIndex}</span> إلى{" "}
-              <span className="text-[#181D17] font-semibold">{toIndex}</span> من أصل{" "}
-              <span className="text-[#181D17] font-semibold">{totalHeadlineCount}</span> عقار مسجل
-            </p>
-
-            <span className="hidden sm:inline-block w-px h-4 bg-[#E5E7EB]" />
-
-            <div className="flex items-center gap-2 relative" ref={pageSizeMenuRef}>
-              <span className="text-[#54624C] text-[11px] font-medium">الصفوف لكل صفحة:</span>
-              <button
-                type="button"
-                onClick={() => setIsPageSizeMenuOpen(!isPageSizeMenuOpen)}
-                className="bg-white border border-[#E5E8E2] px-3 py-1.5 rounded-[8px] text-[12px] font-semibold text-[#181D17] flex items-center gap-1.5 hover:bg-[#F9FAF8] transition-colors cursor-pointer select-none"
-              >
-                <span>{pageSize} عقارات</span>
-                <ChevronDown className="w-3 h-3 text-[#73786F]" />
-              </button>
-
-              {isPageSizeMenuOpen && (
-                <div className="absolute start-0 bottom-full mb-1.5 w-28 bg-white border border-[#E5E8E2] rounded-[8px] shadow-lg py-1 z-30">
-                  {[5, 10, 20, 50].map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                        setIsPageSizeMenuOpen(false);
-                      }}
-                      className={cn(
-                        "w-full text-start px-3 py-1.5 text-xs transition-colors hover:bg-[#F1F5EB] cursor-pointer",
-                        pageSize === size
-                          ? "font-bold text-[#4B5940] bg-[#EAF1E8]"
-                          : "text-[#181D17]"
-                      )}
-                    >
-                      {size} عقارات
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Pagination Controls [السابق] [1] [التالي] (Left in RTL) */}
-          <div className="flex items-center gap-1.5">
-            {/* Previous Button (Right in RTL flow) */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={activePage === 1}
-              className={cn(
-                "bg-white border border-[#E5E8E2] rounded-[8px] px-3.5 py-1.5 text-[12px] font-normal flex items-center gap-1.5 transition-colors select-none",
-                activePage === 1
-                  ? "opacity-50 cursor-not-allowed text-[#A0A59C]"
-                  : "text-[#181D17] hover:bg-[#F9FAF8] cursor-pointer"
-              )}
-            >
-              <span>السابق</span>
-              <i className="lucide-icon icon-chevron-right w-3.5 h-3.5" />
-            </button>
-
-            {/* Current Active Page */}
-            <div className="bg-[#EAF1E8] border border-[#D6DED4] rounded-[8px] px-3.5 py-1 text-[12px] font-bold text-[#4B5940] select-none">
-              {activePage}
-            </div>
-
-            {/* Next Button (Left in RTL flow) */}
-            <button
-              type="button"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={activePage === totalPages}
-              className={cn(
-                "bg-white border border-[#E5E8E2] rounded-[8px] px-3.5 py-1.5 text-[12px] font-normal flex items-center gap-1.5 transition-colors select-none",
-                activePage === totalPages
-                  ? "opacity-50 cursor-not-allowed text-[#A0A59C]"
-                  : "text-[#181D17] hover:bg-[#F9FAF8] cursor-pointer"
-              )}
-            >
-              <i className="lucide-icon icon-chevron-left w-3.5 h-3.5" />
-              <span>التالي</span>
-            </button>
-          </div>
-        </div>
+        {/* 3. Table Footer / Pagination */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalHeadlineCount}
+          fromIndex={fromIndex}
+          toIndex={toIndex}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="عقار"
+          pluralEntityName="عقارات"
+          registeredLabel="مسجل"
+        />
       </div>
 
       {/* Advanced Filter Drawer */}

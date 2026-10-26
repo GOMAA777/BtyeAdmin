@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AnimatedTabs } from "@/components/shared/animated-tabs";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { OwnerBillingFilterDrawer, BillingFilterState } from "./owner-billing-filter-drawer";
@@ -427,34 +428,21 @@ export function OwnerBillingTabView() {
               )}
             </button>
 
-            {/* Status Filter Tabs */}
-            <div className="flex items-center gap-1.5 p-1 bg-[#F0F4EC] rounded-2xl overflow-x-auto no-scrollbar">
-              {[
+            <AnimatedTabs
+              tabs={[
                 { id: "all", label: `الكل (${counts.all})` },
                 { id: "paid", label: `مسددة (${counts.paid})` },
                 { id: "processing", label: `قيد التحويل (${counts.processing})` },
-              ].map((tab) => {
-                const isActive = filterStatus === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      setFilterStatus(tab.id as any);
-                      setCurrentPage(1);
-                    }}
-                    className={cn(
-                      "px-4 py-1.5 rounded-xl text-xs transition-all whitespace-nowrap cursor-pointer select-none",
-                      isActive
-                        ? "bg-white text-[#172115] font-bold shadow-2xs"
-                        : "text-[#717E6E] hover:text-[#172115] font-medium"
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+              ]}
+              value={filterStatus}
+              onChange={(id) => {
+                setFilterStatus(id as any);
+                setCurrentPage(1);
+              }}
+              layoutId="ownerBillingFilterPill"
+              variant="light"
+              trackClassName="bg-[#F0F4EC]"
+            />
           </div>
         </div>
 
@@ -595,7 +583,7 @@ export function OwnerBillingTabView() {
             fromIndex={fromIndex}
             toIndex={toIndex}
             pageSize={pageSize}
-            pageSizeOptions={[5, 10, 20, 50]}
+            pageSizeOptions={[5, 10]}
             onPageChange={(page) => setCurrentPage(page)}
             onPageSizeChange={(size) => {
               setPageSize(size);

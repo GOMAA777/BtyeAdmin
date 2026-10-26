@@ -13,14 +13,16 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatedTabs } from "@/components/shared/animated-tabs";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { ExtendStayModal } from "@/features/bookings/components/extend-stay-modal";
 import { CancelBookingModal } from "@/features/bookings/components/cancel-booking-modal";
-import { BookingsEmptyStateView } from "@/features/bookings/components/bookings-empty-state-view";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { OwnerBookingsKPIs } from "./owner-bookings-kpis";
 import { OwnerBookingItem, OwnerBookingsKPIData } from "../types";
 import { defaultOwnerBookings, defaultOwnerBookingsKPIs } from "../data/mock-owner-bookings";
 import { OwnerBookingsFilterDrawer, BookingFilterState } from "./owner-bookings-filter-drawer";
+import { BookingsEmptyStateView } from "@/features/bookings/components/bookings-empty-state-view";
 
 interface OwnerBookingsTabViewProps {
   bookings?: OwnerBookingItem[];
@@ -37,7 +39,7 @@ export function OwnerBookingsTabView({
     "all" | "active" | "upcoming" | "completed" | "cancelled"
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 6;
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Filter Drawer State
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -206,36 +208,23 @@ export function OwnerBookingsTabView({
             )}
           </button>
 
-          {/* Status Filter Tabs Container */}
-          <div className="bg-[#f6f7f4] p-[4px] rounded-[12px] flex items-center gap-1 overflow-x-auto no-scrollbar">
-            {[
+          <AnimatedTabs
+            tabs={[
               { id: "all", label: `الكل (${statusCounts.all})` },
               { id: "active", label: `الحالية (${statusCounts.active})` },
               { id: "upcoming", label: `القادمة(${statusCounts.upcoming})` },
               { id: "completed", label: `المنتهية (${statusCounts.completed})` },
               { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
-            ].map((tab) => {
-              const isActive = filterStatus === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    setFilterStatus(tab.id as any);
-                    setCurrentPage(1);
-                  }}
-                  className={cn(
-                    "px-4 py-1.5 rounded-[8px] text-[12px] font-semibold transition-all whitespace-nowrap cursor-pointer select-none",
-                    isActive
-                      ? "bg-white text-[#252a24] shadow-xs"
-                      : "text-[#73786f] hover:text-[#252a24]"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+            ]}
+            value={filterStatus}
+            onChange={(id) => {
+              setFilterStatus(id as any);
+              setCurrentPage(1);
+            }}
+            layoutId="ownerBookingsFilterPill"
+            variant="light"
+            trackClassName="bg-[#f6f7f4] rounded-[12px]"
+          />
         </div>
       </div>
 
@@ -511,64 +500,24 @@ export function OwnerBookingsTabView({
           </table>
         </div>
 
-        {/* 4. Table Footer & Pagination (Matching Figma frame 1:3846 exactly) */}
-        <div className="bg-[#fafaf8] border-t border-[#e5e8e2] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Right side in RTL: Display Count & Total */}
-          <div className="flex items-center gap-2 text-xs text-[#73786f]">
-            <span>عرض</span>
-            <div className="bg-white border border-[#e5e8e2] px-3 py-1 rounded-[8px] font-semibold text-[#252a24]">
-              {rowsPerPage} حجوزات لكل صفحة
-            </div>
-            <span>
-              من إجمالي <strong className="text-[#252a24] font-bold">18</strong> حجز نشط مرتبط بمحفظة المالك
-            </span>
-          </div>
-
-          {/* Left side in RTL: Pagination Controls */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              disabled={activePage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className={cn(
-                "px-3 py-1.5 rounded-[8px] border border-[#e5e8e2] bg-white text-xs font-medium transition-colors cursor-pointer",
-                activePage <= 1
-                  ? "opacity-40 text-[#73786f] cursor-not-allowed"
-                  : "text-[#252a24] hover:bg-[#f6f7f4]"
-              )}
-            >
-              السابق
-            </button>
-            {[1, 2, 3].map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => setCurrentPage(page)}
-                className={cn(
-                  "w-8 h-8 rounded-[8px] text-xs font-semibold flex items-center justify-center transition-all cursor-pointer",
-                  activePage === page
-                    ? "bg-[#4b5940] text-white font-bold shadow-2xs"
-                    : "bg-white border border-[#e5e8e2] text-[#252a24] hover:bg-[#f6f7f4]"
-                )}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              type="button"
-              disabled={activePage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className={cn(
-                "px-3 py-1.5 rounded-[8px] border border-[#e5e8e2] bg-white text-xs font-medium transition-colors cursor-pointer",
-                activePage >= totalPages
-                  ? "opacity-40 text-[#73786f] cursor-not-allowed"
-                  : "text-[#252a24] hover:bg-[#f6f7f4]"
-              )}
-            >
-              التالي
-            </button>
-          </div>
-        </div>
+        {/* 4. Table Footer & Pagination */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + rowsPerPage, totalFiltered)}
+          pageSize={rowsPerPage}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setRowsPerPage(size);
+            setCurrentPage(1);
+          }}
+          entityName="حجز"
+          pluralEntityName="حجوزات"
+          registeredLabel="نشط"
+        />
       </div>
 
       {/* 5. Modals for Booking Actions */}

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { AutomationRuleActionDropdown } from "./automation-rule-action-dropdown";
 import { AutomationMainTab, AutomationRule } from "../../types";
 import { AutomationTabsNav } from "../automation-tabs-nav";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { PauseRuleModal } from "./modals/pause-rule-modal";
 import { ActivateRuleModal } from "./modals/activate-rule-modal";
 import { DeleteRuleModal } from "./modals/delete-rule-modal";
@@ -88,6 +89,15 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
     isActivateOpen,
     isDeleteOpen,
     filteredRules,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    totalFiltered,
+    totalPages,
+    activePage,
+    startIndex,
+    paginatedRules,
     setSearchQuery,
     setStatusFilter,
     setIsEmptyPreview,
@@ -243,7 +253,7 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e5e8e2]">
-                  {filteredRules.map((rule) => {
+                  {paginatedRules.map((rule) => {
                     const isAlert = rule.triggerType === "whatsapp_failed";
                     const isWhatsAppAction = rule.actionType === "whatsapp" || rule.actionSummary.includes("WhatsApp");
 
@@ -353,56 +363,24 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
               </table>
             </div>
 
-            {/* Table Footer / Pagination Controls (Figma node 1:21757) */}
-            <div className="bg-[#f9faf8] border-t border-[#e5e8e2] h-[59px] px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Right / Start side */}
-              <div className="flex items-center gap-4 text-[13px]">
-                <div className="flex items-center gap-1 text-[#454840]">
-                  <span>عرض</span>
-                  <span className="font-bold text-[#181d17]">1 - 7</span>
-                  <span>من أصل</span>
-                  <span className="font-bold text-[#181d17]">14</span>
-                  <span>قاعدة مسجلة في النظام</span>
-                </div>
-
-                <div className="h-4 w-px bg-[#e5e7eb] hidden sm:block" />
-
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-[#54624c]">الصفوف لكل صفحة:</span>
-                  <span className="bg-white border border-[#e5e8e2] rounded-[8px] px-3 py-1 text-[12px] font-semibold text-[#181d17]">
-                    10 حجوزات
-                  </span>
-                </div>
-              </div>
-
-              {/* Left / End side: Pagination Controls */}
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled
-                  className="bg-white border border-[#e5e8e2] rounded-[8px] px-3 py-1.5 text-[12px] font-normal text-[#a0a59c] opacity-60 inline-flex items-center gap-1 cursor-not-allowed"
-                >
-                  <ChevronRight className="size-3.5" />
-                  <span>السابق</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="bg-[#eaf1e8] border border-[#d6ded4] rounded-[8px] px-3 py-1 text-[12px] font-bold text-[#4b5940]"
-                >
-                  1
-                </button>
-
-                <button
-                  type="button"
-                  disabled
-                  className="bg-white border border-[#e5e8e2] rounded-[8px] px-3 py-1.5 text-[12px] font-normal text-[#a0a59c] opacity-60 inline-flex items-center gap-1 cursor-not-allowed"
-                >
-                  <span>التالي</span>
-                  <ChevronLeft className="size-3.5" />
-                </button>
-              </div>
-            </div>
+            {/* Table Footer / Pagination */}
+            <TablePagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              totalCount={totalFiltered}
+              fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+              toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+              pageSize={pageSize}
+              pageSizeOptions={[5, 10]}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              entityName="قاعدة"
+              pluralEntityName="قواعد"
+              registeredLabel="مسجلة"
+            />
           </div>
         )
       }

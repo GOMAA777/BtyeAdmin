@@ -353,7 +353,7 @@ export function UnitsTable() {
           fromIndex={fromIndex}
           toIndex={toIndex}
           pageSize={pageSize}
-          pageSizeOptions={[8, 10, 20, 50]}
+          pageSizeOptions={[5, 10]}
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => setPageSize(size)}
           entityName="وحدة"

@@ -8,14 +8,14 @@ export interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   totalCount: number;
-  fromIndex: number;
-  toIndex: number;
+  fromIndex?: number;
+  toIndex?: number;
   pageSize: number;
   pageSizeOptions?: number[];
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
-  entityName: string; // e.g. "عقار", "مالك", "حجز", "فاتورة"
-  pluralEntityName?: string; // e.g. "عقارات", "ملاك", "حجوزات", "فواتير"
+  entityName: string; // e.g. "عقار", "مالك", "وحدة", "حجز", "فاتورة", "عملية"
+  pluralEntityName?: string; // e.g. "عقارات", "ملاك", "وحدات", "حجوزات", "فواتير", "عمليات"
   registeredLabel?: string; // e.g. "مسجل" or "مسجلة", defaults to "مسجل"
   className?: string;
 }
@@ -27,7 +27,7 @@ export function TablePagination({
   fromIndex,
   toIndex,
   pageSize,
-  pageSizeOptions = [5, 10, 20, 50],
+  pageSizeOptions = [5, 10],
   onPageChange,
   onPageSizeChange,
   entityName,
@@ -42,6 +42,17 @@ export function TablePagination({
   const safeTotalPages = Math.max(1, totalPages);
   const safeActivePage = Math.min(Math.max(1, currentPage), safeTotalPages);
   const plural = pluralEntityName || entityName;
+
+  const calculatedFrom =
+    fromIndex !== undefined
+      ? fromIndex
+      : totalCount === 0
+      ? 0
+      : (safeActivePage - 1) * pageSize + 1;
+  const calculatedTo =
+    toIndex !== undefined
+      ? toIndex
+      : Math.min(safeActivePage * pageSize, totalCount);
 
   // Sliding window of visible pages
   const getVisiblePages = (current: number, total: number) => {
@@ -91,39 +102,42 @@ export function TablePagination({
   return (
     <div
       className={cn(
-        "p-4 sm:px-6 border-t border-[#EEF2E6] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7D8A78]",
+        "bg-white border-t border-[#E5E8E2] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#54624C]",
         className
       )}
     >
       {/* Right Side in RTL: Item Count & Rows Per Page Dropdown */}
-      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 font-medium">
-        <span>
-          عرض {fromIndex} إلى {toIndex} من أصل {totalCount} {entityName} {registeredLabel}
-        </span>
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[12px] font-semibold text-[#54624C]">
+        <p className="leading-[18px]">
+          عرض <span className="text-[#181D17] font-semibold">{calculatedFrom}</span> إلى{" "}
+          <span className="text-[#181D17] font-semibold">{calculatedTo}</span> من أصل{" "}
+          <span className="text-[#181D17] font-semibold">{totalCount}</span> {entityName}
+          {registeredLabel ? ` ${registeredLabel}` : ""}
+        </p>
 
-        <span className="hidden sm:inline-block w-px h-4 bg-[#CCD5C5]/70" />
+        <span className="hidden sm:inline-block w-px h-4 bg-[#E5E7EB]" />
 
         {/* Rows Per Page Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-[#7D8A78]">الصفوف لكل صفحة:</span>
+        <div className="flex items-center gap-2 relative">
+          <span className="text-[#54624C] text-[11px] font-medium">الصفوف لكل صفحة:</span>
           <div className="relative">
             <button
               ref={triggerRef}
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="bg-white border border-[#E2E6DC] px-3 py-1.5 rounded-xl text-xs font-semibold text-[#172115] flex items-center gap-1.5 shadow-2xs hover:bg-[#F9FAF7] transition-all cursor-pointer select-none"
+              className="bg-white border border-[#E5E8E2] px-3 py-1.5 rounded-[8px] text-[12px] font-semibold text-[#181D17] flex items-center gap-1.5 hover:bg-[#F9FAF8] transition-colors cursor-pointer select-none"
             >
               <span>
                 {pageSize} {plural}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#7D8A78]" />
+              <ChevronDown className="w-3 h-3 text-[#73786F]" />
             </button>
 
             {/* Dropdown Menu (Opens upwards to prevent overflow clipping) */}
             {isOpen && (
               <div
                 ref={menuRef}
-                className="absolute start-0 bottom-full mb-1.5 w-32 bg-white border border-[#E2E6DC] rounded-xl shadow-lg py-1 z-30"
+                className="absolute start-0 bottom-full mb-1.5 w-28 bg-white border border-[#E5E8E2] rounded-[8px] shadow-lg py-1 z-30"
               >
                 {pageSizeOptions.map((size) => (
                   <button
@@ -134,10 +148,10 @@ export function TablePagination({
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "w-full text-start px-3 py-1.5 text-xs transition-colors hover:bg-[#EEF2E6] cursor-pointer",
+                      "w-full text-start px-3 py-1.5 text-xs transition-colors hover:bg-[#F1F5EB] cursor-pointer",
                       pageSize === size
-                        ? "font-bold text-[#34432E] bg-[#EEF2E6]/50"
-                        : "text-[#2C3825]"
+                        ? "font-bold text-[#4B5940] bg-[#EAF1E8]"
+                        : "text-[#181D17]"
                     )}
                   >
                     {size} {plural}
@@ -151,20 +165,20 @@ export function TablePagination({
 
       {/* Left Side in RTL: Pagination Controls [السابق >]  [1]  [< التالي] */}
       <div className="flex items-center gap-1.5">
-        {/* Previous Button (Right in RTL) */}
+        {/* Previous Button (Right in RTL flow) */}
         <button
           type="button"
           onClick={() => onPageChange(Math.max(1, safeActivePage - 1))}
           disabled={safeActivePage === 1}
           className={cn(
-            "px-3.5 py-1.5 rounded-xl border border-[#CCD5C5] text-[#2C3825] flex items-center gap-1.5 font-medium text-xs transition-colors shadow-2xs select-none",
+            "bg-white border border-[#E5E8E2] rounded-[8px] px-3.5 py-1.5 text-[12px] font-normal flex items-center gap-1.5 transition-colors select-none",
             safeActivePage === 1
-              ? "opacity-40 cursor-not-allowed bg-white text-[#7D8A78]"
-              : "hover:bg-[#F4F6F0] cursor-pointer bg-white"
+              ? "opacity-50 cursor-not-allowed text-[#A0A59C]"
+              : "text-[#181D17] hover:bg-[#F9FAF8] cursor-pointer"
           )}
         >
           <span>السابق</span>
-          <ChevronRight className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3.5 h-3.5 text-current" />
         </button>
 
         {/* Dynamic Page Numbers */}
@@ -176,10 +190,10 @@ export function TablePagination({
               type="button"
               onClick={() => onPageChange(pageNum)}
               className={cn(
-                "w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center transition-all select-none border border-[#CCD5C5] shadow-2xs cursor-pointer",
+                "rounded-[8px] px-3.5 py-1 text-[12px] select-none min-w-[32px] h-[32px] flex items-center justify-center transition-colors border",
                 isActive
-                  ? "bg-[#EEF2E6] text-[#172115]"
-                  : "bg-white text-[#7D8A78] hover:bg-[#F4F6F0] hover:text-[#172115]"
+                  ? "bg-[#EAF1E8] border-[#D6DED4] font-bold text-[#4B5940]"
+                  : "bg-white border-[#E5E8E2] font-normal text-[#181D17] hover:bg-[#F9FAF8] cursor-pointer"
               )}
             >
               {pageNum}
@@ -187,19 +201,19 @@ export function TablePagination({
           );
         })}
 
-        {/* Next Button (Left in RTL) */}
+        {/* Next Button (Left in RTL flow) */}
         <button
           type="button"
           onClick={() => onPageChange(Math.min(safeTotalPages, safeActivePage + 1))}
           disabled={safeActivePage === safeTotalPages}
           className={cn(
-            "px-3.5 py-1.5 rounded-xl border border-[#CCD5C5] text-[#2C3825] flex items-center gap-1.5 font-medium text-xs transition-colors shadow-2xs select-none",
+            "bg-white border border-[#E5E8E2] rounded-[8px] px-3.5 py-1.5 text-[12px] font-normal flex items-center gap-1.5 transition-colors select-none",
             safeActivePage === safeTotalPages
-              ? "opacity-40 cursor-not-allowed bg-white text-[#7D8A78]"
-              : "hover:bg-[#F4F6F0] cursor-pointer bg-white"
+              ? "opacity-50 cursor-not-allowed text-[#A0A59C]"
+              : "text-[#181D17] hover:bg-[#F9FAF8] cursor-pointer"
           )}
         >
-          <ChevronLeft className="w-3.5 h-3.5" />
+          <ChevronLeft className="w-3.5 h-3.5 text-current" />
           <span>التالي</span>
         </button>
       </div>

@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
 import { BackButton } from "@/components/shared/back-button";
+import { TablePagination } from "@/components/shared/table-pagination";
 
 interface OperationRecord {
   id: string;
@@ -65,6 +66,7 @@ export function UnitOperationsLogView({
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedRange, setSelectedRange] = useState("30");
   const [activePage, setActivePage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Exact 4 table operations from Figma Node 1:15457
   const operations: OperationRecord[] = useMemo(
@@ -189,6 +191,15 @@ export function UnitOperationsLogView({
       return matchSearch && matchType && matchStatus;
     });
   }, [operations, search, selectedType, selectedStatus]);
+
+  const totalFiltered = filteredOperations.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const currentPage = Math.min(activePage, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedOperations = filteredOperations.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   const handleExportExcel = () => {
     toast.success("جاري تصدير سجل العمليات التشغيلي (Excel / CSV)...");
@@ -428,8 +439,8 @@ export function UnitOperationsLogView({
 
             {/* Table Body */}
             <tbody className="divide-y divide-[#E5E8E2]">
-              {filteredOperations.length > 0 ? (
-                filteredOperations.map((row) => (
+              {paginatedOperations.length > 0 ? (
+                paginatedOperations.map((row) => (
                   <tr
                     key={row.id}
                     className="hover:bg-[#F9FAF8]/60 transition-colors group"
@@ -555,55 +566,23 @@ export function UnitOperationsLogView({
         </div>
 
         {/* Table Footer / Pagination Controls (Figma Node 1:15586) */}
-        <div className="bg-[#F9FAF8] border-t border-[#E5E8E2] px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Right: Records Summary */}
-          <div className="flex items-center gap-4 text-[13px] text-[#75786F]">
-            <div>
-              <span>عرض </span>
-              <strong className="font-semibold text-[#181D17]">1 - 5</strong>
-              <span> من أصل </span>
-              <strong className="font-semibold text-[#181D17]">24</strong>
-              <span> عملية تشغيلية مسجلة</span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2 border-r border-[#E5E7EB] pr-4">
-              <span className="text-[11px] font-medium text-[#54624C]">
-                الصفوف لكل صفحة:
-              </span>
-              <span className="bg-white border border-[#E5E8E2] px-2 py-1 rounded-[6px] text-[12px] font-semibold text-[#181D17]">
-                10 حجوزات
-              </span>
-            </div>
-          </div>
-
-          {/* Left: Pagination Buttons */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              disabled
-              className="bg-white border border-[#E5E8E2] text-[#A0A59C] rounded-[8px] px-3 py-1.5 text-[12px] font-normal flex items-center gap-1 opacity-60 cursor-not-allowed select-none"
-            >
-              <span>السابق</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              type="button"
-              className="bg-[#EAF1E8] border border-[#D6DED4] text-[#4B5940] rounded-[8px] px-3 py-1 text-[12px] font-bold select-none"
-            >
-              1
-            </button>
-
-            <button
-              type="button"
-              disabled
-              className="bg-white border border-[#E5E8E2] text-[#A0A59C] rounded-[8px] px-3 py-1.5 text-[12px] font-normal flex items-center gap-1 opacity-60 cursor-not-allowed select-none"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>التالي</span>
-            </button>
-          </div>
-        </div>
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setActivePage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setActivePage(1);
+          }}
+          entityName="عملية تشغيلية"
+          pluralEntityName="عمليات"
+          registeredLabel="مسجلة"
+        />
       </div>
 
       {/* 5. GOVERNANCE & AUDIT FOOTNOTE (Figma Node 1:15819) */}

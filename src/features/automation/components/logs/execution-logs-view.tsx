@@ -17,6 +17,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { ExecutionLog, AutomationMainTab } from "../../types";
 import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -38,6 +39,10 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "in_progress">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   // Retry modal state
   const [retryTargetLog, setRetryTargetLog] = useState<ExecutionLog | null>(null);
 
@@ -58,6 +63,15 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
       return matchesSearch && matchesStatus;
     });
   }, [logs, searchQuery, statusFilter]);
+
+  const totalFiltered = filteredLogs.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedLogs = filteredLogs.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -264,7 +278,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
 
             {/* Body */}
             <tbody className="divide-y divide-[#f1f5eb] text-[#181d17]">
-              {filteredLogs.map((log) => {
+              {paginatedLogs.map((log) => {
                 const isFailed = log.status === "failed";
                 const isInProgress = log.status === "in_progress";
 
@@ -441,38 +455,23 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         </div>
 
         {/* Pagination Bar */}
-        <div className="p-[16px] border-t border-[#e5e8e2] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#75786f] text-[12px]">
-          <div>
-            عرض <span className="font-bold text-[#181d17]">1 - 7</span> من أصل{" "}
-            <span className="font-bold text-[#181d17]">14 عملية</span> مسجلة
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span>الصفوف لكل صفحة: 10 عمليات</span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                disabled
-                className="size-[28px] rounded-[6px] border border-[#e5e8e2] flex items-center justify-center text-[#75786f] disabled:opacity-40"
-              >
-                <ChevronRight className="size-[14px]" />
-              </button>
-              <button
-                type="button"
-                className="size-[28px] rounded-[6px] bg-[#4b5940] text-white font-bold flex items-center justify-center"
-              >
-                1
-              </button>
-              <button
-                type="button"
-                disabled
-                className="size-[28px] rounded-[6px] border border-[#e5e8e2] flex items-center justify-center text-[#75786f] disabled:opacity-40"
-              >
-                <ChevronLeft className="size-[14px]" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="عملية"
+          pluralEntityName="عمليات"
+          registeredLabel="مسجلة"
+        />
       </div>
 
       {/* 5. Audit & Immutability Notice Card (Figma node 1:25022 footer) */}

@@ -23,6 +23,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import { TablePagination } from "@/components/shared/table-pagination";
 import { WhatsAppTemplate, AutomationMainTab } from "../../types";
 import { initialWhatsAppTemplates } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -43,6 +44,8 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
   const router = useRouter();
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>(initialWhatsAppTemplates);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -86,6 +89,15 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
       return matchesSearch && matchesCategory;
     });
   }, [templates, searchQuery, selectedCategory]);
+
+  const totalFiltered = filteredTemplates.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * pageSize;
+  const paginatedTemplates = filteredTemplates.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   const handleSyncWithMeta = () => {
     setIsSyncing(true);
@@ -260,7 +272,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5EB] text-[#181D17]">
-              {filteredTemplates.map((template) => (
+              {paginatedTemplates.map((template) => (
                 <tr
                   key={template.id}
                   className="hover:bg-[#FAFBF9]/80 transition-colors group"
@@ -429,38 +441,24 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           </table>
         </div>
 
-        {/* Table Footer / Pagination [1:23754] */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 text-xs text-[#454840]">
-          <div>
-            <span>عرض 1 - 7 من أصل 14 قالب</span>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <span>الصفوف لكل صفحة: 10 قوالب</span>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                className="px-3 py-1.5 rounded-[8px] border border-[#E5E8E2] text-xs font-semibold text-[#75786F] hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
-                disabled
-              >
-                السابق
-              </button>
-              <button
-                type="button"
-                className="w-8 h-8 rounded-[8px] bg-[#34422A] text-white text-xs font-bold flex items-center justify-center cursor-pointer shadow-2xs"
-              >
-                1
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1.5 rounded-[8px] border border-[#E5E8E2] text-xs font-semibold text-[#75786F] hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                التالي
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Table Footer / Pagination */}
+        <TablePagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalCount={totalFiltered}
+          fromIndex={totalFiltered === 0 ? 0 : startIndex + 1}
+          toIndex={Math.min(startIndex + pageSize, totalFiltered)}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10]}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          entityName="قالب"
+          pluralEntityName="قوالب"
+          registeredLabel="معتمد"
+        />
       </div>
     )}
 
