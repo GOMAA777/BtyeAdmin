@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { Search, Bell, ChevronLeft } from "lucide-react";
 import { useUIStore } from "@/stores/use-ui-store";
@@ -57,26 +58,33 @@ export function Topbar() {
 
         {/* Notification Bell + Profile container */}
         <div className="flex items-center gap-2.5 sm:gap-3" dir="ltr">
-          {/* 1. Circular Avatar Photo */}
-          <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#DCE2D7] shrink-0 shadow-2xs">
-            <Image
-              src={resolveAssetUrl("/avatar.webp")}
-              alt="محمد أحمد"
-              fill
-              className="object-cover object-top"
-              priority
-            />
-          </div>
+          {/* 1. Circular Avatar Photo & User Name Linking to /profile/ */}
+          <Link
+            href="/profile/"
+            className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer hover:opacity-90 transition-opacity"
+            title="الملف الشخصي"
+            aria-label="الانتقال إلى الملف الشخصي"
+          >
+            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#DCE2D7] shrink-0 shadow-2xs group-hover:ring-[#4B5940]/50 transition-all">
+              <Image
+                src={resolveAssetUrl("/avatar.webp")}
+                alt="محمد أحمد"
+                fill
+                className="object-cover object-top"
+                priority
+              />
+            </div>
 
-          {/* 2. User Name & Role */}
-          <div className="select-none text-start hidden sm:block" dir="rtl">
-            <div className="text-xs sm:text-sm font-bold text-[#252A24] leading-tight whitespace-nowrap">
-              محمد أحمد
+            {/* 2. User Name & Role */}
+            <div className="select-none text-start hidden sm:block" dir="rtl">
+              <div className="text-xs sm:text-sm font-bold text-[#252A24] leading-tight whitespace-nowrap group-hover:text-[#4B5940] transition-colors">
+                محمد أحمد
+              </div>
+              <div className="text-[11px] text-[#687163] leading-tight mt-0.5 whitespace-nowrap">
+                مدير المنصة
+              </div>
             </div>
-            <div className="text-[11px] text-[#687163] leading-tight mt-0.5 whitespace-nowrap">
-              مدير المنصة
-            </div>
-          </div>
+          </Link>
 
           {/* 3. Vertical Divider Line */}
           <div className="h-5 w-px bg-[#DCE2D7] shrink-0 mx-0.5" />
