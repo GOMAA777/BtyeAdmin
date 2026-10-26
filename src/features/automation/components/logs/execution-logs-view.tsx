@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { FilterButton } from "@/components/shared/filter-button";
 import { ExecutionLog, AutomationMainTab } from "../../types";
 import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -174,8 +175,19 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
           </div>
         </div>
 
-        {/* Left side in RTL: Status Segmented Tabs */}
-        <div className="bg-[#f6f7f4] rounded-[12px] p-[4px] flex items-center gap-[4px] self-start md:self-auto overflow-x-auto">
+        {/* Left side in RTL: Filter Button & Status Segmented Tabs */}
+        <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
+          <FilterButton
+            onClick={() => {
+              if (statusFilter === "all") setStatusFilter("success");
+              else if (statusFilter === "success") setStatusFilter("failed");
+              else if (statusFilter === "failed") setStatusFilter("in_progress");
+              else setStatusFilter("all");
+            }}
+            activeCount={statusFilter !== "all" ? 1 : 0}
+            title="تصفية سجلات التنفيذ"
+          />
+          <div className="bg-[#f6f7f4] rounded-[12px] p-[4px] flex items-center gap-[4px] overflow-x-auto">
           {/* All */}
           <button
             type="button"
@@ -186,7 +198,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
                 : "text-[#73786f] hover:text-[#252a24]"
             }`}
           >
-            الكل (14)
+            الكل ({logs.length})
           </button>
 
           {/* Success */}
@@ -199,7 +211,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
                 : "text-[#73786f] hover:text-[#252a24]"
             }`}
           >
-            نجح (12)
+            نجح ({logs.filter((l) => l.status === "success").length})
           </button>
 
           {/* Failed */}
@@ -212,7 +224,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
                 : "text-[#73786f] hover:text-[#252a24]"
             }`}
           >
-            فشل (2)
+            فشل ({logs.filter((l) => l.status === "failed").length})
           </button>
 
           {/* In Progress */}
@@ -225,10 +237,11 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
                 : "text-[#73786f] hover:text-[#252a24]"
             }`}
           >
-            قيد التنفيذ (2)
+            قيد التنفيذ ({logs.filter((l) => l.status === "in_progress").length})
           </button>
         </div>
       </div>
+    </div>
 
       {isEmptyPreview || filteredLogs.length === 0 ? (
         /* Central Hero Empty State Card (Figma node 1:26564 / 1:26605) */

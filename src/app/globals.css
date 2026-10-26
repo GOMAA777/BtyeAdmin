@@ -207,3 +207,38 @@ i.lucide-icon.w-11, i.lucide-icon.h-11, i.lucide-icon.size-11 { font-size: 2.75r
 i.lucide-icon.w-12, i.lucide-icon.h-12, i.lucide-icon.size-12 { font-size: 3rem; }
 i.lucide-icon.w-14, i.lucide-icon.h-14, i.lucide-icon.size-14 { font-size: 3.5rem; }
 i.lucide-icon.w-16, i.lucide-icon.h-16, i.lucide-icon.size-16 { font-size: 4rem; }
+
+/* Sonner Toast Theme - Fixed dark-olive brand styling matching Figma node 1:28510 */
+[data-sonner-toaster] {
+  --normal-bg: #2d322c !important;
+  --normal-text: #eef2e9 !important;
+  --normal-border: rgba(61, 69, 59, 0.6) !important;
+  --success-bg: #2d322c !important;
+  --success-text: #eef2e9 !important;
+  --success-border: rgba(75, 89, 64, 0.6) !important;
+  --info-bg: #2d322c !important;
+  --info-text: #eef2e9 !important;
+  --info-border: rgba(61, 69, 59, 0.6) !important;
+  --warning-bg: #2d322c !important;
+  --warning-text: #eef2e9 !important;
+  --warning-border: rgba(217, 119, 6, 0.4) !important;
+  --error-bg: #2d322c !important;
+  --error-text: #eef2e9 !important;
+  --error-border: rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-sonner-toast],
+[data-sonner-toast][data-styled="true"] {
+  background: #2d322c !important;
+  background-color: #2d322c !important;
+  color: #eef2e9 !important;
+  border-color: rgba(61, 69, 59, 0.6) !important;
+}
+
+[data-sonner-toast] [data-title] {
+  color: #eef2e9 !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: rgba(238, 242, 233, 0.75) !important;
+}

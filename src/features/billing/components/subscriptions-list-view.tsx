@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { FilterButton } from "@/components/shared/filter-button";
+import { SubscriptionsAdvancedFilterDrawer } from "./subscriptions-advanced-filter-drawer";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
 
@@ -42,8 +44,26 @@ export function SubscriptionsListView() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [billingCycleFilter, setBillingCycleFilter] = useState<string>("all");
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const activeBillingFiltersCount =
+    (packageFilter !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (paymentStatusFilter !== "all" ? 1 : 0) +
+    (billingCycleFilter !== "all" ? 1 : 0);
+
+  const subCounts = useMemo(() => {
+    const total = subscriptions.length;
+    const active = subscriptions.filter((s) => s.status === "active").length;
+    const trial = subscriptions.filter((s) => s.status === "trial").length;
+    const expiring = subscriptions.filter((s) => s.status === "expiring_soon" || s.status === "pending_payment").length;
+    const paused = subscriptions.filter((s) => s.status === "paused").length;
+    const cancelled = subscriptions.filter((s) => s.status === "cancelled").length;
+    const activePct = total > 0 ? ((active / total) * 100).toFixed(1) + "%" : "0%";
+    return { total, active, trial, expiring, paused, cancelled, activePct };
+  }, [subscriptions]);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -204,7 +224,7 @@ export function SubscriptionsListView() {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">248</span>
+            <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.total}</span>
             <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#f1f5eb] text-[#454840]">
               كل المسجل
             </span>
@@ -221,10 +241,10 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">214</span>
+              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.active}</span>
               <span className="size-2.5 rounded-full bg-[#059669]" />
             </div>
-            <span className="text-[11px] font-medium text-[#54624c]">86.3%</span>
+            <span className="text-[11px] font-medium text-[#54624c]">{subCounts.activePct}</span>
           </div>
         </div>
 
@@ -238,7 +258,7 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">12</span>
+              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.trial}</span>
               <span className="size-2.5 rounded-full bg-[#3b82f6]" />
             </div>
             <span className="text-[11px] font-medium text-[#454840]">فترة مجانية</span>
@@ -255,7 +275,7 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">14</span>
+              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.expiring}</span>
               <span className="size-2.5 rounded-full bg-[#ba1a1a]" />
             </div>
             <span className="text-[11px] font-medium text-[#ba1a1a]">بحاجة للتجديد</span>
@@ -272,7 +292,7 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">8</span>
+              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.paused}</span>
               <span className="size-2.5 rounded-full bg-[#f59e0b]" />
             </div>
             <span className="text-[11px] font-medium text-[#454840]">تعليق إداري</span>
@@ -300,7 +320,7 @@ export function SubscriptionsListView() {
                   activeTab === "all" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                248
+                {subCounts.total}
               </span>
               {activeTab === "all" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -321,7 +341,7 @@ export function SubscriptionsListView() {
                   activeTab === "active" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                214
+                {subCounts.active}
               </span>
               {activeTab === "active" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -342,7 +362,7 @@ export function SubscriptionsListView() {
                   activeTab === "trial" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                12
+                {subCounts.trial}
               </span>
               {activeTab === "trial" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -363,7 +383,7 @@ export function SubscriptionsListView() {
                   activeTab === "expiring_soon" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                14
+                {subCounts.expiring}
               </span>
               {activeTab === "expiring_soon" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -384,7 +404,7 @@ export function SubscriptionsListView() {
                   activeTab === "paused" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                8
+                {subCounts.paused}
               </span>
               {activeTab === "paused" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -405,7 +425,7 @@ export function SubscriptionsListView() {
                   activeTab === "cancelled" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
                 }`}
               >
-                0
+                {subCounts.cancelled}
               </span>
               {activeTab === "cancelled" && (
                 <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
@@ -442,6 +462,11 @@ export function SubscriptionsListView() {
 
           {/* Filter Dropdowns & Reset Button [1:26823] (Left side in RTL) */}
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+            <FilterButton
+              onClick={() => setIsFilterDrawerOpen(true)}
+              activeCount={activeBillingFiltersCount}
+              title="تصفية الاشتراكات المتقدمة"
+            />
             {/* 1. Package Filter */}
             <div className="relative">
               <select
@@ -832,6 +857,29 @@ export function SubscriptionsListView() {
           </p>
         </div>
       </div>
+      <SubscriptionsAdvancedFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={{
+          packageFilter,
+          statusFilter,
+          paymentStatusFilter,
+          billingCycleFilter,
+        }}
+        onApplyFilters={(newFilters) => {
+          setPackageFilter(newFilters.packageFilter);
+          setStatusFilter(newFilters.statusFilter);
+          setPaymentStatusFilter(newFilters.paymentStatusFilter);
+          setBillingCycleFilter(newFilters.billingCycleFilter);
+        }}
+        onResetFilters={() => {
+          setPackageFilter("all");
+          setStatusFilter("all");
+          setPaymentStatusFilter("all");
+          setBillingCycleFilter("all");
+        }}
+        totalResultsCount={filteredSubscriptions.length}
+      />
     </div>
   );
 }

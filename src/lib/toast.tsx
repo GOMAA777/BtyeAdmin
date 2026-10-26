@@ -27,8 +27,14 @@ export function showUnderConstructionToast(
     </div>,
     {
       duration: 4000,
+      style: {
+        background: "#2d322c",
+        backgroundColor: "#2d322c",
+        color: "#eef2e9",
+        borderColor: "rgba(61, 69, 59, 0.6)",
+      },
       className:
-        "border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 bg-[#2d322c] text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
+        "!border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 !bg-[#2d322c] !text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
     }
   );
 }
@@ -52,8 +58,14 @@ export function showSuccessToast(title: string, description?: string) {
     </div>,
     {
       duration: 3500,
+      style: {
+        background: "#2d322c",
+        backgroundColor: "#2d322c",
+        color: "#eef2e9",
+        borderColor: "rgba(61, 69, 59, 0.6)",
+      },
       className:
-        "border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 bg-[#2d322c] text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
+        "!border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 !bg-[#2d322c] !text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
     }
   );
 }
@@ -77,8 +89,14 @@ export function showInfoToast(title: string, description?: string) {
     </div>,
     {
       duration: 3500,
+      style: {
+        background: "#2d322c",
+        backgroundColor: "#2d322c",
+        color: "#eef2e9",
+        borderColor: "rgba(61, 69, 59, 0.6)",
+      },
       className:
-        "border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 bg-[#2d322c] text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
+        "!border-[#3d453b]/60 shadow-xl rounded-[14px] py-2.5 px-3 !bg-[#2d322c] !text-[#eef2e9] select-none cursor-grab active:cursor-grabbing font-cairo w-[360px] max-w-[calc(100vw-32px)]",
     }
   );
 }

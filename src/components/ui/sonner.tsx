@@ -72,10 +72,18 @@ export function Toaster({ ...props }: ToasterProps) {
   return (
     <Sonner
       dir="rtl"
+      theme="dark"
       position="bottom-left"
       closeButton
       swipeDirections={["left", "right", "bottom"]}
       className="toaster group font-sans"
+      style={
+        {
+          "--normal-bg": "#2d322c",
+          "--normal-text": "#eef2e9",
+          "--normal-border": "rgba(61, 69, 59, 0.6)",
+        } as React.CSSProperties
+      }
       icons={{
         success: (
           <div className="bg-[#d8e8c7] rounded-[10px] size-[30px] flex items-center justify-center shrink-0 text-[#181d17]">
@@ -99,21 +107,27 @@ export function Toaster({ ...props }: ToasterProps) {
         ),
       }}
       toastOptions={{
+        style: {
+          background: "#2d322c",
+          backgroundColor: "#2d322c",
+          color: "#eef2e9",
+          borderColor: "rgba(61, 69, 59, 0.6)",
+        },
         classNames: {
           toast:
-            "group toast select-none cursor-grab active:cursor-grabbing group-[.toaster]:bg-[#2d322c] group-[.toaster]:text-[#eef2e9] group-[.toaster]:border-[#3d453b]/60 group-[.toaster]:shadow-[0px_8px_16px_rgba(0,0,0,0.25)] group-[.toaster]:rounded-[14px] group-[.toaster]:py-2.5 group-[.toaster]:px-3.5 group-[.toaster]:border group-[.toaster]:font-cairo overflow-visible group-[.toaster]:gap-2.5",
+            "group toast select-none cursor-grab active:cursor-grabbing !bg-[#2d322c] !text-[#eef2e9] !border-[#3d453b]/60 shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] py-2.5 px-3.5 border font-cairo overflow-visible gap-2.5",
           title:
-            "group-[.toast]:text-[12.5px] group-[.toast]:font-bold group-[.toast]:text-[#eef2e9] leading-snug",
+            "!text-[#eef2e9] text-[12.5px] font-bold leading-snug",
           description:
-            "group-[.toast]:text-[#eef2e9]/75 group-[.toast]:text-[11px] group-[.toast]:mt-0.5 font-cairo leading-relaxed",
+            "!text-[#eef2e9]/75 text-[11px] mt-0.5 font-cairo leading-relaxed",
           actionButton:
-            "group-[.toast]:bg-[#4b5940] group-[.toast]:text-white group-[.toast]:rounded-lg group-[.toast]:font-bold group-[.toast]:text-xs hover:group-[.toast]:bg-[#3d4933]",
+            "!bg-[#4b5940] !text-white rounded-lg font-bold text-xs hover:!bg-[#3d4933]",
           cancelButton:
-            "group-[.toast]:bg-[#373e35] group-[.toast]:text-[#eef2e9] group-[.toast]:rounded-lg group-[.toast]:text-xs",
+            "!bg-[#373e35] !text-[#eef2e9] rounded-lg text-xs",
           closeButton:
             "!-top-2 !-left-2 !right-auto !bottom-auto !transform-none !bg-[#373e35] !text-[#eef2e9] hover:!text-white hover:!bg-[#4b5940] !border !border-[#4b5940]/60 !shadow-md !cursor-pointer !size-5 !rounded-full !flex !items-center !justify-center !transition-all !z-20",
-          info: "group-[.toaster]:border-[#3d453b]/60",
-          success: "group-[.toaster]:border-[#4b5940]/60",
+          info: "!border-[#3d453b]/60",
+          success: "!border-[#4b5940]/60",
         },
       }}
       {...props}
