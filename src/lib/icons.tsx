@@ -502,5 +502,151 @@ export const Award: LucideIcon = ({ className, size, color, style }) => {
   );
 };
 
+export const Server: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+      <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+      <line x1="6" x2="6.01" y1="6" y2="6" />
+      <line x1="6" x2="6.01" y1="18" y2="18" />
+    </svg>
+  );
+};
 
+export const UploadCloud: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+      <path d="M12 12v9" />
+      <path d="m16 16-4-4-4 4" />
+    </svg>
+  );
+};
 
+export const CalendarRange: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M16 2v4" />
+      <path d="M8 2v4" />
+      <path d="M3 10h18" />
+      <path d="M17 14h-6" />
+      <path d="M13 18H7" />
+      <path d="M7 14h.01" />
+      <path d="M17 18h.01" />
+    </svg>
+  );
+};
+
+export const Headphones: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
+    </svg>
+  );
+};
+
+export const Palette: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+    </svg>
+  );
+};
+
+export const Power: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M12 2v10" />
+      <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+    </svg>
+  );
+};

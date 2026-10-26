@@ -16,6 +16,7 @@ import {
   History,
   LucideIcon,
 } from "lucide-react";
+import { stripAppPath } from "@/lib/constants";
 
 export interface RouteMeta {
   title: string;
@@ -42,7 +43,9 @@ export const STATIC_SEGMENT_TITLES: Record<string, RouteMeta> = {
   billing: { title: "الاشتراكات والفوترة", icon: Receipt },
   pricing: { title: "إعدادات التسعير وسعة الشقق", icon: SlidersHorizontal },
   reports: { title: "التقارير والإحصائيات", icon: BarChart3 },
-  settings: { title: "الإعدادات العامة", icon: SlidersHorizontal },
+  settings: { title: "الإعدادات", icon: SlidersHorizontal },
+  general: { title: "الإعدادات العامة", icon: SlidersHorizontal },
+  platform: { title: "إعدادات المنصة", icon: SlidersHorizontal },
   profile: { title: "الملف الشخصي", icon: UserCircle2 },
   guests: { title: "بيانات العميل", icon: Users },
   whatsapp: { title: "سجل رسائل WhatsApp", icon: MessageSquare },
@@ -54,8 +57,8 @@ export const STATIC_SEGMENT_TITLES: Record<string, RouteMeta> = {
  * Resolves the display title for a single route pathname
  */
 export function resolveRouteTitle(pathname: string): { title: string; badge?: string } {
-  const clean = (pathname || "").replace(/^\/(?:Edaret_Amlak|dashboard)/i, "").replace(/\/+$/, "") || "/";
-  if (clean === "/" || clean === "/dashboard" || clean.toLowerCase() === "/edaret_amlak") {
+  const clean = stripAppPath(pathname || "");
+  if (clean === "/" || clean === "/dashboard") {
     return { title: "الرئيسية" };
   }
 
@@ -154,20 +157,46 @@ export interface FallbackTrailItem {
 }
 
 /**
- * Builds a hierarchical fallback trail for a direct URL visit
+ * Section root icon for breadcrumb (first crumb), keyed by path segment.
  */
-export function generateFallbackTrail(pathname: string): FallbackTrailItem[] {
-  const clean = (pathname || "").replace(/^\/(?:Edaret_Amlak|dashboard)/i, "").replace(/\/+$/, "") || "/";
-  if (clean === "/" || clean === "/dashboard" || clean.toLowerCase() === "/edaret_amlak") {
+export function resolveSectionIcon(pathnameOrHref: string): LucideIcon | undefined {
+  const clean = stripAppPath(pathnameOrHref || "").replace(/\/$/, "") || "/";
+  if (clean === "/" || clean === "/dashboard") {
+    return LayoutGrid;
+  }
+  const firstSeg = clean.split("/").filter(Boolean)[0];
+  return firstSeg ? STATIC_SEGMENT_TITLES[firstSeg]?.icon : undefined;
+}
+
+/** Top-level section key (`bookings`, `properties`, …) or null for dashboard. */
+export function getTopSection(pathname: string): string | null {
+  const clean = stripAppPath(pathname || "").replace(/\/$/, "") || "/";
+  if (clean === "/" || clean === "/dashboard") return null;
+  return clean.split("/").filter(Boolean)[0] ?? null;
+}
+
+function normalizeTrailHref(href: string): string {
+  return stripAppPath(href || "/").replace(/\/$/, "") || "/";
+}
+
+/**
+ * Builds a hierarchical trail for the current URL.
+ * `entryRoot` is prepended when the user entered from that page/section
+ * (الرئيسية, أو قسم آخر) and it is not already the first path crumb.
+ */
+export function generateFallbackTrail(
+  pathname: string,
+  options?: { entryRoot?: { title: string; href: string } | null }
+): FallbackTrailItem[] {
+  const clean = stripAppPath(pathname || "");
+  if (clean === "/" || clean === "/dashboard") {
     return [{ title: "الرئيسية", href: "/" }];
   }
 
   const rawSegments = clean.split("/").filter(Boolean);
   const segments = rawSegments.filter((s) => s !== "dashboard");
 
-  const trail: FallbackTrailItem[] = [
-    { title: "الرئيسية", href: "/" },
-  ];
+  const trail: FallbackTrailItem[] = [];
 
   let accumulated = "";
   for (let i = 0; i < segments.length; i++) {
@@ -179,6 +208,15 @@ export function generateFallbackTrail(pathname: string): FallbackTrailItem[] {
       href: `${accumulated}/`,
       badge,
     });
+  }
+
+  const entry = options?.entryRoot;
+  if (entry) {
+    const entryHref = normalizeTrailHref(entry.href);
+    const firstHref = trail[0] ? normalizeTrailHref(trail[0].href) : "";
+    if (entryHref !== firstHref) {
+      trail.unshift({ title: entry.title, href: entry.href });
+    }
   }
 
   return trail;

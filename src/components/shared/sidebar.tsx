@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -28,7 +28,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/use-ui-store";
 import { showUnderConstructionToast } from "@/lib/toast";
-import { APP_CONFIG } from "@/lib/constants";
+import { APP_CONFIG, hardNavigate, stripAppPath } from "@/lib/constants";
+import { markFreshSectionEntry } from "@/lib/nav-entry";
 
 const isRouteAvailable = (href: string) => {
   const clean = href.replace(/\/+$/, "");
@@ -45,6 +46,7 @@ const isRouteAvailable = (href: string) => {
     "/automation",
     "/billing",
     "/styleguide",
+    "/settings",
   ].includes(clean);
 };
 
@@ -80,11 +82,15 @@ export function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const currentUser = useSyncExternalStore(subscribeAuth, getAuthUser, () => null);
 
+  // Mobile drawer must start closed so CTAs (إضافة عقار / حجز) stay clickable
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [setSidebarOpen]);
+
   // Normalize pathname to strip basePath and any trailing slash
-  const cleanPathname =
-    (pathname || "")
-      .replace(/^\/(?:Edaret_Amlak|dashboard)/i, "")
-      .replace(/\/+$/, "") || "/";
+  const cleanPathname = stripAppPath(pathname || "");
 
   const isItemActive = (href: string) => {
     const cleanHref = href.replace(/\/+$/, "") || "/";
@@ -129,10 +135,9 @@ export function Sidebar() {
 
     // Direct browser navigation ensures 100% reliable page transition on static Apache hosting
     e.preventDefault();
-    const prefix = APP_CONFIG.basePath || "";
-    const targetUrl = `${prefix}${href}`;
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(targetUrl);
+    // Section from sidebar is its own trail root (not "entered from" previous page)
+    markFreshSectionEntry();
+    hardNavigate(href);
   };
 
   return (
