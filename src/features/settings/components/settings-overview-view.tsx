@@ -168,6 +168,7 @@ export function SettingsOverviewView() {
             description="اللغة الافتراضية (العربية)، تنسيق التواريخ الهجرية والميلادية، وتوقيت الرياض (GMT+3)."
             icon={Globe}
             badge={{ text: "العربية (RTL) • الرياض", variant: "gray" }}
+            href="/settings/language"
             dataNodeId="1:29002"
           />
         </div>
@@ -290,13 +291,14 @@ export function SettingsOverviewView() {
             title="المستخدمون والصلاحيات"
             description="إدارة حسابات مديري المنصة، الأدوار الوظيفية (Role-based RBAC)، ومصفوفة الصلاحيات."
             icon={Users2}
+            href="/settings/users-permissions"
             dataNodeId="1:29215"
           />
           <SettingCard
             title="السجل والنشاط"
             description="سجل التدقيق الشامل (Audit Trail) لكافة التعديلات الإدارية على إعدادات المنصة وحسابات الملاك."
             icon={History}
-            href="/activity"
+            href="/settings/activity"
             dataNodeId="1:29200"
           />
         </div>

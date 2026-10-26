@@ -400,3 +400,104 @@ export interface SecuritySettingsState {
   updatedBy: string;
 }
 
+// ==========================================
+// Users & Permissions Settings (إعدادات المستخدمين والصلاحيات)
+// ==========================================
+
+export type DefaultPlatformRole = "viewer" | "operator" | "auditor" | "manager";
+
+export interface UsersPermissionsSettingsState {
+  // Account security controls
+  requireAdminApproval: boolean;
+  mandatoryEmailVerification: boolean;
+  mandatoryMfa: boolean;
+  dormantAccountAction: boolean;
+  dormantAccountDays: number;
+
+  // Default role
+  defaultRole: DefaultPlatformRole;
+
+  // Access boundaries (5 restraints)
+  allowExportReports: boolean;
+  allowDirectDeletion: boolean;
+  allowPlatformSettingsAccess: boolean;
+  allowFinancialBillingAccess: boolean;
+  allowUserManagementAccess: boolean;
+
+  // Telemetry summary
+  activeUsersCount: number;
+  pendingApprovalsCount: number;
+  mfaCompliancePercent: number;
+  approvedRolesCount: number;
+
+  lastUpdated: string;
+  updatedBy: string;
+  policyId: string;
+  complianceStandard: string;
+}
+
+// ==========================================
+// Language & Region Settings (إعدادات اللغة والمنطقة)
+// ==========================================
+
+export type TimeFormatType = "12h" | "24h";
+export type CurrencyPositionType = "after" | "before";
+
+export interface LanguageRegionSettingsState {
+  // Language & UI
+  defaultLanguage: string;
+  enableEnglishLanguage: boolean;
+  allowUserLanguageOverride: boolean;
+  dictionaryVersion: string;
+
+  // Region & Time
+  country: string;
+  timezone: string;
+  timeFormat: TimeFormatType;
+  dateFormat: string;
+
+  // Currency & Monetary
+  currencyCode: string;
+  currencyName: string;
+  currencyPosition: CurrencyPositionType;
+  numberFormatting: string;
+  showDecimals: boolean;
+
+  // Calendar
+  weekStartDay: string;
+  baseCalendar: string;
+  showDualHijriDate: boolean;
+
+  lastUpdated: string;
+  updatedBy: string;
+}
+
+// ==========================================
+// Activity & Audit Log Settings (إعدادات السجل والنشاط)
+// ==========================================
+
+export type DataRetentionPeriod = "1_year" | "2_years" | "5_years" | "unlimited";
+
+export interface ActivityLogSettingsState {
+  // 9 tracking scopes
+  trackSystemActivity: boolean;
+  trackUserBehavior: boolean;
+  trackPropertyChanges: boolean;
+  trackBookingChanges: boolean;
+  trackSubscriptionChanges: boolean;
+  trackFinancialPayments: boolean;
+  trackIntegrationChanges: boolean;
+  trackAccessCodes: boolean;
+  trackAutomationEvents: boolean;
+
+  // Retention policy
+  retentionPeriod: DataRetentionPeriod;
+
+  // Access & Export
+  allowAdminViewAuditLog: boolean;
+  allowExportAuditLog: boolean;
+
+  lastUpdated: string;
+  updatedBy: string;
+}
+
