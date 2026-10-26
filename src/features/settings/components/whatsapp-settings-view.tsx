@@ -67,7 +67,7 @@ export function WhatsAppSettingsView() {
 
   return (
     <div
-      className="w-full max-w-[1020px] mx-auto pb-32 flex flex-col gap-6 font-cairo"
+      className="w-full pb-32 flex flex-col gap-6 font-cairo"
       dir="rtl"
       data-node-id="1:32816"
       data-name="إعدادات WhatsApp"

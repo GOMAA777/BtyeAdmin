@@ -66,7 +66,7 @@ export function ActivityLogSettingsView() {
       </div>
 
       {/* MAIN CONTAINER */}
-      <div className="w-full max-w-[1020px] mx-auto flex flex-col gap-6">
+      <div className="w-full flex flex-col gap-6">
         {/* 1. Activity Tracking Scopes Section */}
         <div
           className="bg-white rounded-[16px] p-6 sm:p-8 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#EBEBEB] flex flex-col gap-6 text-right"
