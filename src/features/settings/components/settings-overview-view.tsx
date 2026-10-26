@@ -192,19 +192,23 @@ export function SettingsOverviewView() {
             title="إعدادات الحجوزات"
             description="سياسات تأكيد الحجز الآلي، نوافذ الإلغاء، معايير التحقق من توافر الوحدات ومنع التعارض."
             icon={CalendarDays}
+            badge={{ text: "قواعد موحدة", variant: "green" }}
+            href="/settings/booking"
             dataNodeId="1:29112"
           />
           <SettingCard
             title="إعدادات التشغيل"
             description="قواعد إسناد مهام النظافة التلقائية بعد المغادرة، معايير بلاغات الصيانة الطارئة."
             icon={Wrench}
-            href="/operations"
+            badge={{ text: "أتمتة ذكية", variant: "green" }}
+            href="/settings/operations"
             dataNodeId="1:29096"
           />
           <SettingCard
             title="إعدادات أكواد الدخول"
             description="قواعد توليد أكواد الأقفال الذكية، مدة صلاحية كود النزيل، وآليات التشفير السحابي."
             icon={KeyRound}
+            href="/settings/access-codes"
             dataNodeId="1:29081"
           />
           <SettingCard

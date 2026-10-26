@@ -46,6 +46,7 @@ export const STATIC_SEGMENT_TITLES: Record<string, RouteMeta> = {
   settings: { title: "الإعدادات", icon: SlidersHorizontal },
   general: { title: "الإعدادات العامة", icon: SlidersHorizontal },
   platform: { title: "إعدادات المنصة", icon: SlidersHorizontal },
+  booking: { title: "إعدادات الحجوزات", icon: CalendarDays },
   profile: { title: "الملف الشخصي", icon: UserCircle2 },
   guests: { title: "بيانات العميل", icon: Users },
   whatsapp: { title: "سجل رسائل WhatsApp", icon: MessageSquare },
@@ -105,6 +106,10 @@ export function resolveRouteTitle(pathname: string): { title: string; badge?: st
 
   if (lastSeg === "empty") {
     return { title: "قائمة الحجوزات (فارغة)" };
+  }
+
+  if (prevSeg === "settings" && lastSeg === "operations") {
+    return { title: "إعدادات التشغيل" };
   }
 
   // 2. Known static dictionary
