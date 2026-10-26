@@ -10,10 +10,6 @@ import {
   CalendarX2,
   CheckCircle2,
   Users,
-  RotateCw,
-  RotateCcw,
-  Search,
-  ChevronDown,
   KeyRound,
   Pencil,
   Copy,
@@ -29,6 +25,8 @@ import { DeleteMemberModal } from "./modals/delete-member-modal";
 import { ConfirmChangeWhatsappModal } from "./modals/confirm-change-whatsapp-modal";
 import { EditPermissionsModal } from "./modals/edit-permissions-modal";
 import { SendWhatsappMessageModal } from "./modals/send-whatsapp-message-modal";
+import { TeamFilters } from "./team-filters";
+import { TeamAdvancedFilterDrawer } from "./modals/team-advanced-filter-drawer";
 import { TeamMember, TeamRole } from "../types";
 
 export function TeamOverviewView() {
@@ -79,6 +77,12 @@ export function TeamOverviewView() {
     handleUpdatePermissions,
     handleSendWhatsappMessage,
   } = useTeamManager();
+
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const activeFiltersCount =
+    (roleFilter !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (propertyFilter !== "all" ? 1 : 0);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -232,166 +236,22 @@ export function TeamOverviewView() {
         </div>
       </div>
 
-      {/* SECTION 3: FILTER & CONTROL PANEL CONTAINER */}
-      <div className="bg-white rounded-[16px] p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] space-y-4">
-        {/* Category Tabs & Auto Sync Status */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Tabs */}
-          <div className="bg-[#ebefe6] p-1 rounded-[12px] flex items-center gap-1 overflow-x-auto w-full sm:w-auto">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-4 py-1.5 rounded-[8px] flex items-center gap-2 text-[12px] font-semibold transition-all font-cairo shrink-0 ${
-                activeTab === "all"
-                  ? "bg-[#34422a] text-white shadow-sm"
-                  : "text-[#454840] hover:text-[#181d17]"
-              }`}
-            >
-              <span>الكل</span>
-              <span
-                className={`text-[11px] font-bold px-1.5 py-0.2 rounded-full ${
-                  activeTab === "all" ? "bg-white/20 text-white" : "bg-[#dfe4db] text-[#181d17]"
-                }`}
-              >
-                {counts.all}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("cleaner")}
-              className={`px-4 py-1.5 rounded-[8px] flex items-center gap-2 text-[12px] font-semibold transition-all font-cairo shrink-0 ${
-                activeTab === "cleaner"
-                  ? "bg-[#34422a] text-white shadow-sm"
-                  : "text-[#454840] hover:text-[#181d17]"
-              }`}
-            >
-              <span>عمال النظافة</span>
-              <span
-                className={`text-[11px] font-bold px-1.5 py-0.2 rounded-full ${
-                  activeTab === "cleaner" ? "bg-white/20 text-white" : "bg-[#dfe4db] text-[#181d17]"
-                }`}
-              >
-                {counts.cleaner}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("maintenance")}
-              className={`px-4 py-1.5 rounded-[8px] flex items-center gap-2 text-[12px] font-semibold transition-all font-cairo shrink-0 ${
-                activeTab === "maintenance"
-                  ? "bg-[#34422a] text-white shadow-sm"
-                  : "text-[#454840] hover:text-[#181d17]"
-              }`}
-            >
-              <span>فنيو الصيانة</span>
-              <span
-                className={`text-[11px] font-bold px-1.5 py-0.2 rounded-full ${
-                  activeTab === "maintenance" ? "bg-white/20 text-white" : "bg-[#dfe4db] text-[#181d17]"
-                }`}
-              >
-                {counts.maintenance}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("supervisor")}
-              className={`px-4 py-1.5 rounded-[8px] flex items-center gap-2 text-[12px] font-semibold transition-all font-cairo shrink-0 ${
-                activeTab === "supervisor"
-                  ? "bg-[#34422a] text-white shadow-sm"
-                  : "text-[#454840] hover:text-[#181d17]"
-              }`}
-            >
-              <span>المشرفون</span>
-              <span
-                className={`text-[11px] font-bold px-1.5 py-0.2 rounded-full ${
-                  activeTab === "supervisor" ? "bg-white/20 text-white" : "bg-[#dfe4db] text-[#181d17]"
-                }`}
-              >
-                {counts.supervisor}
-              </span>
-            </button>
-          </div>
-
-          {/* Sync status */}
-          <div className="flex items-center gap-1.5 text-[11px] font-cairo">
-            <RotateCw className="size-3 text-[#34422a]" />
-            <span className="text-[#454840] font-medium">مزامنة المهام التلقائية:</span>
-            <span className="font-bold text-[#181d17]">فعالة (كل 5 دقائق)</span>
-          </div>
-        </div>
-
-        {/* Detailed Search & Dropdown Filter Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 pt-1">
-          {/* Search Input (Takes 5 cols) */}
-          <div className="lg:col-span-4 relative">
-            <div className="h-11 bg-[#f1f5eb] rounded-[12px] px-3 pr-10 flex items-center shadow-inner">
-              <input
-                type="text"
-                placeholder="ابحث باسم العضو، رقم الواتساب، أو العقار..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-[13.5px] text-[#181d17] placeholder-[#75786f] focus:outline-none font-cairo"
-              />
-            </div>
-            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-[#75786f] pointer-events-none" />
-          </div>
-
-          {/* Role Filter (Takes 2 cols) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full h-11 bg-[#f1f5eb] rounded-[12px] px-4 pl-8 text-[13.5px] font-normal text-[#181d17] appearance-none focus:outline-none font-cairo"
-            >
-              <option value="all">نوع العضو (الكل)</option>
-              <option value="cleaner">عامل نظافة</option>
-              <option value="maintenance">فني صيانة</option>
-              <option value="supervisor">مشرف</option>
-            </select>
-            <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#75786f] pointer-events-none" />
-          </div>
-
-          {/* Status Filter (Takes 2 cols) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full h-11 bg-[#f1f5eb] rounded-[12px] px-4 pl-8 text-[13.5px] font-normal text-[#181d17] appearance-none focus:outline-none font-cairo"
-            >
-              <option value="all">الحالة (الكل)</option>
-              <option value="active">نشط</option>
-              <option value="suspended">موقوف مؤقتاً</option>
-              <option value="leave">في إجازة</option>
-            </select>
-            <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#75786f] pointer-events-none" />
-          </div>
-
-          {/* Property Filter (Takes 2 cols) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={propertyFilter}
-              onChange={(e) => setPropertyFilter(e.target.value)}
-              className="w-full h-11 bg-[#f1f5eb] rounded-[12px] px-4 pl-8 text-[13.5px] font-normal text-[#181d17] appearance-none focus:outline-none font-cairo"
-            >
-              <option value="all">العقار (الكل)</option>
-              <option value="عمارة النخيل">عمارة النخيل</option>
-              <option value="برج الياسمين">برج الياسمين</option>
-              <option value="فيلا النرجس">فيلا النرجس</option>
-            </select>
-            <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#75786f] pointer-events-none" />
-          </div>
-
-          {/* Reset Action (Takes 2 cols) */}
-          <div className="lg:col-span-2">
-            <button
-              onClick={resetFilters}
-              className="w-full h-11 bg-[#ebefe6] hover:bg-[#dfe4db] rounded-[12px] px-3 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-[#454840] transition-colors font-cairo"
-            >
-              <RotateCcw className="size-3.5" />
-              <span>إعادة ضبط</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* SECTION 3: FILTER & SEARCH BAR (Exact match to Owners filter bar, without sync/update indicator) */}
+      <TeamFilters
+        currentFilter={statusFilter}
+        onFilterChange={(val) => {
+          setStatusFilter(val);
+          setCurrentPage(1);
+        }}
+        searchQuery={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setCurrentPage(1);
+        }}
+        counts={counts}
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+      />
 
       {/* SECTION 4: DATA TABLE */}
       <div className="space-y-3">
@@ -620,6 +480,25 @@ export function TeamOverviewView() {
         onClose={() => setSendWhatsappModalOpen(false)}
         member={activeMember}
         onSend={handleSendWhatsappMessage}
+      />
+
+      <TeamAdvancedFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={{
+          role: roleFilter,
+          status: statusFilter,
+          property: propertyFilter,
+          whatsappLinked: "all",
+          sortBy: "name_asc",
+        }}
+        onApplyFilters={(newFilters) => {
+          setRoleFilter(newFilters.role);
+          setStatusFilter(newFilters.status);
+          setPropertyFilter(newFilters.property);
+        }}
+        onResetFilters={resetFilters}
+        totalResultsCount={filteredMembers.length}
       />
     </div>
   );
