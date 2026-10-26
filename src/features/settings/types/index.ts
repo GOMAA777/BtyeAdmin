@@ -251,3 +251,152 @@ export interface NotificationsSettingsState {
   updatedBy: string;
 }
 
+// ==========================================
+// Integrations Settings (التكاملات والربط السحابي)
+// ==========================================
+
+export interface IntegrationChannelItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  category: "ota" | "payment" | "maps" | "messaging" | "failover";
+  status: "connected_active" | "connected" | "disconnected_standby";
+  statusLabel: string;
+  responseTime: string;
+  successRate?: string;
+  lastSync: string;
+  identifierKey: string;
+  identifierLabel: string;
+  isConnected: boolean;
+  detailsUrl?: string;
+}
+
+export interface IntegrationsSettingsState {
+  airbnb: IntegrationChannelItem;
+  bookingCom: IntegrationChannelItem;
+  saudiPayment: IntegrationChannelItem;
+  googleMaps: IntegrationChannelItem;
+  whatsapp: IntegrationChannelItem;
+  smsFailover: IntegrationChannelItem;
+  lastUpdated: string;
+  updatedBy: string;
+}
+
+// ==========================================
+// Booking.com Integration Details (تفاصيل التكامل)
+// ==========================================
+
+export interface BookingComSyncScopes {
+  bookings: boolean;
+  availability: boolean;
+  ratesAndPolicies: boolean;
+}
+
+export interface SyncAuditLogItem {
+  id: string;
+  timestamp: string;
+  statusCode: string;
+  action: string;
+  target: string;
+}
+
+export interface BookingComDetailsState {
+  accountId: string;
+  secretToken: string;
+  protocol: string;
+  partnerTier: string;
+  firstConnectedDate: string;
+  lastSyncTime: string;
+  lastSyncStatus: string;
+  apiLatency: string;
+  webhookUrl: string;
+  webhookStatus: string;
+  totalPropertiesServed: string;
+  totalUnitsServed: string;
+  scopes: BookingComSyncScopes;
+  recentLogs: SyncAuditLogItem[];
+  pendingErrorsCount: number;
+}
+
+// ==========================================
+// Central Billing & Payment (إعدادات الدفع والفوترة المركزية)
+// ==========================================
+
+export interface CentralBillingState {
+  // Payment Gateway Engine
+  activeGateway: string;
+  environment: "live" | "sandbox";
+  merchantId: string;
+  isGatewayConnected: boolean;
+
+  // Tax & Invoicing Rules
+  taxNumber: string;
+  isTaxNumberVerified: boolean;
+  invoicePrefix: string;
+  currency: string;
+  invoiceDueDays: number;
+  vatEnabled: boolean;
+  vatRate: number;
+  qrAutoEncrypt: boolean;
+
+  // Accepted Payment Channels
+  enableMadaAndCreditCards: boolean;
+  enableApplePay: boolean;
+  enableStcPay: boolean;
+  enableDirectBankTransfer: boolean;
+
+  // Automation & Dispatch Triggers
+  autoSendInvoice: boolean;
+  autoSendPaymentReceipt: boolean;
+  smartPaymentReminder: boolean;
+
+  lastUpdated: string;
+  updatedBy: string;
+}
+
+// ==========================================
+// Security Settings (إعدادات الأمان)
+// ==========================================
+
+export interface SecuritySettingsState {
+  // Posture metrics
+  securityScore: number;
+  admin2faCount: string;
+  activeSessionsCount: number;
+  blockedAttacks24h: number;
+  encryptionStandard: string;
+  emergencyLockoutActive: boolean;
+
+  // Login & Verification
+  enforceStrongPassword: boolean;
+  minPasswordLength: number;
+  mandatoryEmailVerification: boolean;
+  mandatoryPhoneOtp: boolean;
+
+  // Two-Factor Authentication (2FA)
+  twoFactorEnabled: boolean;
+  allowAuthenticatorApp: boolean;
+  allowSmsOtp: boolean;
+  mandatoryAdmin2fa: boolean;
+
+  // Session Management
+  sessionTimeoutMinutes: number;
+  allowMultipleSessions: boolean;
+
+  // Lockout & Brute-force
+  lockoutDurationMinutes: number;
+  maxFailedLoginAttempts: number;
+
+  // Password Policies
+  passwordExpiryDays: number;
+  preventPasswordReuse: boolean;
+
+  // Technical & Network
+  ipWhitelist: string[];
+  immutableAuditLogging: boolean;
+
+  lastUpdated: string;
+  updatedBy: string;
+}
+

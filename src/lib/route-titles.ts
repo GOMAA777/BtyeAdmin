@@ -101,6 +101,9 @@ export function resolveRouteTitle(pathname: string): { title: string; badge?: st
   }
 
   if (lastSeg === "whatsapp") {
+    if (prevSeg === "settings") {
+      return { title: "إعدادات WhatsApp" };
+    }
     return { title: "سجل رسائل WhatsApp" };
   }
 

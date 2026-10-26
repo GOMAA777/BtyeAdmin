@@ -242,7 +242,7 @@ export function SettingsOverviewView() {
             description="إدارة اتصال WhatsApp Business Cloud API وإعدادات إرسال الرسائل والقوالب المعتمدة."
             icon={MessageSquare}
             badge={{ text: "متصل • Meta Cloud API", variant: "green" }}
-            href="/whatsapp"
+            href="/settings/whatsapp"
             dataNodeId="1:29173"
           />
           <SettingCard
@@ -250,6 +250,7 @@ export function SettingsOverviewView() {
             description="ربط قنوات الحجز (Booking.com, Airbnb)، مزامنة iCal، والربط الحكومي الموحد (بلدي، شموس)."
             icon={Network}
             badge={{ text: "3 قنوات متصلة", variant: "blue" }}
+            href="/settings/integrations"
             dataNodeId="1:29155"
           />
           <SettingCard
@@ -257,7 +258,7 @@ export function SettingsOverviewView() {
             description="بوابات الدفع الإلكتروني (مدى، Apple Pay)، والربط مع منظومة الفوترة (ZATCA المرحلة 2)."
             icon={CreditCard}
             badge={{ text: "معتمد ZATCA • نشط", variant: "green" }}
-            href="/billing"
+            href="/settings/billing"
             dataNodeId="1:29137"
           />
         </div>
@@ -282,6 +283,7 @@ export function SettingsOverviewView() {
             title="الأمان"
             description="إعدادات المصادقة الثنائية (2FA)، سياسات كلمات المرور، وإدارة الجلسات وسجلات الدخول المشبوهة."
             icon={ShieldCheck}
+            href="/settings/security"
             dataNodeId="1:29230"
           />
           <SettingCard

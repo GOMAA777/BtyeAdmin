@@ -819,5 +819,207 @@ export const Router: LucideIcon = ({ className, size, color, style }) => {
   );
 };
 
+export const Unlink: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="m18.84 12.25 1.72-1.71a4.5 4.5 0 0 0-6.36-6.36l-1.72 1.71" />
+      <path d="m5.16 11.75-1.72 1.71a4.5 4.5 0 0 0 6.36 6.36l1.72-1.71" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  );
+};
+
+export const Link2Off: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M9 17H7A5 5 0 0 1 7 7" />
+      <path d="M15 7h2a5 5 0 0 1 4 8" />
+      <line x1="8" x2="12" y1="12" y2="12" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  );
+};
+
+export const Link2: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+      <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
+      <line x1="8" x2="16" y1="12" y2="12" />
+    </svg>
+  );
+};
+
+export const Link: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+};
+
+export const QrCode: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <rect width="5" height="5" x="3" y="3" rx="1" />
+      <rect width="5" height="5" x="16" y="3" rx="1" />
+      <rect width="5" height="5" x="3" y="16" rx="1" />
+      <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
+      <path d="M21 21v.01" />
+      <path d="M12 7v3a2 2 0 0 1-2 2H7" />
+      <path d="M3 12h.01" />
+      <path d="M12 3h.01" />
+      <path d="M12 16v.01" />
+      <path d="M16 12h1" />
+      <path d="M21 12v.01" />
+      <path d="M12 21v-1" />
+    </svg>
+  );
+};
+
+export const BellRing: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      <path d="M4 2C2.8 3.7 2 5.7 2 8" />
+      <path d="M22 8c0-2.3-.8-4.3-2-6" />
+    </svg>
+  );
+};
+
+export const Monitor: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <rect width="20" height="14" x="2" y="3" rx="2" />
+      <line x1="8" x2="16" y1="21" y2="21" />
+      <line x1="12" x2="12" y1="17" y2="21" />
+    </svg>
+  );
+};
+
+export const Database: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+      <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+    </svg>
+  );
+};
+
 
 
