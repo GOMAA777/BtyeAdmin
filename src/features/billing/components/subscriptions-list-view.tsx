@@ -584,12 +584,12 @@ export function SubscriptionsListView() {
                   </td>
 
                   {/* Column 3: Purchased Units */}
-                  <td className="py-4 px-3 text-center">
-                    <div className="font-semibold text-[14px] text-[#181d17] leading-tight">
-                      {sub.purchasedUnits}
-                    </div>
-                    <div className="text-[11px] text-[#75786f]">
-                      {sub.purchasedUnits > 10 ? "شقة" : "شقق"}
+                  <td className="py-4 px-3 text-center whitespace-nowrap">
+                    <div className="inline-flex items-center justify-center gap-1 font-semibold text-[13px] text-[#181d17]">
+                      <span>{sub.purchasedUnits}</span>
+                      <span className="text-[11px] text-[#75786f] font-normal">
+                        {sub.purchasedUnits > 10 ? "شقة" : "شقق"}
+                      </span>
                     </div>
                   </td>
 
@@ -615,10 +615,10 @@ export function SubscriptionsListView() {
                     </div>
                   </td>
 
-                  {/* Column 5: Remaining Units Pill */}
-                  <td className="py-4 px-3 text-center">
-                    <div
-                      className={`inline-flex flex-col items-center justify-center w-[35px] h-[46px] rounded-full text-[11px] font-semibold leading-[16px] ${
+                  {/* Column 5: Remaining Units Badge */}
+                  <td className="py-4 px-3 text-center whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold ${
                         sub.status === "paused"
                           ? "bg-[#ebefe6] text-[#75786f]"
                           : sub.remainingUnits > 0
@@ -627,8 +627,10 @@ export function SubscriptionsListView() {
                       }`}
                     >
                       <span>{sub.remainingUnits}</span>
-                      <span>{sub.remainingUnits === 1 ? "شقة" : sub.remainingUnits > 10 ? "شقة" : "شقق"}</span>
-                    </div>
+                      <span className="text-[11px]">
+                        {sub.remainingUnits === 1 ? "شقة" : sub.remainingUnits > 10 ? "شقة" : "شقق"}
+                      </span>
+                    </span>
                   </td>
 
                   {/* Column 6: Price */}
