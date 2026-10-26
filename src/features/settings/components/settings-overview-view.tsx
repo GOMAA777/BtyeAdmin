@@ -215,6 +215,8 @@ export function SettingsOverviewView() {
             title="الإشعارات"
             description="تنبيهات المنصة الإدارية، إشعارات البريد والرسائل النصية SMS للفواتير والعمليات الهامة."
             icon={Bell}
+            badge={{ text: "مصفوفة الأحداث", variant: "green" }}
+            href="/settings/notifications"
             dataNodeId="1:29066"
           />
         </div>

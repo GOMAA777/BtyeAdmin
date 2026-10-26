@@ -154,3 +154,100 @@ export interface AccessCodesSettingsState {
   updatedBy: string;
 }
 
+export interface WhatsAppKPIs {
+  totalSent: number;
+  totalSentTrend: string;
+  delivered: number;
+  deliveredRate: string;
+  read: number;
+  readRate: string;
+  failed: number;
+  failedRate: string;
+}
+
+export interface WhatsAppAutomationRules {
+  bookingConfirmation: boolean;
+  smartAccessPin: boolean;
+  checkoutReminderAndSurvey: boolean;
+  maintenanceStatusAlert: boolean;
+  stayExtensionAndReceipt: boolean;
+  masterBroadcastEnabled: boolean;
+}
+
+export interface WhatsAppRateLimits {
+  tierName: string;
+  dailyQuotaLimit: number;
+  dailyQuotaUsed: number;
+  quotaUsedPercentage: number;
+  retryAttempts: string;
+  retryDelay: string;
+  quietHoursEnabled: boolean;
+}
+
+export interface WhatsAppAccountInfo {
+  accountName: string;
+  osName: string;
+  wabaId: string;
+  officialPhoneNumber: string;
+  provider: string;
+  serverRegion: string;
+  webhookLatency: string;
+  certificateExpiryDate: string;
+  certificateStatus: string;
+  isConnected: boolean;
+}
+
+export interface WhatsAppSettingsState {
+  account: WhatsAppAccountInfo;
+  kpis: WhatsAppKPIs;
+  automations: WhatsAppAutomationRules;
+  rateLimits: WhatsAppRateLimits;
+  lastUpdated: string;
+  updatedBy: string;
+}
+
+export type NotificationChannel = "in_app" | "email" | "whatsapp" | "sms" | "push";
+export type NotificationCategory = "all" | "bookings" | "operations" | "platform";
+
+export interface NotificationEventChannels {
+  in_app: boolean;
+  email: boolean;
+  whatsapp: boolean;
+  sms: boolean;
+  push: boolean;
+}
+
+export interface NotificationEventDefinition {
+  id: string;
+  name: string;
+  description: string;
+  category: "bookings" | "operations" | "platform";
+  badge?: {
+    text: string;
+    variant: "critical" | "warning";
+  };
+  defaultChannels: NotificationEventChannels;
+}
+
+export interface NotificationGatewayStatus {
+  id: string;
+  name: string;
+  subtitle: string;
+  status: "connected" | "active" | "verified" | "certified";
+  statusLabel: string;
+  metric: string;
+}
+
+export interface NotificationsSettingsState {
+  // حوكمة الملاك والتفضيلات
+  allowOwnersCustomizeNotifications: boolean;
+  mandatoryEmergencyAndSafetyAlerts: boolean;
+
+  // مصفوفة الأحداث
+  events: Record<string, NotificationEventChannels>;
+
+  // Metadata
+  lastUpdated: string;
+  updatedBy: string;
+}
+
