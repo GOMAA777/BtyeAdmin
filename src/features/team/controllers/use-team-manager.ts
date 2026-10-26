@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { TeamMember, TeamRole, TeamMemberStatus, TeamOverviewStats } from "../types";
 import { initialTeamMembers, initialTeamStats } from "../data/mock-team";
+import { teamService } from "@/services/team.service";
 
 export interface AddMemberFormData {
   fullName: string;
@@ -20,6 +21,38 @@ export interface AddMemberFormData {
 export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers) {
   const [members, setMembers] = useState<TeamMember[]>(initialMembers);
   const [stats, setStats] = useState<TeamOverviewStats>(initialTeamStats);
+
+  useEffect(() => {
+    let mounted = true;
+    teamService.getAll().then((data) => {
+      if (mounted) {
+        setMembers(data);
+        setStats((prev) => ({
+          ...prev,
+          totalMembers: data.length,
+          activeMembers: data.filter((m) => m.status === "active").length,
+          pausedOrLeaveCount: data.filter((m) => m.status === "suspended" || m.status === "on_leave").length,
+        }));
+      }
+    });
+    const unsubscribe = teamService.subscribe(() => {
+      teamService.getAll().then((data) => {
+        if (mounted) {
+          setMembers(data);
+          setStats((prev) => ({
+            ...prev,
+            totalMembers: data.length,
+            activeMembers: data.filter((m) => m.status === "active").length,
+            pausedOrLeaveCount: data.filter((m) => m.status === "suspended" || m.status === "on_leave").length,
+          }));
+        }
+      });
+    });
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   // Filter States
   const [activeTab, setActiveTab] = useState<"all" | TeamRole>("all");
@@ -130,77 +163,31 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
 
   // Actions
   const handleSuspendMember = useCallback(
-    (id: string, reassignToId?: string) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              status: "suspended" as TeamMemberStatus,
-              statusLabel: "موقوف مؤقتاً",
-              openTasksCount: 0,
-              openTasksLabel: "لا مهام معلقة",
-            };
-          }
-          if (reassignToId && m.id === reassignToId) {
-            return {
-              ...m,
-              openTasksCount: m.openTasksCount + 2,
-              openTasksLabel: `${m.openTasksCount + 2} مهام جارية`,
-            };
-          }
-          return m;
-        })
-      );
-      setStats((s) => ({
-        ...s,
-        activeMembers: Math.max(0, s.activeMembers - 1),
-        pausedOrLeaveCount: s.pausedOrLeaveCount + 1,
-      }));
+    async (id: string, reassignToId?: string) => {
+      await teamService.update(id, {
+        status: "suspended",
+        statusLabel: "موقوف مؤقتاً",
+        openTasksCount: 0,
+        openTasksLabel: "لا مهام معلقة",
+      });
       setSuspendModalOpen(false);
       toast.success("تم إيقاف حساب عضو الفريق مؤقتاً وإعادة توزيع المهام بنجاح");
     },
     []
   );
 
-  const handleDeleteMember = useCallback((id: string, reassignToId?: string) => {
-    setMembers((prev) => {
-      return prev
-        .filter((m) => m.id !== id)
-        .map((m) => {
-          if (reassignToId && m.id === reassignToId) {
-            return {
-              ...m,
-              openTasksCount: m.openTasksCount + 2,
-              openTasksLabel: `${m.openTasksCount + 2} مهام جارية`,
-            };
-          }
-          return m;
-        });
-    });
-    setStats((s) => ({
-      ...s,
-      totalMembers: Math.max(0, s.totalMembers - 1),
-      activeMembers: Math.max(0, s.activeMembers - 1),
-    }));
+  const handleDeleteMember = useCallback(async (id: string, reassignToId?: string) => {
+    await teamService.remove(id);
     setDeleteModalOpen(false);
     toast.success("تم إزالة العضو نهائياً وإعادة تعيين المهام بنجاح");
   }, []);
 
   const handleChangeWhatsapp = useCallback(
-    (id: string, newNumber: string, updatePrimaryPhone: boolean) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              whatsapp: newNumber,
-              phone: updatePrimaryPhone ? newNumber : m.phone,
-            };
-          }
-          return m;
-        })
-      );
+    async (id: string, newNumber: string, updatePrimaryPhone: boolean) => {
+      await teamService.update(id, {
+        whatsapp: newNumber,
+        ...(updatePrimaryPhone ? { phone: newNumber } : {}),
+      });
       setChangeWhatsappModalOpen(false);
       toast.success("تم تأكيد وتحديث رقم WhatsApp والتحقق من جاهزية المحادثة");
     },
@@ -208,26 +195,22 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
   );
 
   const handleUpdatePermissions = useCallback(
-    (id: string, scope: "all" | "custom", propertyIds: string[]) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              coverageScope: scope,
-              assignedProperties: m.assignedProperties.map((p) => ({
-                ...p,
-                isActive: propertyIds.includes(p.id),
-              })),
-            };
-          }
-          return m;
-        })
-      );
+    async (id: string, scope: "all" | "custom", propertyIds: string[]) => {
+      const target = members.find((m) => m.id === id);
+      if (target) {
+        const updatedAssigned = target.assignedProperties.map((p) => ({
+          ...p,
+          isActive: propertyIds.includes(p.id),
+        }));
+        await teamService.update(id, {
+          coverageScope: scope,
+          assignedProperties: updatedAssigned,
+        });
+      }
       setPermissionsModalOpen(false);
       toast.success("تم حفظ وتحديث نطاق الصلاحيات والعقارات بنجاح");
     },
-    []
+    [members]
   );
 
   const handleSendWhatsappMessage = useCallback(
@@ -238,7 +221,7 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
     []
   );
 
-  const handleAddMember = useCallback((data: AddMemberFormData) => {
+  const handleAddMember = useCallback(async (data: AddMemberFormData) => {
     const roleLabels: Record<TeamRole, string> = {
       cleaner: "عامل نظافة",
       maintenance: "فني صيانة",
@@ -303,12 +286,7 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
       recentTasks: [],
     };
 
-    setMembers((prev) => [newMember, ...prev]);
-    setStats((s) => ({
-      ...s,
-      totalMembers: s.totalMembers + 1,
-      activeMembers: s.activeMembers + 1,
-    }));
+    await teamService.create(newMember);
     toast.success("تمت إضافة عضو الفريق الجديد ونشر التعديلات بنجاح");
   }, []);
 
