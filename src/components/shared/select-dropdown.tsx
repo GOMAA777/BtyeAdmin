@@ -157,7 +157,7 @@ export function SelectDropdown({
           role="listbox"
           tabIndex={-1}
           className={cn(
-            "absolute z-50 right-0 min-w-full w-max min-w-[210px] max-w-[calc(100vw-32px)] bg-white rounded-2xl border border-[#DCE2D7] shadow-[0_16px_36px_-8px_rgba(24,29,23,0.16),0_4px_16px_rgba(24,29,23,0.06)] p-1.5 space-y-1 max-h-[340px] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 [scrollbar-width:thin] [scrollbar-color:#CCD5C5_transparent]",
+            "absolute z-50 inset-x-0 w-full min-w-full bg-white rounded-2xl border border-[#DCE2D7] shadow-[0_16px_36px_-8px_rgba(24,29,23,0.16),0_4px_16px_rgba(24,29,23,0.06)] p-1.5 space-y-1 max-h-[340px] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 [scrollbar-width:thin] [scrollbar-color:#CCD5C5_transparent]",
             placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
             menuClassName
           )}
@@ -171,35 +171,36 @@ export function SelectDropdown({
               const isSelected = opt.value === value;
               const Icon = opt.icon;
 
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                disabled={opt.disabled}
-                onClick={() => handleSelect(opt.value, opt.disabled)}
-                className={cn(
-                  "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none text-right gap-3",
-                  isSelected
-                    ? "bg-[#EEF2E6] text-[#2E3C29] font-bold"
-                    : "text-[#172115] font-medium hover:bg-[#F4F6F0] hover:text-[#2E3C29]",
-                  opt.disabled && "opacity-40 cursor-not-allowed hover:bg-transparent"
-                )}
-              >
-                {/* Text & optional Icon on Right (RTL start) */}
-                <div className="flex items-center gap-2 min-w-0">
-                  {Icon && <Icon className="w-4 h-4 shrink-0 text-[#7D8A78]" />}
-                  <span className="whitespace-nowrap">{opt.label}</span>
-                </div>
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  disabled={opt.disabled}
+                  onClick={() => handleSelect(opt.value, opt.disabled)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer select-none text-right gap-3",
+                    isSelected
+                      ? "bg-[#EEF2E6] text-[#2E3C29] font-bold"
+                      : "text-[#172115] font-medium hover:bg-[#F4F6F0] hover:text-[#2E3C29]",
+                    opt.disabled && "opacity-40 cursor-not-allowed hover:bg-transparent"
+                  )}
+                >
+                  {/* Text & optional Icon on Right (RTL start) */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    {Icon && <Icon className="w-4 h-4 shrink-0 text-[#7D8A78]" />}
+                    <span className="truncate">{opt.label}</span>
+                  </div>
 
-                {/* Checkmark on Left when selected */}
-                {isSelected && (
-                  <Check className="w-4 h-4 text-[#34432E] shrink-0 stroke-[2.5] ms-2" />
-                )}
-              </button>
-            );
-          }))}
+                  {/* Checkmark on Left when selected */}
+                  {isSelected && (
+                    <Check className="w-4 h-4 text-[#34432E] shrink-0 stroke-[2.5] ms-2" />
+                  )}
+                </button>
+              );
+            })
+          )}
         </div>
       )}
     </div>

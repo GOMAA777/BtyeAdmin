@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import {
   Property,
@@ -28,10 +28,26 @@ export function usePropertiesManager(initialData?: Property[]) {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
   const [propertyFilters, setPropertyFilters] =
     useState<MainPropertyFilterState>(initialPropertyFilterState);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await ensureStoreHydrated();
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "حدث خطأ أثناء تحميل بيانات العقارات";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    ensureStoreHydrated();
-  }, []);
+    loadData();
+  }, [loadData]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -173,6 +189,9 @@ export function usePropertiesManager(initialData?: Property[]) {
     setIsFilterDrawerOpen,
     setPropertyFilters,
     handleResetFilters,
+    isLoading,
+    error,
+    reloadProperties: loadData,
     handleDeleteProperty,
     handleToggleStatus,
   };

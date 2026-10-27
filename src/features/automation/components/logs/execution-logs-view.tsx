@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore } from "react";
+import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 import Link from "next/link";
 import {
   Search,
@@ -17,10 +18,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAppDataStore } from "@/stores/use-app-data-store";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
 import { ExecutionLog, AutomationMainTab } from "../../types";
 import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -38,6 +39,7 @@ interface ExecutionLogsViewProps {
 
 export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [logs, setLogs] = useState<ExecutionLog[]>(initialExecutionLogs);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "in_progress">("all");
@@ -45,6 +47,13 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [propertyFilter, setPropertyFilter] = useState<string>("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const activeFiltersCount =
     (actionTypeFilter !== "all" ? 1 : 0) +
@@ -208,7 +217,28 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         tabsLayoutId="executionLogsFilterPill"
       />
 
-      {logs.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right border-collapse">
+              <thead>
+                <tr className="bg-[#f9faf8] border-b border-[#e5e8e2] h-[62px] text-[#73786f] text-[11px] font-bold tracking-[0.55px] uppercase">
+                  <th className="py-4 px-6 whitespace-nowrap">رمز السجل واسم القاعدة</th>
+                  <th className="py-4 px-5 whitespace-nowrap">الضيف ورقم الحجز</th>
+                  <th className="py-4 px-5 whitespace-nowrap">العقار والوحدة</th>
+                  <th className="py-4 px-5 whitespace-nowrap">الإجراء المنفذ</th>
+                  <th className="py-4 px-5 whitespace-nowrap">حالة العملية</th>
+                  <th className="py-4 px-5 whitespace-nowrap">توقيت التنفيذ</th>
+                  <th className="py-4 px-4 text-center whitespace-nowrap">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e5e8e2]">
+                <TableSkeletonRows columns={7} rows={5} />
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : logs.length === 0 ? (
         /* Central Hero Empty State Card (Figma node 1:26564 / 1:26605) */
         <AutomationEmptyStateCard
           icon={<ExecutionLogsDocumentIcon className="size-[40px]" />}

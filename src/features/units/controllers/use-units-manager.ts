@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import { Unit, UnitFilterState } from "../types";
 import { unitsService } from "@/services/units-service";
 import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
@@ -31,10 +31,26 @@ export function useUnitsManager(initialData?: Unit[]) {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
   const [advancedFilters, setAdvancedFilters] =
     useState<UnitFilterState>(defaultAdvancedFilters);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await ensureStoreHydrated();
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "حدث خطأ أثناء تحميل بيانات الوحدات";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    ensureStoreHydrated();
-  }, []);
+    loadData();
+  }, [loadData]);
 
   const handleTabChange = (newTab: string) => {
     setTabFilter(newTab);
@@ -177,6 +193,9 @@ export function useUnitsManager(initialData?: Unit[]) {
     setPageSize: handlePageSizeChange,
     setCurrentPage,
     setIsFilterDrawerOpen,
+    isLoading,
+    error,
+    reloadUnits: loadData,
     setAdvancedFilters,
     handleResetFilters,
   };

@@ -118,6 +118,8 @@ export const FileDown = createIcon("icon-file-down", "FileDown");
 export const FileEdit = createIcon("icon-file-edit", "FileEdit");
 export const FileSignature = createIcon("icon-file-signature", "FileSignature");
 export const FileText = createIcon("icon-file-text", "FileText");
+export const Folder = createIcon("icon-folder", "Folder");
+export const FolderOpen = createIcon("icon-folder-open", "FolderOpen");
 export const Filter = createIcon("icon-filter", "Filter");
 export const Flag = createIcon("icon-flag", "Flag");
 export const Globe = createIcon("icon-globe", "Globe");
@@ -1172,6 +1174,33 @@ export const Languages: LucideIcon = ({ className, size, color, style }) => {
       <path d="M7 2h1" />
       <path d="m22 22-5-10-5 10" />
       <path d="M14 18h6" />
+    </svg>
+  );
+};
+
+export const List: LucideIcon = ({ className, size, color, style }) => {
+  const customFontSize = typeof size === "number" ? `${size}px` : size;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || "currentColor"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("shrink-0", className)}
+      style={{
+        ...(customFontSize ? { width: customFontSize, height: customFontSize } : {}),
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <line x1="8" x2="21" y1="6" y2="6" />
+      <line x1="8" x2="21" y1="12" y2="12" />
+      <line x1="8" x2="21" y1="18" y2="18" />
+      <line x1="3" x2="3.01" y1="6" y2="6" />
+      <line x1="3" x2="3.01" y1="12" y2="12" />
+      <line x1="3" x2="3.01" y1="18" y2="18" />
     </svg>
   );
 };

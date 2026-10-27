@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Owner, OwnerStatus } from "../types";
 import { ownersService } from "@/services/owners-service";
@@ -59,10 +59,26 @@ export function useOwnersManager(initialData?: Owner[]) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [advancedFilters, setAdvancedFilters] =
     useState<AdvancedFilterState>(defaultAdvancedFilters);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await ensureStoreHydrated();
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "حدث خطأ أثناء تحميل بيانات أصحاب العقارات";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    ensureStoreHydrated();
-  }, []);
+    loadData();
+  }, [loadData]);
 
   const activeFiltersCount = useMemo(() => {
     return (
@@ -247,6 +263,9 @@ export function useOwnersManager(initialData?: Owner[]) {
     setPageSize: handlePageSizeChange,
     setCurrentPage,
     setIsDrawerOpen,
+    isLoading,
+    error,
+    reloadOwners: loadData,
     handleApplyAdvancedFilters,
     handleResetAdvancedFilters,
     handleDeleteOwner,
