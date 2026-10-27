@@ -64,6 +64,18 @@ export function SubscriptionsListView() {
     return { total, active, trial, expiring, paused, cancelled, activePct };
   }, [subscriptions]);
 
+  const billingTabs = useMemo(
+    () => [
+      { id: "all", label: "الكل", count: subCounts.total },
+      { id: "active", label: "نشطة", count: subCounts.active },
+      { id: "trial", label: "تجريبية", count: subCounts.trial },
+      { id: "expiring_soon", label: "منتهية", count: subCounts.expiring },
+      { id: "paused", label: "موقوفة", count: subCounts.paused },
+      { id: "cancelled", label: "ملغاة", count: subCounts.cancelled },
+    ],
+    [subCounts]
+  );
+
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close dropdown on outside click
@@ -301,234 +313,31 @@ export function SubscriptionsListView() {
 
       {/* 3. Main Content Container: Tabs, Search, Filters & Table [1:26783] */}
       <div className="bg-white rounded-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#e5eae0]/60 overflow-hidden">
-        {/* Status Tabs Bar [1:26784] */}
-        <div className="flex flex-col sm:flex-row items-center justify-between px-6 border-b border-[#e5eae0] gap-4">
-          {/* Tabs Group (from right to left) */}
-          <div className="flex items-center gap-8 overflow-x-auto w-full sm:w-auto">
-            {/* Tab: الكل */}
+        {/* Status Tabs Bar & Toolbar [1:26822] */}
+        <div className="p-4 sm:p-5 border-b border-[#e5eae0] flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#454840]">قائمة الاشتراكات والعقود</span>
             <button
               type="button"
-              onClick={() => setActiveTab("all")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "all" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
+              onClick={handleRefresh}
+              className="flex items-center gap-2 text-[11px] font-medium text-[#454840] hover:text-[#181d17] transition-colors cursor-pointer shrink-0"
             >
-              <span>الكل</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "all" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.total}
-              </span>
-              {activeTab === "all" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
-            </button>
-
-            {/* Tab: نشطة */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("active")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "active" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
-            >
-              <span>نشطة</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "active" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.active}
-              </span>
-              {activeTab === "active" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
-            </button>
-
-            {/* Tab: تجريبية */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("trial")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "trial" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
-            >
-              <span>تجريبية</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "trial" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.trial}
-              </span>
-              {activeTab === "trial" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
-            </button>
-
-            {/* Tab: منتهية */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("expiring_soon")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "expiring_soon" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
-            >
-              <span>منتهية</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "expiring_soon" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.expiring}
-              </span>
-              {activeTab === "expiring_soon" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
-            </button>
-
-            {/* Tab: موقوفة */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("paused")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "paused" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
-            >
-              <span>موقوفة</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "paused" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.paused}
-              </span>
-              {activeTab === "paused" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
-            </button>
-
-            {/* Tab: ملغاة */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("cancelled")}
-              className={`py-4 relative text-[14px] transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "cancelled" ? "text-[#34422a] font-bold" : "text-[#454840] font-semibold hover:text-[#181d17]"
-              }`}
-            >
-              <span>ملغاة</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                  activeTab === "cancelled" ? "bg-[#4b5940] text-white" : "bg-[#e5eae0] text-[#454840]"
-                }`}
-              >
-                {subCounts.cancelled}
-              </span>
-              {activeTab === "cancelled" && (
-                <span className="absolute bottom-0 right-0 left-0 h-[2px] bg-[#4b5940] rounded-full" />
-              )}
+              <span>آخر تحديث: منذ دقيقتين</span>
+              <RotateCw className={`size-3 text-[#454840] ${isRefreshing ? "animate-spin text-[#4b5940]" : ""}`} />
             </button>
           </div>
 
-          {/* Last update timestamp & refresh button */}
-          <button
-            type="button"
-            onClick={handleRefresh}
-            className="flex items-center gap-2 text-[11px] font-medium text-[#454840] hover:text-[#181d17] transition-colors cursor-pointer py-3 shrink-0"
-          >
-            <span>آخر تحديث: منذ دقيقتين</span>
-            <RotateCw className={`size-3 text-[#454840] ${isRefreshing ? "animate-spin text-[#4b5940]" : ""}`} />
-          </button>
-        </div>
-
-        {/* Filters & Search Toolbar [1:26822] */}
-        <div className="p-4 sm:p-5 border-b border-[#e5eae0]">
           <TableToolbar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             searchPlaceholder="ابحث باسم المالك، المعرف، أو رقم الاشتراك..."
+            tabs={billingTabs}
+            currentTab={activeTab}
+            onTabChange={(tabId) => setActiveTab(tabId as any)}
             onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
             activeFiltersCount={activeBillingFiltersCount}
             filterButtonTitle="تصفية الاشتراكات المتقدمة"
-          >
-            {/* 1. Package Filter */}
-            <div className="relative">
-              <select
-                value={packageFilter}
-                onChange={(e) => setPackageFilter(e.target.value)}
-                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-              >
-                <option value="all">الباقة: الكل</option>
-                <option value="standard">باقة الشقق المرخصة</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* 2. Status Filter */}
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-              >
-                <option value="all">الحالة: الكل</option>
-                <option value="active">نشط</option>
-                <option value="pending_payment">بانتظار الدفع</option>
-                <option value="expiring_soon">قريب الانتهاء</option>
-                <option value="paused">موقوف</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* 3. Payment Status Filter */}
-            <div className="relative">
-              <select
-                value={paymentStatusFilter}
-                onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-              >
-                <option value="all">حالة الدفع: الكل</option>
-                <option value="paid">مسدد تلقائياً</option>
-                <option value="pending">فاتورة معلقة</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* 4. Billing Cycle Filter */}
-            <div className="relative">
-              <select
-                value={billingCycleFilter}
-                onChange={(e) => setBillingCycleFilter(e.target.value)}
-                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-              >
-                <option value="all">دورة الفوترة: الكل</option>
-                <option value="monthly">شهري</option>
-                <option value="annual">سنوي</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* 5. Reset Filters Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setActiveTab("all");
-                setBillingCycleFilter("all");
-                setStatusFilter("all");
-                setPaymentStatusFilter("all");
-                setPackageFilter("all");
-                toast.info("تمت استعادة إعدادات التصفية الافتراضية.");
-              }}
-              className="h-10 px-3.5 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] flex items-center justify-center text-[#454840] transition-colors cursor-pointer select-none gap-1.5 text-xs font-medium font-cairo"
-              title="إعادة ضبط الفلاتر"
-            >
-              <RotateCcw className="size-3.5" />
-              <span>إعادة ضبط</span>
-            </button>
-          </TableToolbar>
+          />
         </div>
 
         {/* 4. Subscriptions Data Table [1:26857] */}

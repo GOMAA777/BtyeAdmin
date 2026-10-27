@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Plus,
@@ -35,6 +36,7 @@ import { PauseRuleModal } from "./modals/pause-rule-modal";
 import { ActivateRuleModal } from "./modals/activate-rule-modal";
 import { DeleteRuleModal } from "./modals/delete-rule-modal";
 import { useAutomationRulesManager } from "../../controllers/use-automation-rules-manager";
+import { AutomationRulesFilterDrawer } from "./automation-rules-filter-drawer";
 import { AutomationEmptyStateCard } from "../automation-empty-state-card";
 import { AutomationGraphIcon, AddUserPlusIcon } from "../automation-figma-icons";
 
@@ -125,6 +127,30 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
     confirmDelete,
   } = useAutomationRulesManager();
 
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+
+  const ruleTabs = useMemo(
+    () => [
+      { id: "all", label: "الكل", count: rules.length },
+      {
+        id: "active",
+        label: "مفعلة",
+        count: rules.filter((r) => r.status === "active").length,
+      },
+      {
+        id: "paused",
+        label: "متوقفة",
+        count: rules.filter((r) => r.status === "paused").length,
+      },
+      {
+        id: "draft",
+        label: "مسودة",
+        count: rules.filter((r) => r.status === "draft").length,
+      },
+    ],
+    [rules]
+  );
+
   return (
     <div className="space-y-5 font-cairo">
       {/* Top 3 Main Tabs Nav (Figma node 1:21388) */}
@@ -175,90 +201,13 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="ابحث باسم القاعدة، الكود، المحفز، أو الإجراء..."
+        tabs={ruleTabs}
+        currentTab={statusFilter}
+        onTabChange={(tabId) => setStatusFilter(tabId)}
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
-        filterButtonTitle="تصفية قواعد الأتمتة السريعة"
-      >
-        {/* 1. Category Filter */}
-        <div className="relative">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-          >
-            <option value="all">الفئة: الكل</option>
-            <option value="confirm_checkout">واتساب وحجوزات</option>
-            <option value="self_checkin">وصول ذاتي</option>
-            <option value="cleaning_ops">تشغيل ميداني</option>
-            <option value="governance_security">حوكمة وأمان</option>
-            <option value="marketing_review">تسويق وتقييمات</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 2. Trigger Filter */}
-        <div className="relative">
-          <select
-            value={triggerFilter}
-            onChange={(e) => setTriggerFilter(e.target.value)}
-            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-          >
-            <option value="all">المحفز: الكل</option>
-            <option value="booking_created">عند إنشاء حجز</option>
-            <option value="before_checkin_24h">قبل الوصول بـ 24 ساعة</option>
-            <option value="before_checkout_6h">قبل انتهاء الحجز بـ 6 ساعات</option>
-            <option value="checkout_done">عند انتهاء الحجز وتسجيل الخروج</option>
-            <option value="after_checkout_2h">بعد المغادرة بساعتين</option>
-            <option value="battery_low">انخفاض بطارية القفل</option>
-            <option value="whatsapp_failed">فشل إرسال WhatsApp</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 3. Action Type Filter */}
-        <div className="relative">
-          <select
-            value={actionFilter}
-            onChange={(e) => setActionFilter(e.target.value)}
-            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-          >
-            <option value="all">الإجراء: الكل</option>
-            <option value="whatsapp">رسالة WhatsApp</option>
-            <option value="smart_lock">كود القفل الذكي</option>
-            <option value="cleaning_task">مهمة تنظيف</option>
-            <option value="security_alert">تنبيه أمان / صيانة</option>
-            <option value="review">طلب تقييم</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 4. Status Filter */}
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
-          >
-            <option value="all">الحالة: الكل</option>
-            <option value="active">مفعلة</option>
-            <option value="paused">متوقفة</option>
-            <option value="draft">مسودة</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 5. Reset Filters Button */}
-        {activeFiltersCount > 0 && (
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="h-10 px-3.5 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] flex items-center justify-center text-[#454840] transition-colors cursor-pointer select-none gap-1.5 text-xs font-medium font-cairo"
-            title="إعادة ضبط الفلاتر"
-          >
-            <RotateCcw className="size-3.5" />
-            <span>إعادة ضبط</span>
-          </button>
-        )}
-      </TableToolbar>
+        filterButtonTitle="تصفية قواعد الأتمتة المتقدمة"
+      />
 
       {/* Empty State View [1:26151] vs Table View */}
       {isEmptyPreview || filteredRules.length === 0 ? (
@@ -452,6 +401,26 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         onClose={() => setIsDeleteOpen(false)}
         rule={activeRuleForModal}
         onConfirm={confirmDelete}
+      />
+
+      {/* Advanced Filter Drawer */}
+      <AutomationRulesFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={{
+          category: categoryFilter,
+          trigger: triggerFilter,
+          action: actionFilter,
+          status: statusFilter,
+        }}
+        onApplyFilters={(newFilters) => {
+          setCategoryFilter(newFilters.category);
+          setTriggerFilter(newFilters.trigger);
+          setActionFilter(newFilters.action);
+          setStatusFilter(newFilters.status);
+        }}
+        onResetFilters={handleResetFilters}
+        totalResultsCount={totalFiltered}
       />
     </div>
   );
