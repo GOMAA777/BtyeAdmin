@@ -9,6 +9,8 @@ import { UnitsAdvancedFilterDrawer } from "./units-advanced-filter-drawer";
 import { UnitActionDropdown } from "./unit-action-dropdown";
 import { UnitsEmptyState } from "./units-empty-state";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { useUnitsManager } from "../controllers/use-units-manager";
 
 // Door icon matching the reference row artwork
@@ -104,6 +106,9 @@ export function UnitsTable() {
     isFilterDrawerOpen,
     advancedFilters,
     activeFiltersCount,
+    isLoading,
+    error,
+    reloadUnits,
     setTabFilter,
     setSearchQuery,
     setPageSize,
@@ -210,7 +215,15 @@ export function UnitsTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEF2E6]">
-              {paginatedUnits.length === 0 ? (
+              {isLoading ? (
+                <TableSkeletonRows columns={10} rows={5} />
+              ) : error ? (
+                <TableErrorRow
+                  colSpan={10}
+                  message={error}
+                  onRetry={reloadUnits}
+                />
+              ) : counts.all === 0 ? (
                 <tr>
                   <td colSpan={10} className="p-4 sm:p-8">
                     <UnitsEmptyState
@@ -225,8 +238,17 @@ export function UnitsTable() {
                           priceRange: "all",
                           sortBy: "default",
                         });
+                        reloadUnits();
                       }}
                     />
+                  </td>
+                </tr>
+              ) : paginatedUnits.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="p-4 sm:p-8">
+                    <div className="py-12 text-center text-[#7D8A78] text-[13px]">
+                      لا توجد وحدات تطابق معايير البحث
+                    </div>
                   </td>
                 </tr>
               ) : (

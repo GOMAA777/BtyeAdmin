@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Sparkles, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { OperationTask } from "../types";
 import { OperationActionDropdown } from "./operation-action-dropdown";
 import { CleaningAssignModal } from "./cleaning-assign-modal";
@@ -13,9 +15,18 @@ import { CleaningAssignModal } from "./cleaning-assign-modal";
 interface OperationsTableProps {
   tasks: OperationTask[];
   onSelectTask?: (task: OperationTask) => void;
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
-export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
+export function OperationsTable({
+  tasks,
+  onSelectTask,
+  isLoading,
+  error,
+  onRetry,
+}: OperationsTableProps) {
   const router = useRouter();
   const [assignTask, setAssignTask] = useState<OperationTask | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,7 +88,11 @@ export function OperationsTable({ tasks, onSelectTask }: OperationsTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F3F4F6] text-sm">
-            {tasks.length === 0 ? (
+            {isLoading ? (
+              <TableSkeletonRows columns={9} rows={5} />
+            ) : error ? (
+              <TableErrorRow colSpan={9} message={error} onRetry={onRetry} />
+            ) : tasks.length === 0 ? (
               <tr>
                 <td colSpan={9} className="py-12 text-center text-[#9CA3AF]">
                   لا توجد مهام أو بلاغات مطابقة لخيارات البحث الحالية

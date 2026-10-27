@@ -23,10 +23,13 @@ import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { ExtendStayModal } from "@/features/bookings/components/extend-stay-modal";
 import { CancelBookingModal } from "@/features/bookings/components/cancel-booking-modal";
 import { ChangeUnitModal } from "@/features/bookings/components/change-unit-modal";
 import { BookingsAdvancedFilterDrawer } from "./bookings-advanced-filter-drawer";
+import { BookingsEmptyStateView } from "./bookings-empty-state-view";
 import { MainBookingItem, BookingStatus } from "../types";
 import { useBookingsManager } from "../controllers/use-bookings-manager";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -75,6 +78,9 @@ export function MainBookingsPageView({
     openExtendModal,
     openCancelModal,
     openChangeUnitModal,
+    isLoading,
+    error,
+    reloadBookings,
     handleConfirmExtend,
     handleConfirmChangeUnit,
     handleConfirmCancel,
@@ -185,7 +191,21 @@ export function MainBookingsPageView({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e5e8e2]/70 text-[14px]">
-              {paginatedBookings.length === 0 ? (
+              {isLoading ? (
+                <TableSkeletonRows columns={10} rows={5} />
+              ) : error ? (
+                <TableErrorRow
+                  colSpan={10}
+                  message={error}
+                  onRetry={reloadBookings}
+                />
+              ) : statusCounts.all === 0 ? (
+                <tr>
+                  <td colSpan={10} className="p-4 sm:p-8">
+                    <BookingsEmptyStateView onRefresh={reloadBookings} />
+                  </td>
+                </tr>
+              ) : paginatedBookings.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-16 text-center text-[#73786f]">
                     <div className="flex flex-col items-center justify-center gap-2">

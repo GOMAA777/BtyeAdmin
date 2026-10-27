@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { ErrorState } from "@/components/shared/error-state";
 import { useTeamManager } from "../controllers/use-team-manager";
 import { SuspendMemberModal } from "./modals/suspend-member-modal";
 import { DeleteMemberModal } from "./modals/delete-member-modal";
@@ -53,6 +54,9 @@ export function TeamOverviewView() {
     filteredMembers,
     paginatedMembers,
     resetFilters,
+    isLoading,
+    error,
+    reloadTeam,
     // Modals
     suspendModalOpen,
     setSuspendModalOpen,
@@ -269,17 +273,76 @@ export function TeamOverviewView() {
         </div>
 
         {/* Member Rows */}
-        {paginatedMembers.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-[16px] p-4 sm:p-5 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] border border-[#dfe4db]/40 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center animate-pulse"
+              >
+                <div className="lg:col-span-3 flex items-center gap-3">
+                  <div className="size-11 rounded-full bg-[#DCE2D7]" />
+                  <div className="space-y-1.5 flex-1">
+                    <div className="h-4 bg-[#DCE2D7] rounded w-28" />
+                    <div className="h-3 bg-[#E5EAE0] rounded w-20" />
+                  </div>
+                </div>
+                <div className="lg:col-span-1 flex lg:justify-center">
+                  <div className="h-6 bg-[#DCE2D7] rounded-full w-16" />
+                </div>
+                <div className="lg:col-span-2 flex items-center lg:justify-center gap-2">
+                  <div className="size-7 rounded-[8px] bg-[#DCE2D7]" />
+                  <div className="h-4 bg-[#DCE2D7] rounded w-24" />
+                </div>
+                <div className="lg:col-span-2 space-y-1">
+                  <div className="h-4 bg-[#DCE2D7] rounded w-28" />
+                  <div className="h-3 bg-[#E5EAE0] rounded w-16" />
+                </div>
+                <div className="lg:col-span-1 flex lg:justify-center">
+                  <div className="h-4 bg-[#DCE2D7] rounded w-12" />
+                </div>
+                <div className="lg:col-span-1 flex lg:justify-center">
+                  <div className="h-6 bg-[#DCE2D7] rounded-full w-12" />
+                </div>
+                <div className="lg:col-span-1 flex lg:justify-center">
+                  <div className="h-6 bg-[#DCE2D7] rounded-full w-14" />
+                </div>
+                <div className="lg:col-span-1 flex lg:justify-center gap-1">
+                  <div className="size-7 rounded bg-[#DCE2D7]" />
+                  <div className="size-7 rounded bg-[#DCE2D7]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-[16px] p-6 shadow-sm border border-[#dfe4db]/40">
+            <ErrorState message={error} onRetry={reloadTeam} />
+          </div>
+        ) : paginatedMembers.length === 0 ? (
           <div className="bg-white rounded-[16px] p-12 text-center space-y-3">
             <Users className="size-12 text-[#75786f] mx-auto opacity-40" />
-            <h3 className="text-[16px] font-bold text-[#181d17] font-cairo">لا يوجد أعضاء يطابقون معايير البحث</h3>
-            <p className="text-[13px] text-[#75786f] font-cairo">جرّب تغيير كلمات البحث أو إعادة ضبط عوامل التصفية.</p>
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 bg-[#f1f5eb] rounded-[8px] text-[12px] font-bold text-[#34422a] font-cairo"
-            >
-              إعادة ضبط الفلاتر
-            </button>
+            <h3 className="text-[16px] font-bold text-[#181d17] font-cairo">
+              {counts.all === 0 ? "ليس لديك أعضاء فريق حتى الآن" : "لا يوجد أعضاء يطابقون معايير البحث"}
+            </h3>
+            <p className="text-[13px] text-[#75786f] font-cairo">
+              {counts.all === 0 ? "ابدأ بإضافة أول عضو لفريق العمل لإسناد المهام له." : "جرّب تغيير كلمات البحث أو إعادة ضبط عوامل التصفية."}
+            </p>
+            {counts.all > 0 ? (
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 bg-[#f1f5eb] rounded-[8px] text-[12px] font-bold text-[#34422a] font-cairo"
+              >
+                إعادة ضبط الفلاتر
+              </button>
+            ) : (
+              <Link
+                href="/team/add"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#34422a] hover:bg-[#25301e] text-white rounded-[8px] text-[12px] font-bold font-cairo transition-colors"
+              >
+                <UserPlus className="size-4" />
+                <span>إضافة عضو جديد</span>
+              </Link>
+            )}
           </div>
         ) : (
           paginatedMembers.map((member) => (

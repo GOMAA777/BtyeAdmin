@@ -10,6 +10,8 @@ import { OwnersEmptyState } from "./owners-empty-state";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TableDateCell } from "@/components/shared/table-date-cell";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { useOwnersManager } from "../controllers/use-owners-manager";
 
 export function OwnersTable() {
@@ -28,6 +30,9 @@ export function OwnersTable() {
     isDrawerOpen,
     advancedFilters,
     activeFiltersCount,
+    isLoading,
+    error,
+    reloadOwners,
     setFilter,
     setSearch,
     setPageSize,
@@ -103,22 +108,33 @@ export function OwnersTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEF2E6]">
-              {paginatedOwners.length === 0 ? (
+              {isLoading ? (
+                <TableSkeletonRows columns={7} rows={5} />
+              ) : error ? (
+                <TableErrorRow
+                  colSpan={7}
+                  message={error}
+                  onRetry={reloadOwners}
+                />
+              ) : counts.all === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-4 sm:p-8">
-                    {counts.all === 0 ? (
-                      <OwnersEmptyState
-                        onRefresh={() => {
-                          setSearch("");
-                          setFilter("all");
-                          handleResetAdvancedFilters();
-                        }}
-                      />
-                    ) : (
-                      <div className="py-12 text-center text-[#7D8A78]">
-                        لا توجد نتائج تطابق معايير البحث
-                      </div>
-                    )}
+                    <OwnersEmptyState
+                      onRefresh={() => {
+                        setSearch("");
+                        setFilter("all");
+                        handleResetAdvancedFilters();
+                        reloadOwners();
+                      }}
+                    />
+                  </td>
+                </tr>
+              ) : paginatedOwners.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-4 sm:p-8">
+                    <div className="py-12 text-center text-[#7D8A78]">
+                      لا توجد نتائج تطابق معايير البحث
+                    </div>
                   </td>
                 </tr>
               ) : (

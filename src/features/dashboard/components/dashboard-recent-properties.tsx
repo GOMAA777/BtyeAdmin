@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Building2, Home, Building } from "lucide-react";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
 interface PropertyItem {
   id: string;
@@ -16,6 +17,11 @@ interface PropertyItem {
 
 export function DashboardRecentProperties() {
   const storeProperties = useAppDataStore((s) => s.properties);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    ensureStoreHydrated().finally(() => setIsLoading(false));
+  }, []);
 
   const properties: PropertyItem[] = storeProperties.slice(0, 5).map((p) => ({
     id: p.id,
@@ -49,7 +55,19 @@ export function DashboardRecentProperties() {
         </div>
 
         {/* Property Items List or Empty State */}
-        {properties.length === 0 ? (
+        {isLoading ? (
+          <div className="py-12 flex flex-col gap-3 animate-pulse">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+                <div className="w-11 h-11 rounded-2xl bg-[#DCE2D7] shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-4 bg-[#DCE2D7] rounded w-36" />
+                  <div className="h-3 bg-[#E5EAE0] rounded w-48" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : properties.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center text-center gap-2">
             <span className="text-sm font-semibold text-[#172115]">
               لا توجد عقارات مسجلة حتى الآن

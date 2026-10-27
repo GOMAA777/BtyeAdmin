@@ -28,6 +28,8 @@ import {
 import { cn } from "@/lib/utils";
 import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { ErrorState } from "@/components/shared/error-state";
 import { AutomationRuleActionDropdown } from "./automation-rule-action-dropdown";
 import { AutomationMainTab, AutomationRule } from "../../types";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -107,6 +109,9 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
     activePage,
     startIndex,
     paginatedRules,
+    isLoading,
+    error,
+    reloadRules,
     setSearchQuery,
     setCategoryFilter,
     setTriggerFilter,
@@ -207,8 +212,32 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         tabsLayoutId="automationRulesFilterPill"
       />
 
-      {/* Empty State View [1:26151] vs Table View */}
-      {rules.length === 0 ? (
+      {/* Loading / Error / Empty / Table View */}
+      {isLoading ? (
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right border-collapse">
+              <thead>
+                <tr className="bg-[#f9faf8] border-b border-[#e5e8e2] h-[62px] text-[#73786f] text-[11px] font-bold tracking-[0.55px] uppercase">
+                  <th className="py-4 px-6 whitespace-nowrap">اسم القاعدة وتصنيفها</th>
+                  <th className="py-4 px-5 whitespace-nowrap">المحفز (TRIGGER)</th>
+                  <th className="py-4 px-5 whitespace-nowrap">الإجراء المنفذ (ACTION)</th>
+                  <th className="py-4 px-5 whitespace-nowrap">النطاق المستهدف</th>
+                  <th className="py-4 px-5 whitespace-nowrap">آخر تشغيل ومعدل النجاح</th>
+                  <th className="py-4 px-4 text-center whitespace-nowrap">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e5e8e2]">
+                <TableSkeletonRows columns={6} rows={5} />
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] p-8 text-center">
+          <ErrorState message={error} onRetry={reloadRules} />
+        </div>
+      ) : rules.length === 0 ? (
         <AutomationEmptyStateCard
           icon={<AutomationGraphIcon className="size-[40px]" />}
           title="لا توجد قواعد أتمتة"

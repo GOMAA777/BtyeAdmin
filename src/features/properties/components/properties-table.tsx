@@ -10,6 +10,8 @@ import { PropertiesAdvancedFilterDrawer } from "./properties-advanced-filter-dra
 import { PropertiesEmptyState } from "./properties-empty-state";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { usePropertiesManager } from "../controllers/use-properties-manager";
 
 export function PropertiesTable() {
@@ -28,6 +30,9 @@ export function PropertiesTable() {
     isFilterDrawerOpen,
     propertyFilters,
     activeFiltersCount,
+    isLoading,
+    error,
+    reloadProperties,
     setFilter,
     setSearch,
     setCurrentPage,
@@ -94,22 +99,33 @@ export function PropertiesTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8E2]">
-              {paginatedProperties.length === 0 ? (
+              {isLoading ? (
+                <TableSkeletonRows columns={8} rows={5} />
+              ) : error ? (
+                <TableErrorRow
+                  colSpan={8}
+                  message={error}
+                  onRetry={reloadProperties}
+                />
+              ) : counts.all === 0 ? (
                 <tr>
                   <td colSpan={8} className="p-4 sm:p-8">
-                    {counts.all === 0 ? (
-                      <PropertiesEmptyState
-                        onRefresh={() => {
-                          setSearch("");
-                          setFilter("all");
-                          handleResetFilters();
-                        }}
-                      />
-                    ) : (
-                      <div className="py-12 text-center text-[#73786F] text-[13px]">
-                        لا توجد عقارات تطابق معايير البحث
-                      </div>
-                    )}
+                    <PropertiesEmptyState
+                      onRefresh={() => {
+                        setSearch("");
+                        setFilter("all");
+                        handleResetFilters();
+                        reloadProperties();
+                      }}
+                    />
+                  </td>
+                </tr>
+              ) : paginatedProperties.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-4 sm:p-8">
+                    <div className="py-12 text-center text-[#73786F] text-[13px]">
+                      لا توجد عقارات تطابق معايير البحث
+                    </div>
                   </td>
                 </tr>
               ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { AutomationRule } from "../types";
 import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
@@ -15,9 +15,25 @@ export function useAutomationRulesManager(initialRules?: AutomationRule[]) {
   );
   const rules = initialRules || storeRules;
 
-  useEffect(() => {
-    ensureStoreHydrated();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await ensureStoreHydrated();
+    } catch (err: any) {
+      console.error("Error loading automation rules:", err);
+      setError("فشل في تحميل قواعد الأتمتة. يرجى إعادة المحاولة.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -179,5 +195,8 @@ export function useAutomationRulesManager(initialRules?: AutomationRule[]) {
     activePage,
     startIndex,
     paginatedRules,
+    isLoading,
+    error,
+    reloadRules: loadData,
   };
 }

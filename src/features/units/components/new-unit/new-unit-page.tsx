@@ -29,6 +29,7 @@ export function NewUnitPage() {
 
   const [properties, setProperties] = useState<PickerPropertyRow[]>([]);
   const [owners, setOwners] = useState<PickerOwnerRow[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [showPropertyPicker, setShowPropertyPicker] = useState(false);
   const [showOwnerPicker, setShowOwnerPicker] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
@@ -50,39 +51,43 @@ export function NewUnitPage() {
   );
 
   const loadData = useCallback(async () => {
-    const [rawProps, rawOwners] = await Promise.all([
-      propertiesService.getAll(),
-      ownersService.getAll(),
-    ]);
+    try {
+      const [rawProps, rawOwners] = await Promise.all([
+        propertiesService.getAll(),
+        ownersService.getAll(),
+      ]);
 
-    const formattedProps: PickerPropertyRow[] = rawProps.map((p) => ({
-      id: p.id,
-      name: p.title || p.name || "",
-      code: p.id,
-      district: p.district,
-      city: p.city,
-      unitsCount: p.totalUnits || p.unitsCount || 0,
-      active: p.status === "active",
-    }));
+      const formattedProps: PickerPropertyRow[] = rawProps.map((p) => ({
+        id: p.id,
+        name: p.title || p.name || "",
+        code: p.id,
+        district: p.district,
+        city: p.city,
+        unitsCount: p.totalUnits || p.unitsCount || 0,
+        active: p.status === "active",
+      }));
 
-    const formattedOwners: PickerOwnerRow[] = rawOwners.map((o) => ({
-      id: o.id,
-      name: o.name,
-      code: o.id,
-      initials: o.initials || o.name.charAt(0) || "م",
-      propertiesCount: o.propertiesCount,
-      phone: o.phone,
-      active: o.status === "active",
-    }));
+      const formattedOwners: PickerOwnerRow[] = rawOwners.map((o) => ({
+        id: o.id,
+        name: o.name,
+        code: o.id,
+        initials: o.initials || o.name.charAt(0) || "م",
+        propertiesCount: o.propertiesCount,
+        phone: o.phone,
+        active: o.status === "active",
+      }));
 
-    setProperties(formattedProps);
-    setOwners(formattedOwners);
+      setProperties(formattedProps);
+      setOwners(formattedOwners);
 
-    if (formattedProps.length > 0 && !selectedPropertyId) {
-      setSelectedPropertyId(formattedProps[0].id);
-    }
-    if (formattedOwners.length > 0 && !selectedOwnerId) {
-      setSelectedOwnerId(formattedOwners[0].id);
+      if (formattedProps.length > 0 && !selectedPropertyId) {
+        setSelectedPropertyId(formattedProps[0].id);
+      }
+      if (formattedOwners.length > 0 && !selectedOwnerId) {
+        setSelectedOwnerId(formattedOwners[0].id);
+      }
+    } finally {
+      setIsLoadingData(false);
     }
   }, [selectedPropertyId, selectedOwnerId]);
 
@@ -173,8 +178,8 @@ export function NewUnitPage() {
         {/* Page header */}
         <NewUnitHeaderCard />
 
-        {/* Empty property notification if no properties exist */}
-        {properties.length === 0 && (
+        {/* Empty property notification if no properties exist (only after loading completes) */}
+        {!isLoadingData && properties.length === 0 && (
           <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-right">
             <div className="space-y-1">
               <p className="text-sm font-bold text-[#8A6300]">لا يوجد عقارات مسجلة في المنصة حتى الآن</p>
@@ -270,6 +275,7 @@ export function NewUnitPage() {
         onSelect={setSelectedPropertyId}
         onConfirm={() => setShowPropertyPicker(false)}
         properties={properties}
+        isLoading={isLoadingData}
       />
 
       <OwnerPickerPopup
@@ -280,6 +286,7 @@ export function NewUnitPage() {
         onSelect={setSelectedOwnerId}
         onConfirm={() => setShowOwnerPicker(false)}
         owners={owners}
+        isLoading={isLoadingData}
       />
     </div>
   );

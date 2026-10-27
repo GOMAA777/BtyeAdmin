@@ -28,6 +28,8 @@ import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
+import { TableErrorRow } from "@/components/shared/error-state";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { SubscriptionsAdvancedFilterDrawer } from "./subscriptions-advanced-filter-drawer";
 import { AddSubscriptionModal } from "./modals/add-subscription-modal";
@@ -45,15 +47,36 @@ export function SubscriptionsListView() {
   );
 
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await ensureStoreHydrated();
+      const current = useAppDataStore.getState().subscriptions;
+      if (current && current.length > 0) {
+        setSubscriptions(current);
+      }
+    } catch (err: any) {
+      console.error("Error loading subscriptions:", err);
+      setError("فشل في تحميل الاشتراكات. يرجى إعادة المحاولة.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    ensureStoreHydrated();
+    loadData();
   }, []);
 
   useEffect(() => {
-    setSubscriptions(storeSubscriptions);
-  }, [storeSubscriptions]);
+    if (!isLoading && storeSubscriptions.length > 0) {
+      setSubscriptions(storeSubscriptions);
+    }
+  }, [storeSubscriptions, isLoading]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -379,7 +402,11 @@ export function SubscriptionsListView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e5eae0] text-[#181d17]">
-              {paginatedSubscriptions.length === 0 ? (
+              {isLoading ? (
+                <TableSkeletonRows columns={10} rows={5} />
+              ) : error ? (
+                <TableErrorRow colSpan={10} message={error} onRetry={loadData} />
+              ) : paginatedSubscriptions.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-16 text-center text-[#75786f] text-[13px] font-medium">
                     <div className="flex flex-col items-center justify-center gap-3">
@@ -387,19 +414,33 @@ export function SubscriptionsListView() {
                         <FolderArchive className="w-6 h-6" />
                       </div>
                       <div className="text-[16px] font-bold text-[#181d17]">
-                        لا توجد أي اشتراكات مسجلة حالياً
+                        {subCounts.total === 0
+                          ? "لا توجد أي اشتراكات مسجلة حالياً"
+                          : "لا توجد نتائج مطابقة لخيارات البحث"}
                       </div>
                       <p className="text-[13px] text-[#75786f] max-w-sm">
-                        لم يتم تسجيل أي اشتراكات بعد. يمكنك البدء بإضافة اشتراك جديد لتخصيص السعة والفوترة لأصحاب العقارات.
+                        {subCounts.total === 0
+                          ? "لم يتم تسجيل أي اشتراكات بعد. يمكنك البدء بإضافة اشتراك جديد لتخصيص السعة والفوترة لأصحاب العقارات."
+                          : "جرّب تغيير كلمات البحث أو إعادة ضبط خيارات التصفية."}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="mt-2 bg-[#4b5940] hover:bg-[#3d4934] text-white text-[13px] font-medium px-4 h-[38px] rounded-[10px] flex items-center gap-2 cursor-pointer transition-colors"
-                      >
-                        <Plus className="w-4 h-4 text-white" />
-                        <span>إضافة اشتراك جديد</span>
-                      </button>
+                      {subCounts.total === 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsAddModalOpen(true)}
+                          className="mt-2 bg-[#4b5940] hover:bg-[#3d4934] text-white text-[13px] font-medium px-4 h-[38px] rounded-[10px] flex items-center gap-2 cursor-pointer transition-colors"
+                        >
+                          <Plus className="w-4 h-4 text-white" />
+                          <span>إضافة اشتراك جديد</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResetAllFilters}
+                          className="mt-2 px-4 py-2 bg-[#f1f5eb] text-[#34422a] rounded-[10px] text-[13px] font-semibold hover:bg-[#e2ead9] transition-colors cursor-pointer"
+                        >
+                          إعادة ضبط التصفية
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

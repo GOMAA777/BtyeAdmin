@@ -29,9 +29,26 @@ export function useTeamManager(initialMembers?: TeamMember[]) {
   );
   const members = initialMembers || storeTeam;
 
-  useEffect(() => {
-    ensureStoreHydrated();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await ensureStoreHydrated();
+    } catch (err: any) {
+      console.error("Error loading team:", err);
+      setError("فشل في تحميل أعضاء الفريق. يرجى إعادة المحاولة.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
   const [stats, setStats] = useState<TeamOverviewStats>(initialTeamStats);
 
   // Filter States
@@ -249,6 +266,9 @@ export function useTeamManager(initialMembers?: TeamMember[]) {
     filteredMembers,
     paginatedMembers,
     resetFilters,
+    isLoading,
+    error,
+    reloadTeam: loadData,
     // Modals
     suspendModalOpen,
     setSuspendModalOpen,

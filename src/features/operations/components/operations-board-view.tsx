@@ -24,6 +24,9 @@ export function OperationsBoardView() {
     setSearchQuery,
     setIsFilterDrawerOpen,
     setAdvancedFilters,
+    isLoading,
+    error,
+    reloadOperations,
     handleResetAdvancedFilters,
   } = useOperationsManager();
 
@@ -52,7 +55,12 @@ export function OperationsBoardView() {
       />
 
       {/* 4. Table */}
-      <OperationsTable tasks={filteredTasks} />
+      <OperationsTable
+        tasks={filteredTasks}
+        isLoading={isLoading}
+        error={error}
+        onRetry={reloadOperations}
+      />
 
       {/* 5. Central Governance Banner */}
       <OperationsGovernanceCard />

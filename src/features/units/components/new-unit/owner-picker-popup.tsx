@@ -21,6 +21,7 @@ interface OwnerPickerPopupProps {
   onSelect: (id: string) => void;
   onConfirm: () => void;
   owners: PickerOwnerRow[];
+  isLoading?: boolean;
 }
 
 const GRID = "grid grid-cols-[1fr_116px_92px_76px_112px] items-center gap-2";
@@ -32,6 +33,7 @@ export function OwnerPickerPopup({
   onSelect,
   onConfirm,
   owners,
+  isLoading = false,
 }: OwnerPickerPopupProps) {
   const [search, setSearch] = useState("");
 
@@ -237,7 +239,13 @@ export function OwnerPickerPopup({
               );
             })}
 
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="py-4 space-y-2">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-12 bg-[#F1F5EB] rounded-[10px] animate-pulse" />
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="py-10 text-center text-[12px] text-[#7C8773]">
                 لا يوجد مالكون مطابقون لبحثك
               </div>

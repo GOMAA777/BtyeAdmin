@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import {
   OperationCategoryFilter,
   OperationSubFilter,
@@ -23,9 +23,26 @@ export function useOperationsManager(
   );
   const tasks = initialTasks || storeOperations;
 
-  useEffect(() => {
-    ensureStoreHydrated();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await ensureStoreHydrated();
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "حدث خطأ أثناء تحميل بيانات العمليات";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const [categoryFilter, setCategoryFilter] =
     useState<OperationCategoryFilter>("all");
@@ -191,6 +208,9 @@ export function useOperationsManager(
     setSearchQuery,
     setIsFilterDrawerOpen,
     setAdvancedFilters,
+    isLoading,
+    error,
+    reloadOperations: loadData,
     handleResetAdvancedFilters,
   };
 }

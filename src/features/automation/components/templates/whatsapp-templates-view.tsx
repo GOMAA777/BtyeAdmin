@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { useAppDataStore } from "@/stores/use-app-data-store";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { TableSkeletonRows } from "@/components/shared/table-skeleton";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { WhatsAppTemplate, AutomationMainTab } from "../../types";
 import { initialWhatsAppTemplates } from "../../data/mock-automation";
@@ -47,6 +48,7 @@ interface WhatsAppTemplatesViewProps {
 export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProps) {
   const router = useRouter();
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>(initialWhatsAppTemplates);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -56,6 +58,13 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const activeFiltersCount =
     (statusFilter !== "all" ? 1 : 0) +
@@ -221,8 +230,27 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         tabsLayoutId="whatsappTemplatesCategoryPill"
       />
 
-      {/* 4. Empty State View [1:26359] vs Templates Table */}
-      {templates.length === 0 ? (
+      {/* 4. Loading / Empty State View vs Templates Table */}
+      {isLoading ? (
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right border-collapse">
+              <thead>
+                <tr className="bg-[#f9faf8] border-b border-[#e5e8e2] h-[62px] text-[#73786f] text-[11px] font-bold tracking-[0.55px] uppercase">
+                  <th className="py-4 px-6 whitespace-nowrap">اسم القالب والرمز</th>
+                  <th className="py-4 px-5 whitespace-nowrap">المحفز المرتبط</th>
+                  <th className="py-4 px-5 whitespace-nowrap">اللغة والتصنيف</th>
+                  <th className="py-4 px-5 whitespace-nowrap">حالة الاعتماد في META</th>
+                  <th className="py-4 px-4 text-center whitespace-nowrap">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e5e8e2]">
+                <TableSkeletonRows columns={5} rows={5} />
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : templates.length === 0 ? (
         <AutomationEmptyStateCard
           icon={<WhatsAppCaptionsIcon className="size-[40px]" />}
           title="لا توجد قوالب واتساب"

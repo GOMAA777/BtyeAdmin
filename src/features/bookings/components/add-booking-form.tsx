@@ -55,6 +55,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
+  const [isLoadingEntities, setIsLoadingEntities] = useState(true);
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [selectedUnitId, setSelectedUnitId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,21 +76,25 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
   const [notes, setNotes] = useState("");
 
   const loadData = useCallback(async () => {
-    const [pList, uList, oList] = await Promise.all([
-      propertiesService.getAll(),
-      unitsService.getAll(),
-      ownersService.getAll(),
-    ]);
-    setProperties(pList);
-    setUnits(uList);
-    setOwners(oList);
+    try {
+      const [pList, uList, oList] = await Promise.all([
+        propertiesService.getAll(),
+        unitsService.getAll(),
+        ownersService.getAll(),
+      ]);
+      setProperties(pList);
+      setUnits(uList);
+      setOwners(oList);
 
-    if (pList.length > 0 && !selectedPropertyId) {
-      setSelectedPropertyId(pList[0].id);
-      const firstPropUnits = uList.filter((u) => u.propertyId === pList[0].id);
-      if (firstPropUnits.length > 0) {
-        setSelectedUnitId(firstPropUnits[0].id);
+      if (pList.length > 0 && !selectedPropertyId) {
+        setSelectedPropertyId(pList[0].id);
+        const firstPropUnits = uList.filter((u) => u.propertyId === pList[0].id);
+        if (firstPropUnits.length > 0) {
+          setSelectedUnitId(firstPropUnits[0].id);
+        }
       }
+    } finally {
+      setIsLoadingEntities(false);
     }
   }, [selectedPropertyId]);
 
@@ -280,13 +285,15 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                   <label className="block text-xs font-bold text-[#172115] text-start">
                     العقار التابع <span className="text-red-500">*</span>
                   </label>
-                  {properties.length === 0 && (
+                  {!isLoadingEntities && properties.length === 0 && (
                     <Link href="/properties/new/" className="text-[11px] font-bold text-[#34422A] hover:underline">
                       + إضافة عقار
                     </Link>
                   )}
                 </div>
-                {properties.length === 0 ? (
+                {isLoadingEntities ? (
+                  <div className="h-[46px] bg-[#EEF2E8] animate-pulse rounded-2xl" />
+                ) : properties.length === 0 ? (
                   <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-3 text-xs text-[#8A6300]">
                     لا توجد عقارات مسجلة حتى الآن.{" "}
                     <Link href="/properties/new/" className="underline font-bold">
@@ -321,13 +328,15 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                   <label className="block text-xs font-bold text-[#172115] text-start">
                     الوحدة المستهدفة <span className="text-red-500">*</span>
                   </label>
-                  {availableUnits.length === 0 && (
+                  {!isLoadingEntities && availableUnits.length === 0 && (
                     <Link href="/units/new/" className="text-[11px] font-bold text-[#34422A] hover:underline">
                       + إضافة وحدة
                     </Link>
                   )}
                 </div>
-                {availableUnits.length === 0 ? (
+                {isLoadingEntities ? (
+                  <div className="h-[46px] bg-[#EEF2E8] animate-pulse rounded-2xl" />
+                ) : availableUnits.length === 0 ? (
                   <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-3 text-xs text-[#8A6300]">
                     لا توجد وحدات في هذا العقار.{" "}
                     <Link href="/units/new/" className="underline font-bold">

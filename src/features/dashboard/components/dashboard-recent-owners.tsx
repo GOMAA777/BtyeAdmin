@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Users2 } from "lucide-react";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
 interface OwnerItem {
   id: string;
@@ -22,6 +23,11 @@ interface OwnerItem {
 
 export function DashboardRecentOwners() {
   const owners = useAppDataStore((s) => s.owners);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    ensureStoreHydrated().finally(() => setIsLoading(false));
+  }, []);
 
   const recentOwners: OwnerItem[] = owners.slice(0, 5).map((o) => ({
     id: o.id,
@@ -72,7 +78,27 @@ export function DashboardRecentOwners() {
               </tr>
             </thead>
             <tbody>
-              {recentOwners.length === 0 ? (
+              {isLoading ? (
+                <>
+                  {[...Array(4)].map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-[#DCE2D7] shrink-0" />
+                          <div className="space-y-1">
+                            <div className="h-3 bg-[#DCE2D7] rounded w-24" />
+                            <div className="h-2.5 bg-[#E5EAE0] rounded w-32" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 text-center"><div className="h-3 bg-[#DCE2D7] rounded w-6 mx-auto" /></td>
+                      <td className="py-3 px-3 text-center"><div className="h-3 bg-[#DCE2D7] rounded w-6 mx-auto" /></td>
+                      <td className="py-3 px-3 text-center"><div className="h-3 bg-[#DCE2D7] rounded w-16 mx-auto" /></td>
+                      <td className="py-3 px-4 text-center"><div className="h-5 bg-[#DCE2D7] rounded-full w-12 mx-auto" /></td>
+                    </tr>
+                  ))}
+                </>
+              ) : recentOwners.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-[#7A8574]">
                     <div className="flex flex-col items-center justify-center gap-1.5">
