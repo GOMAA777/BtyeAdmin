@@ -70,6 +70,8 @@ export interface AppDataState {
   // Subscriptions Actions
   setSubscriptions: (subscriptions: Subscription[]) => void;
   addSubscription: (subscription: Subscription) => void;
+  updateSubscription: (id: string, updates: Partial<Subscription>) => void;
+  deleteSubscription: (id: string) => void;
 
   // Reset
   resetAll: () => void;
@@ -190,6 +192,16 @@ export const useAppDataStore = create<AppDataState>()(
       addSubscription: (subscription) =>
         set((state) => ({
           subscriptions: [subscription, ...state.subscriptions],
+        })),
+      updateSubscription: (id, updates) =>
+        set((state) => ({
+          subscriptions: state.subscriptions.map((s) =>
+            s.id === id ? { ...s, ...updates } : s
+          ),
+        })),
+      deleteSubscription: (id) =>
+        set((state) => ({
+          subscriptions: state.subscriptions.filter((s) => s.id !== id),
         })),
 
       resetAll: () =>

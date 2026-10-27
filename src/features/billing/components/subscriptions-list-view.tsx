@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -30,11 +30,31 @@ import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { SubscriptionsAdvancedFilterDrawer } from "./subscriptions-advanced-filter-drawer";
+import { AddSubscriptionModal } from "./modals/add-subscription-modal";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
+
+const emptySubs: Subscription[] = [];
 
 export function SubscriptionsListView() {
+  const storeSubscriptions = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().subscriptions,
+    () => emptySubs
+  );
+
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  useEffect(() => {
+    ensureStoreHydrated();
+  }, []);
+
+  useEffect(() => {
+    setSubscriptions(storeSubscriptions);
+  }, [storeSubscriptions]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
@@ -88,10 +108,12 @@ export function SubscriptionsListView() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
+    ensureStoreHydrated();
     setTimeout(() => {
+      setSubscriptions(useAppDataStore.getState().subscriptions);
       setIsRefreshing(false);
       toast.success("تم تحديث بيانات الاشتراكات والفوترة اللحظية.");
-    }, 600);
+    }, 400);
   };
 
   const handleExport = () => {
@@ -101,45 +123,53 @@ export function SubscriptionsListView() {
     }, 800);
   };
 
+  const handleAddSubscription = (newSub: Subscription) => {
+    useAppDataStore.getState().addSubscription(newSub);
+    setSubscriptions((prev) => [newSub, ...prev]);
+  };
+
   const handleToggleResume = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setSubscriptions((prev) =>
-      prev.map((sub) =>
-        sub.id === id
-          ? {
-              ...sub,
-              status: "active",
-              statusLabel: "نشط",
-              statusBadgeVariant: "active",
-              statusSubText: "تم استئناف الاشتراك",
-              usedUnits: sub.purchasedUnits,
-              remainingUnits: 0,
-              usagePercentage: 100,
-            }
-          : sub
-      )
+    const updated = subscriptions.map((sub) =>
+      sub.id === id
+        ? {
+            ...sub,
+            status: "active" as const,
+            statusLabel: "نشط",
+            statusBadgeVariant: "active" as const,
+            statusSubText: "تم استئناف الاشتراك",
+            usedUnits: sub.purchasedUnits,
+            remainingUnits: 0,
+            usagePercentage: 100,
+          }
+        : sub
     );
+    setSubscriptions(updated);
+    useAppDataStore.getState().setSubscriptions(updated);
     toast.success("تم استئناف الاشتراك وتفعيل الوحدات بنجاح.");
   };
 
   const handlePauseSubscription = (id: string, ownerName: string) => {
-    setSubscriptions((prev) =>
-      prev.map((sub) =>
-        sub.id === id
-          ? {
-              ...sub,
-              status: "paused",
-              statusLabel: "موقوف",
-              statusBadgeVariant: "paused",
-              statusSubText: "طلب إيقاف مالك",
-            }
-          : sub
-      )
+    const updated = subscriptions.map((sub) =>
+      sub.id === id
+        ? {
+            ...sub,
+            status: "paused" as const,
+            statusLabel: "موقوف",
+            statusBadgeVariant: "paused" as const,
+            statusSubText: "طلب إيقاف مالك",
+          }
+        : sub
     );
+    setSubscriptions(updated);
+    useAppDataStore.getState().setSubscriptions(updated);
     toast.warning(`تم تعليق اشتراك ${ownerName} مؤقتاً.`);
   };
 
   const handleCancelSubscription = (id: string, ownerName: string) => {
+    const updated = subscriptions.filter((sub) => sub.id !== id);
+    setSubscriptions(updated);
+    useAppDataStore.getState().setSubscriptions(updated);
     toast.error(`تم إلغاء اشتراك ${ownerName}.`);
   };
 
@@ -209,7 +239,7 @@ export function SubscriptionsListView() {
           {/* Primary Action: Add Subscription */}
           <button
             type="button"
-            onClick={() => toast.info("نافذة إضافة اشتراك جديد متاحة لمدراء النظام")}
+            onClick={() => setIsAddModalOpen(true)}
             className="bg-[#4b5940] hover:bg-[#3d4934] text-white text-[14px] font-medium px-5 h-[44px] rounded-[12px] flex items-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] cursor-pointer transition-colors"
           >
             <span>إضافة اشتراك</span>
@@ -351,8 +381,26 @@ export function SubscriptionsListView() {
             <tbody className="divide-y divide-[#e5eae0] text-[#181d17]">
               {paginatedSubscriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-[#75786f] text-[13px] font-medium">
-                    لا توجد أي اشتراكات مسجلة تطابق خيارات التصفية الحالية
+                  <td colSpan={10} className="py-16 text-center text-[#75786f] text-[13px] font-medium">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="size-12 rounded-full bg-[#f1f5eb] flex items-center justify-center text-[#4b5940]">
+                        <FolderArchive className="w-6 h-6" />
+                      </div>
+                      <div className="text-[16px] font-bold text-[#181d17]">
+                        لا توجد أي اشتراكات مسجلة حالياً
+                      </div>
+                      <p className="text-[13px] text-[#75786f] max-w-sm">
+                        لم يتم تسجيل أي اشتراكات بعد. يمكنك البدء بإضافة اشتراك جديد لتخصيص السعة والفوترة لأصحاب العقارات.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="mt-2 bg-[#4b5940] hover:bg-[#3d4934] text-white text-[13px] font-medium px-4 h-[38px] rounded-[10px] flex items-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                        <span>إضافة اشتراك جديد</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -649,6 +697,11 @@ export function SubscriptionsListView() {
         }}
         onResetFilters={handleResetAllFilters}
         totalResultsCount={filteredSubscriptions.length}
+      />
+      <AddSubscriptionModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={handleAddSubscription}
       />
     </div>
   );
