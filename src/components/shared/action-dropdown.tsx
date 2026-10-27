@@ -153,16 +153,17 @@ export function ActionDropdown({
         onClick={toggleDropdown}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
+        data-dropdown-trigger="true"
         className={cn(
-          "w-8 h-8 rounded-full border border-transparent hover:border-[#D5DDD0] hover:bg-[#EEF2E6] text-[#7D8A78] hover:text-[#172115] inline-flex items-center justify-center transition-all cursor-pointer select-none",
-          isOpen && "bg-[#EEF2E6] text-[#172115] border-[#CCD5C5] shadow-2xs",
-          triggerClassName
+          "w-8 h-8 rounded-full border border-transparent hover:border-[#4B5940]/40 hover:bg-[#F8FAF4] text-[#7D8A78] hover:text-[#172115] inline-flex items-center justify-center transition-all duration-200 cursor-pointer select-none active:scale-[0.96]",
+          triggerClassName,
+          isOpen && "!bg-white !text-[#4B5940] !border-[#4B5940] ring-4 ring-[#4B5940]/20 shadow-sm"
         )}
       >
         {triggerIcon === "vertical" ? (
-          <MoreVertical className="w-4 h-4" />
+          <MoreVertical className={cn("w-4 h-4 transition-colors", isOpen && "text-[#4B5940]")} />
         ) : triggerIcon === "horizontal" ? (
-          <MoreHorizontal className="w-4 h-4" />
+          <MoreHorizontal className={cn("w-4 h-4 transition-colors", isOpen && "text-[#4B5940]")} />
         ) : (
           triggerIcon
         )}

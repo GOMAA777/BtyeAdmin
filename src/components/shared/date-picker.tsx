@@ -217,16 +217,20 @@ export function DatePicker({
             handleToggleOpen();
           }
         }}
+        data-dropdown-trigger="true"
+        aria-expanded={isOpen}
         className={cn(
-          "w-full h-10 px-3 text-xs text-[#172115] bg-white border rounded-xl flex items-center justify-between cursor-pointer select-none transition-all shadow-2xs group",
-          isOpen
-            ? "border-[#34432E] ring-1 ring-[#34432E]"
-            : "border-[#CCD5C5] hover:border-[#34432E]",
-          className
+          "w-full h-10 px-3 text-xs text-[#172115] bg-[#F1F5EB] border border-[#CCD5C5] rounded-xl flex items-center justify-between cursor-pointer select-none transition-all duration-200 ease-out shadow-2xs group active:scale-[0.99]",
+          "hover:border-[#4B5940]/60 hover:bg-[#F8FAF4]",
+          className,
+          isOpen && "!bg-white !border-[#4B5940] ring-4 ring-[#4B5940]/20 shadow-sm"
         )}
       >
         <div className="flex items-center gap-2 truncate">
-          <CalendarIcon className="w-4 h-4 text-[#7D8A78] shrink-0 group-hover:text-[#34432E] transition-colors" />
+          <CalendarIcon className={cn(
+            "w-4 h-4 text-[#7D8A78] shrink-0 transition-colors",
+            isOpen ? "text-[#4B5940]" : "group-hover:text-[#4B5940]"
+          )} />
           {value ? (
             <span className="font-bold text-[#172115] truncate">
               {getDisplayValue()}

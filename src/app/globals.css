@@ -284,3 +284,72 @@ i.lucide-icon.w-16, i.lucide-icon.h-16, i.lucide-icon.size-16 { font-size: 4rem;
   font-size: 11.5px !important;
   line-height: 1.5 !important;
 }
+
+/* ==========================================================================
+   GLOBAL FORM CONTROLS & DROPDOWN INTERACTIVE FIDELITY
+   Ensures text inputs, textareas, native selects, and custom dropdown triggers
+   smoothly transition to pure white on click/focus with brand-colored halo
+   ring, clear border feedback, and tactile micro-elevation.
+   ========================================================================== */
+
+/* Universal smooth transitions for form controls */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]),
+textarea,
+select,
+[data-dropdown-trigger="true"] {
+  transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.15s ease-out !important;
+}
+
+/* Subtle interactive feedback on hover before clicking */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus),
+[data-dropdown-trigger="true"]:hover:not(:disabled):not([aria-expanded="true"]) {
+  border-color: #4B5940 !important;
+  box-shadow: 0 0 0 1px rgba(75, 89, 64, 0.25) !important;
+}
+
+/* When clicked / focused / active:
+   - Turns from green/soft tone to pure crisp white (#FFFFFF)
+   - Brand Green border (#4B5940)
+   - Brand Green multi-layer glow halo (ring) + elevation shadow
+*/
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):focus,
+textarea:focus,
+select:focus,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[data-dropdown-trigger="true"][aria-expanded="true"],
+[data-dropdown-trigger="true"]:focus-visible {
+  background-color: #ffffff !important;
+  border-color: #4B5940 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1.5px #4B5940,
+              0 0 0 4.5px rgba(75, 89, 64, 0.18),
+              0 3px 10px -2px rgba(75, 89, 64, 0.12) !important;
+}
+
+/* Active press micro-feedback */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):active:not(:disabled),
+textarea:active:not(:disabled),
+select:active:not(:disabled),
+[data-dropdown-trigger="true"]:active:not(:disabled) {
+  transform: scale(0.997);
+}
+
+/* Dark mode overrides for high-contrast focus */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):focus,
+.dark textarea:focus,
+.dark select:focus,
+.dark [data-dropdown-trigger="true"][aria-expanded="true"],
+.dark [data-dropdown-trigger="true"]:focus-visible {
+  background-color: #252A24 !important;
+  border-color: #6B7D5F !important;
+  box-shadow: 0 0 0 1.5px #6B7D5F,
+              0 0 0 4.5px rgba(107, 125, 95, 0.25),
+              0 3px 10px -2px rgba(0, 0, 0, 0.35) !important;
+}

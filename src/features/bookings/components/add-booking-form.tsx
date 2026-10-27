@@ -586,7 +586,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                     type="text"
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] focus:outline-none transition-all"
+                    className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] border border-[#E0E5D8]/80 focus:bg-white focus:border-[#4B5940] focus:outline-none transition-all duration-200"
                   />
                   <User className="w-4 h-4 text-[#7D8A78] absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -603,7 +603,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value)}
                     dir="ltr"
-                    className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] focus:outline-none transition-all text-right"
+                    className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] border border-[#E0E5D8]/80 focus:bg-white focus:border-[#4B5940] focus:outline-none transition-all duration-200 text-right"
                   />
                   <Phone className="w-4 h-4 text-[#7D8A78] absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -621,7 +621,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                   dir="ltr"
-                  className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] focus:outline-none transition-all text-right"
+                  className="w-full bg-[#F4F6F0] rounded-xl px-4 py-3 pe-10 text-xs font-medium text-[#172115] border border-[#E0E5D8]/80 focus:bg-white focus:border-[#4B5940] focus:outline-none transition-all duration-200 text-right"
                 />
                 <Mail className="w-4 h-4 text-[#7D8A78] absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -664,7 +664,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#F4F6F0] rounded-2xl p-4 text-xs text-[#172115] focus:outline-none leading-relaxed transition-all resize-none"
+              className="w-full bg-[#F4F6F0] rounded-2xl p-4 text-xs text-[#172115] border border-[#E0E5D8]/80 focus:bg-white focus:border-[#4B5940] focus:outline-none leading-relaxed transition-all duration-200 resize-none"
             />
           </div>
         </div>

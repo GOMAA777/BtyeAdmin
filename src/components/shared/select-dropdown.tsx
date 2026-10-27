@@ -120,11 +120,15 @@ export function SelectDropdown({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={ariaLabel}
+        data-dropdown-trigger="true"
         className={cn(
-          "w-full bg-[#F1F5EB] border border-[#E0E5D8]/70 hover:border-[#CCD5C5] focus:outline-none focus:bg-white focus:border-[#CCD5C5] rounded-2xl h-12 px-4 text-xs font-semibold text-[#172115] flex items-center justify-between transition-all cursor-pointer select-none text-right",
-          isOpen && "bg-white border-[#34432E]/60 ring-2 ring-[#34432E]/10 shadow-2xs",
-          disabled && "opacity-50 cursor-not-allowed",
-          triggerClassName
+          "w-full bg-[#F1F5EB] border border-[#E0E5D8]/80 rounded-2xl h-12 px-4 text-xs font-semibold text-[#172115] flex items-center justify-between cursor-pointer select-none text-right",
+          "transition-all duration-200 ease-out active:scale-[0.99]",
+          "hover:border-[#4B5940]/50 hover:bg-[#F8FAF4]",
+          "focus:outline-none focus-visible:!bg-white focus-visible:!border-[#4B5940] focus-visible:ring-4 focus-visible:ring-[#4B5940]/15 focus-visible:shadow-sm",
+          triggerClassName,
+          isOpen && "!bg-white !border-[#4B5940] ring-4 ring-[#4B5940]/20 shadow-sm",
+          disabled && "opacity-50 cursor-not-allowed pointer-events-none"
         )}
       >
         {/* Selected Label or Placeholder */}
@@ -140,8 +144,8 @@ export function SelectDropdown({
         {/* Chevron Icon on Left (start in RTL) */}
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-200 ms-2",
-            isOpen && "rotate-180 text-[#34432E]"
+            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-300 ms-2",
+            isOpen && "rotate-180 text-[#4B5940]"
           )}
         />
       </button>
@@ -153,8 +157,8 @@ export function SelectDropdown({
           role="listbox"
           tabIndex={-1}
           className={cn(
-            "absolute z-50 right-0 min-w-full w-max min-w-[210px] max-w-[calc(100vw-32px)] bg-white rounded-2xl border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-1.5 space-y-1 max-h-[340px] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 [scrollbar-width:thin] [scrollbar-color:#CCD5C5_transparent]",
-            placement === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5",
+            "absolute z-50 right-0 min-w-full w-max min-w-[210px] max-w-[calc(100vw-32px)] bg-white rounded-2xl border border-[#DCE2D7] shadow-[0_16px_36px_-8px_rgba(24,29,23,0.16),0_4px_16px_rgba(24,29,23,0.06)] p-1.5 space-y-1 max-h-[340px] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 [scrollbar-width:thin] [scrollbar-color:#CCD5C5_transparent]",
+            placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
             menuClassName
           )}
         >

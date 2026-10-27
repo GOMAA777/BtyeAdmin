@@ -145,17 +145,19 @@ export function TimePicker({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
+        data-dropdown-trigger="true"
+        aria-expanded={isOpen}
         className={cn(
-          "w-full h-11 px-3.5 rounded-[12px] bg-white border border-[#E2E6DC] text-right flex items-center justify-between gap-2.5 transition-all text-xs sm:text-sm shadow-3xs cursor-pointer select-none",
-          "hover:border-[#4B5940]/60 hover:bg-[#FBFDF9]",
-          "focus:outline-none focus:ring-2 focus:ring-[#4B5940]/25 focus:border-[#4B5940]",
-          isOpen && "ring-2 ring-[#4B5940]/25 border-[#4B5940]",
-          disabled && "opacity-50 cursor-not-allowed bg-[#F4F6F0]",
-          triggerClassName
+          "w-full h-11 px-3.5 rounded-[12px] bg-[#F1F5EB] border border-[#E2E6DC] text-right flex items-center justify-between gap-2.5 transition-all duration-200 ease-out text-xs sm:text-sm shadow-3xs cursor-pointer select-none active:scale-[0.99]",
+          "hover:border-[#4B5940]/60 hover:bg-[#F8FAF4]",
+          "focus:outline-none focus-visible:!bg-white focus-visible:!border-[#4B5940] focus-visible:ring-4 focus-visible:ring-[#4B5940]/20",
+          triggerClassName,
+          isOpen && "!bg-white !border-[#4B5940] ring-4 ring-[#4B5940]/20 shadow-sm",
+          disabled && "opacity-50 cursor-not-allowed bg-[#F4F6F0]"
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <Clock className="w-4 h-4 text-[#7D8A78] shrink-0" />
+          <Clock className={cn("w-4 h-4 shrink-0 transition-colors", isOpen ? "text-[#4B5940]" : "text-[#7D8A78]")} />
           <span
             className={cn(
               "truncate font-medium",
@@ -167,8 +169,8 @@ export function TimePicker({
         </div>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-200",
-            isOpen && "rotate-180"
+            "w-4 h-4 text-[#7D8A78] shrink-0 transition-transform duration-300",
+            isOpen && "rotate-180 text-[#4B5940]"
           )}
         />
       </button>

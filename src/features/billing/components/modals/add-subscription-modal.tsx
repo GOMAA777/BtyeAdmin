@@ -169,7 +169,7 @@ export function AddSubscriptionModal({
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="مثال: د. فهد السليمان"
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                 />
                 <User className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -186,7 +186,7 @@ export function AddSubscriptionModal({
                   value={ownerPhone}
                   onChange={(e) => setOwnerPhone(e.target.value)}
                   placeholder="مثال: 0505123456"
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                   dir="ltr"
                 />
                 <Phone className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -205,7 +205,7 @@ export function AddSubscriptionModal({
                 value={ownerCompany}
                 onChange={(e) => setOwnerCompany(e.target.value)}
                 placeholder="مثال: مجموعة السليمان للضيافة وإدارة الأصول"
-                className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
               />
               <Building2 className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -250,7 +250,8 @@ export function AddSubscriptionModal({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as SubscriptionStatus)}
-                className="w-full h-[42px] px-3 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] bg-white focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                data-dropdown-trigger="true"
+                className="w-full h-[42px] px-3 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] bg-[#f1f5eb] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all cursor-pointer"
               >
                 <option value="active">نشط (مفعل فورياً)</option>
                 <option value="pending_payment">بانتظار الدفع</option>
@@ -273,7 +274,7 @@ export function AddSubscriptionModal({
                   max="500"
                   value={purchasedUnits}
                   onChange={(e) => handleUnitsChange(Number(e.target.value))}
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                 />
                 <Layers className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -289,7 +290,7 @@ export function AddSubscriptionModal({
                   min="0"
                   value={subscriptionPrice}
                   onChange={(e) => setSubscriptionPrice(Number(e.target.value))}
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                 />
                 <DollarSign className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -308,7 +309,7 @@ export function AddSubscriptionModal({
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   placeholder="مثال: 1 نوفمبر 2026"
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                 />
                 <Calendar className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -324,7 +325,7 @@ export function AddSubscriptionModal({
                   value={renewalDate}
                   onChange={(e) => setRenewalDate(e.target.value)}
                   placeholder="مثال: 1 ديسمبر 2026"
-                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:border-[#4b5940] focus:ring-1 focus:ring-[#4b5940]"
+                  className="w-full h-[42px] px-3 ps-9 rounded-[10px] bg-[#f1f5eb] border border-[#e5eae0] text-[13px] text-[#181d17] focus:outline-none focus:bg-white focus:border-[#4b5940] transition-all"
                 />
                 <Calendar className="w-4 h-4 text-[#75786f] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
