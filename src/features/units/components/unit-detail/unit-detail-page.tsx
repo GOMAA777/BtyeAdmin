@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { unitsService } from "@/services/units-service";
+import type { Unit } from "../../types";
 import { initialUnits } from "../../data/mock-units";
 import { UnitHeroCard } from "./unit-hero-card";
 import { UnitTimelineStrip } from "./unit-timeline-strip";
@@ -30,16 +32,36 @@ export function UnitDetailPage({
   initialShowOperationsLog = false,
   statusOverride,
 }: UnitDetailPageProps) {
-  // Find matching unit or fallback to Unit 204
-  const unit =
-    initialUnits.find((u) => u.id === unitId || u.unitNumber === unitId) ??
-    initialUnits[0];
+  const [unit, setUnit] = useState<Unit>(() => {
+    const found = initialUnits.find((u) => u.id === unitId || u.unitNumber === unitId);
+    if (found) return found;
+    return {
+      id: unitId || "204",
+      unitNumber: unitId || "204",
+      floor: "الطابق الثاني",
+      floorNumber: 2,
+      iconType: "door",
+      propertyId: "1",
+      propertyName: "عمارة النخيل",
+      ownerId: "1",
+      ownerName: "المالك المسجل",
+      ownerInitials: "م",
+      type: "استوديو",
+      pricePerNight: 250,
+      status: "available",
+      currentBookingCode: null,
+      lastUpdateDate: "اليوم",
+      lastUpdateTime: "الآن",
+    };
+  });
+
+  useEffect(() => {
+    unitsService.getById(unitId).then((real) => {
+      if (real) setUnit(real);
+    });
+  }, [unitId]);
 
   // Derive status strictly:
-  // 1) "available" -> Figma 1:16492 (تفاصيل الوحدة المتاحة)
-  // 2) "occupied" -> Figma 1:14682 (تفاصيل الوحدة المشغولة)
-  // 3) "cleaning" -> Figma 1:17169 (تفاصيل الوحدة تحت التنظيف والتعقيم)
-  // 4) "maintenance" -> Figma 1:17819 (تفاصيل الوحدة تحت الصيانة)
   const currentStatus: "available" | "occupied" | "cleaning" | "maintenance" =
     statusOverride !== undefined
       ? statusOverride
