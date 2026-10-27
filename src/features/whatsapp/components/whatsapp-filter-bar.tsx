@@ -1,8 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { WhatsAppTopFilter } from "../types";
+import {
+  WhatsAppFilterDrawer,
+  type WhatsAppFilterState,
+} from "./whatsapp-filter-drawer";
 
 interface WhatsAppFilterBarProps {
   searchQuery: string;
@@ -21,133 +25,63 @@ export function WhatsAppFilterBar({
   activeFilter,
   onFilterChange,
 }: WhatsAppFilterBarProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<WhatsAppFilterState>({
+    property: selectedProperty,
+    conversationType: "all",
+    readStatus: "all",
+    windowStatus: "all",
+  });
+
+  const activeFiltersCount =
+    (selectedProperty !== "all" ? 1 : 0) +
+    (advancedFilters.conversationType !== "all" ? 1 : 0) +
+    (advancedFilters.readStatus !== "all" ? 1 : 0) +
+    (advancedFilters.windowStatus !== "all" ? 1 : 0);
+
+  const tabs = [
+    { id: "all", label: "الكل (18)" },
+    { id: "unread", label: "غير مقروء (3)" },
+    { id: "maintenance", label: "بلاغات صيانة (6)" },
+    { id: "extension", label: "تمديد إقامة (4)" },
+  ];
+
   return (
-    <div
-      className="bg-white rounded-[16px] p-2 sm:p-2.5 border border-[#E2E6DC]/80 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3"
-      dir="rtl"
-    >
-      {/* Right side (RTL start): Filter Chips Row */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none order-1 lg:order-1">
-        {/* All Filter */}
-        <button
-          type="button"
-          onClick={() => onFilterChange("all")}
-          className={cn(
-            "px-3.5 py-1.5 rounded-[12px] text-xs font-semibold font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-            activeFilter === "all"
-              ? "bg-[#34422A] text-white"
-              : "bg-[#EBEFE6] text-[#454840] hover:bg-[#E2E7DC]"
-          )}
-        >
-          الكل (18)
-        </button>
+    <>
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        searchPlaceholder="بحث باسم المستأجر، رقم الوحدة..."
+        tabs={tabs}
+        currentTab={activeFilter}
+        onTabChange={(id) => onFilterChange(id as WhatsAppTopFilter)}
+        onOpenAdvancedFilter={() => setIsDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية محادثات واتساب"
+        tabsLayoutId="whatsappFilterPill"
+      />
 
-        {/* Unread */}
-        <button
-          type="button"
-          onClick={() => onFilterChange("unread")}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] text-xs font-semibold font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-            activeFilter === "unread"
-              ? "bg-[#34422A] text-white"
-              : "bg-[#EBEFE6] text-[#454840] hover:bg-[#E2E7DC]"
-          )}
-        >
-          <span>غير مقروء</span>
-          <span
-            className={cn(
-              "px-1.5 py-0.2 rounded-full text-[10px] font-bold font-cairo",
-              activeFilter === "unread"
-                ? "bg-white text-[#34422A]"
-                : "bg-[#D8E8CB] text-[#121F0D]"
-            )}
-          >
-            3
-          </span>
-        </button>
-
-        {/* Maintenance */}
-        <button
-          type="button"
-          onClick={() => onFilterChange("maintenance")}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] text-xs font-semibold font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-            activeFilter === "maintenance"
-              ? "bg-[#34422A] text-white"
-              : "bg-[#EBEFE6] text-[#454840] hover:bg-[#E2E7DC]"
-          )}
-        >
-          <span>بلاغات صيانة</span>
-          <span
-            className={cn(
-              "px-1.5 py-0.2 rounded-full text-[10px] font-semibold font-cairo",
-              activeFilter === "maintenance"
-                ? "bg-white text-[#34422A]"
-                : "bg-[#DFE4DB] text-[#454840]"
-            )}
-          >
-            6
-          </span>
-        </button>
-
-        {/* Extension */}
-        <button
-          type="button"
-          onClick={() => onFilterChange("extension")}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] text-xs font-semibold font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-            activeFilter === "extension"
-              ? "bg-[#34422A] text-white"
-              : "bg-[#EBEFE6] text-[#454840] hover:bg-[#E2E7DC]"
-          )}
-        >
-          <span>تمديد إقامة</span>
-          <span
-            className={cn(
-              "px-1.5 py-0.2 rounded-full text-[10px] font-semibold font-cairo",
-              activeFilter === "extension"
-                ? "bg-white text-[#34422A]"
-                : "bg-[#DFE4DB] text-[#454840]"
-            )}
-          >
-            4
-          </span>
-        </button>
-      </div>
-
-      {/* Left side (RTL end): Property dropdown + Search Input */}
-      <div className="flex flex-wrap items-center gap-2 order-2 lg:order-2">
-        {/* Property Selector Dropdown */}
-        <div className="relative min-w-[180px]">
-          <select
-            value={selectedProperty}
-            onChange={(e) => onPropertyChange(e.target.value)}
-            className="w-full h-[34px] ps-3 pe-8 rounded-[12px] bg-[#EBEFE6] border border-transparent text-xs font-semibold text-[#75786F] focus:bg-white focus:border-[#CCD5C5] focus:outline-none focus:ring-1 focus:ring-[#34422A]/20 transition-all appearance-none cursor-pointer font-cairo"
-          >
-            <option value="all">جميع العقارات</option>
-            <option value="nakheel">عمارة النخيل السكنية</option>
-            <option value="malqa">برج الملقا الفاخر</option>
-            <option value="sahafa">مجمع الصحافة السكني</option>
-          </select>
-          <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-            <i className="lucide-icon icon-chevron-down w-[9px] h-[6px] text-[#75786F]" />
-          </div>
-        </div>
-
-        {/* Search Input */}
-        <div className="relative w-full sm:w-64">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="بحث باسم المستأجر، رقم الوحدة..."
-            className="w-full h-[34px] ps-3 pe-9 rounded-[12px] bg-[#EBEFE6] border border-transparent text-xs text-[#181D17] placeholder:text-[#75786F] focus:bg-white focus:border-[#CCD5C5] focus:outline-none focus:ring-1 focus:ring-[#34422A]/20 transition-all font-cairo"
-          />
-          <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-            <i className="lucide-icon icon-search w-[13.5px] h-[13.5px] text-[#75786F]" />
-          </div>
-        </div>
-      </div>
-    </div>
+      <WhatsAppFilterDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        filters={{
+          ...advancedFilters,
+          property: selectedProperty,
+        }}
+        onApplyFilters={(newFilters) => {
+          setAdvancedFilters(newFilters);
+          onPropertyChange(newFilters.property);
+        }}
+        onResetFilters={() => {
+          setAdvancedFilters({
+            property: "all",
+            conversationType: "all",
+            readStatus: "all",
+            windowStatus: "all",
+          });
+          onPropertyChange("all");
+        }}
+      />
+    </>
   );
 }

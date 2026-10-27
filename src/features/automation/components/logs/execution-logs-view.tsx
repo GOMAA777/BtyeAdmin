@@ -25,6 +25,7 @@ import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
 import { RetryExecutionModal } from "./modals/retry-execution-modal";
 import { AutomationEmptyStateCard } from "../automation-empty-state-card";
+import { ExecutionLogsFilterDrawer } from "./execution-logs-filter-drawer";
 import {
   ExecutionLogsDocumentIcon,
   MetaVerifiedBadgeIcon,
@@ -39,7 +40,14 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
   const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "in_progress">("all");
+  const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
+  const [propertyFilter, setPropertyFilter] = useState<string>("all");
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const activeFiltersCount =
+    (actionTypeFilter !== "all" ? 1 : 0) +
+    (propertyFilter !== "all" ? 1 : 0);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,9 +80,15 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
       const matchesStatus =
         statusFilter === "all" || log.status === statusFilter;
 
-      return matchesSearch && matchesStatus;
+      const matchesAction =
+        actionTypeFilter === "all" || log.actionType === actionTypeFilter;
+
+      const matchesProperty =
+        propertyFilter === "all" || log.propertyName === propertyFilter;
+
+      return matchesSearch && matchesStatus && matchesAction && matchesProperty;
     });
-  }, [logs, searchQuery, statusFilter]);
+  }, [logs, searchQuery, statusFilter, actionTypeFilter, propertyFilter]);
 
   const totalFiltered = filteredLogs.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
@@ -178,6 +192,9 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         tabs={logTabs}
         currentTab={statusFilter}
         onTabChange={(id) => setStatusFilter(id as "all" | "success" | "failed" | "in_progress")}
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية سجلات التنفيذ المتقدمة"
         tabsLayoutId="executionLogsFilterPill"
       />
 
@@ -451,6 +468,28 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
           log={retryTargetLog}
         />
       )}
+
+      {/* Advanced Filter Drawer */}
+      <ExecutionLogsFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={{
+          status: statusFilter,
+          actionType: actionTypeFilter,
+          propertyName: propertyFilter,
+        }}
+        onApplyFilters={(newFilters) => {
+          setStatusFilter(newFilters.status as any);
+          setActionTypeFilter(newFilters.actionType);
+          setPropertyFilter(newFilters.propertyName);
+        }}
+        onResetFilters={() => {
+          setStatusFilter("all");
+          setActionTypeFilter("all");
+          setPropertyFilter("all");
+        }}
+        totalResultsCount={totalFiltered}
+      />
     </div>
   );
 }

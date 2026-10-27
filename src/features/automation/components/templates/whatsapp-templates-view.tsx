@@ -31,6 +31,7 @@ import { AutomationTabsNav } from "../automation-tabs-nav";
 import { PreviewTemplateModal } from "./modals/preview-template-modal";
 import { PauseTemplateModal } from "./modals/pause-template-modal";
 import { AutomationEmptyStateCard } from "../automation-empty-state-card";
+import { WhatsAppTemplatesFilterDrawer } from "./whatsapp-templates-filter-drawer";
 import {
   WhatsAppCaptionsIcon,
   MetaPolicyShieldIcon,
@@ -48,8 +49,15 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [languageFilter, setLanguageFilter] = useState<string>("all");
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isEmptyPreview, setIsEmptyPreview] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+
+  const activeFiltersCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (languageFilter !== "all" ? 1 : 0);
 
   // Active open dropdown menu template id
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -90,9 +98,15 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
       const matchesCategory =
         selectedCategory === "all" || template.category === selectedCategory;
 
-      return matchesSearch && matchesCategory;
+      const matchesStatus =
+        statusFilter === "all" || template.status === statusFilter;
+
+      const matchesLanguage =
+        languageFilter === "all" || template.language === languageFilter;
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesLanguage;
     });
-  }, [templates, searchQuery, selectedCategory]);
+  }, [templates, searchQuery, selectedCategory, statusFilter, languageFilter]);
 
   const totalFiltered = filteredTemplates.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
@@ -208,6 +222,9 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         tabs={categories}
         currentTab={selectedCategory}
         onTabChange={setSelectedCategory}
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية قوالب واتساب المتقدمة"
         tabsLayoutId="whatsappTemplatesCategoryPill"
       />
 
@@ -472,6 +489,28 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           templateTitle={pauseTargetTemplate.title}
         />
       )}
+
+      {/* Advanced Filter Drawer */}
+      <WhatsAppTemplatesFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={{
+          category: selectedCategory,
+          status: statusFilter,
+          language: languageFilter,
+        }}
+        onApplyFilters={(newFilters) => {
+          setSelectedCategory(newFilters.category);
+          setStatusFilter(newFilters.status);
+          setLanguageFilter(newFilters.language);
+        }}
+        onResetFilters={() => {
+          setSelectedCategory("all");
+          setStatusFilter("all");
+          setLanguageFilter("all");
+        }}
+        totalResultsCount={totalFiltered}
+      />
     </div>
   );
 }
