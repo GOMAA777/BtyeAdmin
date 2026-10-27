@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster as Sonner, ToasterProps, toast } from "sonner";
-import { CheckCircle2, X, Info, AlertCircle, XCircle } from "lucide-react";
+import { CheckCircle2, X, Info, AlertCircle, XCircle, Loader2 } from "lucide-react";
 
 export interface CustomToastProps {
   title?: string;
@@ -25,7 +25,7 @@ export function showFigmaSuccessToast({
     (t) => (
       <div
         dir="rtl"
-        className="bg-[#2d322c] drop-shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] w-[360px] max-w-[calc(100vw-32px)] py-2.5 px-3 flex items-center justify-between gap-2.5 text-right select-none border border-[#3d453b]/60 font-cairo shadow-xl"
+        className="bg-[#2d322c] drop-shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] w-[360px] max-w-[calc(100vw-32px)] py-2.5 px-3.5 flex items-center justify-between gap-3 text-right select-none border border-[#3d453b]/60 font-cairo shadow-xl"
         data-node-id="1:28510"
         data-name="NOTIFICATION (Fixed Viewport Indicator)"
       >
@@ -82,6 +82,10 @@ export function Toaster({ ...props }: ToasterProps) {
           "--normal-bg": "#2d322c",
           "--normal-text": "#eef2e9",
           "--normal-border": "rgba(61, 69, 59, 0.6)",
+          "--toast-icon-margin-start": "0px",
+          "--toast-icon-margin-end": "0px",
+          "--toast-svg-margin-start": "0px",
+          "--toast-svg-margin-end": "0px",
         } as React.CSSProperties
       }
       icons={{
@@ -105,6 +109,11 @@ export function Toaster({ ...props }: ToasterProps) {
             <XCircle className="w-4 h-4 text-[#fca5a5]" />
           </div>
         ),
+        loading: (
+          <div className="bg-[rgba(75,89,64,0.3)] border border-[#4b5940]/40 rounded-[10px] size-[30px] flex items-center justify-center shrink-0 text-[#d8e8c7]">
+            <Loader2 className="w-4 h-4 animate-spin text-[#d8e8c7]" />
+          </div>
+        ),
       }}
       toastOptions={{
         style: {
@@ -115,9 +124,11 @@ export function Toaster({ ...props }: ToasterProps) {
         },
         classNames: {
           toast:
-            "group toast select-none cursor-grab active:cursor-grabbing !bg-[#2d322c] !text-[#eef2e9] !border-[#3d453b]/60 shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] py-2.5 px-3.5 border font-cairo overflow-visible gap-2.5",
+            "group toast select-none cursor-grab active:cursor-grabbing !bg-[#2d322c] !text-[#eef2e9] !border-[#3d453b]/60 shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] py-2.5 px-3.5 border font-cairo overflow-visible !gap-3",
+          icon: "!size-auto !w-auto !h-auto !m-0 shrink-0 flex items-center justify-center",
+          content: "flex-1 min-w-0 !gap-0.5",
           title:
-            "!text-[#eef2e9] text-[12.5px] font-bold leading-snug",
+            "!text-[#eef2e9] text-[13px] font-bold leading-snug font-cairo",
           description:
             "!text-[#eef2e9]/75 text-[11px] mt-0.5 font-cairo leading-relaxed",
           actionButton:
@@ -128,6 +139,8 @@ export function Toaster({ ...props }: ToasterProps) {
             "!-top-2 !-left-2 !right-auto !bottom-auto !transform-none !bg-[#373e35] !text-[#eef2e9] hover:!text-white hover:!bg-[#4b5940] !border !border-[#4b5940]/60 !shadow-md !cursor-pointer !size-5 !rounded-full !flex !items-center !justify-center !transition-all !z-20",
           info: "!border-[#3d453b]/60",
           success: "!border-[#4b5940]/60",
+          error: "!border-[rgba(239,68,68,0.4)]",
+          warning: "!border-[rgba(217,119,6,0.4)]",
         },
       }}
       {...props}
