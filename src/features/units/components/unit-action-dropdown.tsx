@@ -2,7 +2,16 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { MoreVertical, Eye } from "lucide-react";
+import {
+  MoreVertical,
+  Eye,
+  Building2,
+  User,
+  CalendarDays,
+  KeyRound,
+  ClipboardList,
+  History,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { APP_CONFIG } from "@/lib/constants";
@@ -151,37 +160,37 @@ export function UnitActionDropdown({ unit }: UnitActionDropdownProps) {
     },
     {
       label: "عرض العقار",
-      icon: Eye,
+      icon: Building2,
       href: `/properties/${unit.propertyId}/`,
       onClick: () => toast.info(`عرض عقار: ${unit.propertyName}`),
     },
     {
       label: "عرض المالك",
-      icon: Eye,
+      icon: User,
       href: `/owners/${unit.ownerId}/`,
       onClick: () => toast.info(`عرض مالك: ${unit.ownerName}`),
     },
     {
       label: "عرض الحجوزات",
-      icon: Eye,
+      icon: CalendarDays,
       href: `/bookings/?unit=${unit.unitNumber}`,
       onClick: () => toast.info(`عرض حجوزات الوحدة رقم: ${unit.unitNumber}`),
     },
     {
       label: "إدارة كود الدخول",
-      icon: Eye,
+      icon: KeyRound,
       href: `/units/${unit.id}/`,
       onClick: () => toast.info(`إدارة كود الدخول للوحدة: ${unit.unitNumber}`),
     },
     {
       label: "عرض سجل العمليات",
-      icon: Eye,
+      icon: ClipboardList,
       href: `/units/${unit.id}/`,
       onClick: () => toast.info(`سجل العمليات للوحدة: ${unit.unitNumber}`),
     },
     {
       label: "عرض سجل النشاط",
-      icon: Eye,
+      icon: History,
       href: `/units/${unit.id}/`,
       onClick: () => toast.info(`سجل النشاط للوحدة: ${unit.unitNumber}`),
     },
