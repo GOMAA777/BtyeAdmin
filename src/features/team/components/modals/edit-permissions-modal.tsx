@@ -165,7 +165,7 @@ export function EditPermissionsModal({
                       </div>
                     </div>
                     <span
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-full font-cairo ${
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-full font-cairo whitespace-nowrap ${
                         isSelected
                           ? "bg-[#d8e8c7] text-[#131f0b]"
                           : "bg-[#dfe4db] text-[#454840]"

@@ -312,7 +312,7 @@ export function TeamOverviewView() {
               {/* Col 2: Role Badge */}
               <div className="lg:col-span-1 flex lg:justify-center">
                 <span
-                  className={`text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 font-cairo ${
+                  className={`text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 font-cairo whitespace-nowrap ${
                     member.role === "cleaner"
                       ? "bg-[#d8e8c7] text-[#131f0b]"
                       : member.role === "maintenance"
@@ -341,7 +341,7 @@ export function TeamOverviewView() {
                 >
                   <MessageSquare className="size-3.5" />
                 </button>
-                <span className="text-[12px] font-bold text-[#181d17] font-cairo" dir="ltr">
+                <span className="text-[12px] font-bold text-[#181d17] font-cairo whitespace-nowrap" dir="ltr">
                   {member.whatsapp}
                 </span>
                 <button
@@ -366,14 +366,14 @@ export function TeamOverviewView() {
 
               {/* Col 5: Units Scope */}
               <div className="lg:col-span-1 flex lg:justify-center">
-                <span className="bg-[#ebefe6] text-[#454840] text-[11px] font-semibold px-2 py-1 rounded-[8px] font-cairo">
+                <span className="bg-[#ebefe6] text-[#454840] text-[11px] font-semibold px-2 py-1 rounded-[8px] font-cairo whitespace-nowrap">
                   {member.unitsScope}
                 </span>
               </div>
 
               {/* Col 6: Open Tasks */}
               <div className="lg:col-span-1 flex lg:justify-center">
-                <span className="bg-[#f2e1c0] text-[#231a06] text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1.5 font-cairo">
+                <span className="bg-[#f2e1c0] text-[#231a06] text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1.5 font-cairo whitespace-nowrap">
                   <span className="size-1.5 rounded-full bg-[#e99a38]" />
                   <span>{member.openTasksLabel}</span>
                 </span>
@@ -382,7 +382,7 @@ export function TeamOverviewView() {
               {/* Col 7: Status */}
               <div className="lg:col-span-1 flex lg:justify-center">
                 <span
-                  className={`text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 font-cairo ${
+                  className={`text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 font-cairo whitespace-nowrap ${
                     member.status === "active"
                       ? "bg-[#f1f5eb] text-[#065f46]"
                       : member.status === "suspended"
