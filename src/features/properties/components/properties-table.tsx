@@ -144,11 +144,8 @@ export function PropertiesTable() {
                           {property.ownerInitials}
                         </div>
                         <div>
-                          <div className="flex items-center gap-1.5 text-right">
-                            <span className="font-bold text-[14px] leading-[20px] text-[#1E241C]">
-                              {property.ownerName}
-                            </span>
-                            <i className="lucide-icon icon-external-link w-3.5 h-3.5 opacity-80" />
+                          <div className="font-bold text-[14px] leading-[20px] text-[#1E241C] text-right">
+                            {property.ownerName}
                           </div>
                           <div className="text-[11px] font-normal leading-[16px] text-[#73786F] mt-0.5 text-right">
                             {property.ownerEmail}
