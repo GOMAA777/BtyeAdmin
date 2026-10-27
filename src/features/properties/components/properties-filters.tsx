@@ -16,6 +16,7 @@ interface PropertiesFiltersProps {
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
   onResetFilter?: () => void;
+  isLoading?: boolean;
 }
 
 export function PropertiesFilters({
@@ -27,12 +28,13 @@ export function PropertiesFilters({
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
   onResetFilter,
+  isLoading = false,
 }: PropertiesFiltersProps) {
   const tabs = [
-    { id: "all", label: `الكل (${counts.all})` },
-    { id: "active", label: `نشط (${counts.active})` },
-    { id: "inactive", label: `غير نشط (${counts.inactive})` },
-    { id: "archived", label: `مؤرشف (${counts.archived})` },
+    { id: "all", label: isLoading ? "الكل" : `الكل (${counts.all})` },
+    { id: "active", label: isLoading ? "نشط" : `نشط (${counts.active})` },
+    { id: "inactive", label: isLoading ? "غير نشط" : `غير نشط (${counts.inactive})` },
+    { id: "archived", label: isLoading ? "مؤرشف" : `مؤرشف (${counts.archived})` },
   ];
 
   return (

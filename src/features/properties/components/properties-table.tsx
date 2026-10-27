@@ -80,6 +80,7 @@ export function PropertiesTable() {
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         onResetFilter={handleResetFilters}
+        isLoading={isLoading}
       />
 
       {/* 2. Main High-Fidelity Table Container */}

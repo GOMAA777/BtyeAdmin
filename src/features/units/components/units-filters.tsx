@@ -17,6 +17,7 @@ interface UnitsFiltersProps {
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
   onResetFilter?: () => void;
+  isLoading?: boolean;
 }
 
 export function UnitsFilters({
@@ -28,13 +29,14 @@ export function UnitsFilters({
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
   onResetFilter,
+  isLoading = false,
 }: UnitsFiltersProps) {
   const tabs = [
-    { id: "all", label: `الكل (${counts.all})` },
-    { id: "available", label: `متاحة (${counts.available})` },
-    { id: "occupied", label: `مشغولة (${counts.occupied})` },
-    { id: "cleaning", label: `تحت التنظيف (${counts.cleaning})` },
-    { id: "maintenance", label: `تحت الصيانة (${counts.maintenance})` },
+    { id: "all", label: isLoading ? "الكل" : `الكل (${counts.all})` },
+    { id: "available", label: isLoading ? "متاحة" : `متاحة (${counts.available})` },
+    { id: "occupied", label: isLoading ? "مشغولة" : `مشغولة (${counts.occupied})` },
+    { id: "cleaning", label: isLoading ? "تحت التنظيف" : `تحت التنظيف (${counts.cleaning})` },
+    { id: "maintenance", label: isLoading ? "تحت الصيانة" : `تحت الصيانة (${counts.maintenance})` },
   ];
 
   return (

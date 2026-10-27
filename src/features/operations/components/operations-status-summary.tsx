@@ -11,17 +11,19 @@ interface OperationsStatusSummaryProps {
     cleaning: number;
     maintenance: number;
   };
+  isLoading?: boolean;
 }
 
 export function OperationsStatusSummary({
   currentCategory,
   onCategoryChange,
   counts,
+  isLoading = false,
 }: OperationsStatusSummaryProps) {
   const tabs = [
-    { id: "all", label: "كل العمليات", badge: counts.all },
-    { id: "cleaning", label: "التنظيف", badge: counts.cleaning },
-    { id: "maintenance", label: "الصيانة", badge: counts.maintenance },
+    { id: "all", label: "كل العمليات", badge: isLoading ? undefined : counts.all },
+    { id: "cleaning", label: "التنظيف", badge: isLoading ? undefined : counts.cleaning },
+    { id: "maintenance", label: "الصيانة", badge: isLoading ? undefined : counts.maintenance },
   ];
 
   return (

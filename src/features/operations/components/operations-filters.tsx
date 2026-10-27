@@ -17,6 +17,7 @@ interface OperationsFiltersProps {
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
   onResetFilter?: () => void;
+  isLoading?: boolean;
 }
 
 export function OperationsFilters({
@@ -28,12 +29,13 @@ export function OperationsFilters({
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
   onResetFilter,
+  isLoading = false,
 }: OperationsFiltersProps) {
   const subFilters = [
-    { id: "all", label: `الكل (${subCounts.all})` },
-    { id: "pending", label: `قيد الانتظار (${subCounts.pending})` },
-    { id: "current", label: `الحالية (${subCounts.current})` },
-    { id: "in_progress", label: `جاري التنفيذ (${subCounts.in_progress})` },
+    { id: "all", label: isLoading ? "الكل" : `الكل (${subCounts.all})` },
+    { id: "pending", label: isLoading ? "قيد الانتظار" : `قيد الانتظار (${subCounts.pending})` },
+    { id: "current", label: isLoading ? "الحالية" : `الحالية (${subCounts.current})` },
+    { id: "in_progress", label: isLoading ? "جاري التنفيذ" : `جاري التنفيذ (${subCounts.in_progress})` },
   ];
 
   return (

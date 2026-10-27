@@ -40,6 +40,7 @@ export function OperationsBoardView() {
         currentCategory={categoryFilter}
         onCategoryChange={setCategoryFilter}
         counts={counts}
+        isLoading={isLoading}
       />
 
       {/* 3. Search, Filter Button, and Sub Status Pills */}
@@ -52,6 +53,7 @@ export function OperationsBoardView() {
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         onResetFilter={handleResetAdvancedFilters}
+        isLoading={isLoading}
       />
 
       {/* 4. Table */}

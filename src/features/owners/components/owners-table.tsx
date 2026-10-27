@@ -80,6 +80,7 @@ export function OwnersTable() {
         onOpenAdvancedFilter={() => setIsDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         onResetFilter={handleResetAdvancedFilters}
+        isLoading={isLoading}
       />
 
       {/* Advanced Filter Drawer (Opens from LEFT - opposite of the sidebar) */}

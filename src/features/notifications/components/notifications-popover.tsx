@@ -87,6 +87,7 @@ export function NotificationsPopover() {
 
   const {
     notifications,
+    hasHydrated,
     markAsRead,
     markAllAsRead,
   } = useNotificationsStore();
@@ -103,8 +104,8 @@ export function NotificationsPopover() {
   }, [pathname]);
 
   const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
-    [notifications]
+    () => (isMounted && hasHydrated ? notifications.filter((n) => !n.read).length : 0),
+    [notifications, isMounted, hasHydrated]
   );
 
   const filteredList = useMemo(() => {
@@ -224,7 +225,7 @@ export function NotificationsPopover() {
         <Bell className="w-4 h-4" />
 
         {/* Live Red Badge with count */}
-        {unreadCount > 0 && (
+        {isMounted && hasHydrated && unreadCount > 0 && (
           <span className="absolute -top-1 -start-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#C02828] text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white shadow-xs animate-in zoom-in-75 duration-200">
             {unreadCount > 9 ? "+9" : unreadCount}
           </span>

@@ -140,7 +140,11 @@ export function TeamOverviewView() {
               </span>
               <div className="flex items-baseline gap-1 mt-1 justify-end">
                 <span className="text-[40px] font-bold text-[#231a06] leading-none font-cairo">
-                  {stats.runningTasksCount}
+                  {isLoading ? (
+                    <span className="inline-block w-12 h-9 bg-[#f2e1c0]/60 rounded-lg animate-pulse" />
+                  ) : (
+                    stats.runningTasksCount
+                  )}
                 </span>
                 <span className="text-[14px] text-[#6f6349] font-normal font-cairo">
                   مهمة عمل
@@ -151,12 +155,12 @@ export function TeamOverviewView() {
           <div className="flex items-center gap-3 text-[11px] font-medium text-[#6f6349] font-cairo pt-2 border-t border-[#f2e1c0]/50">
             <div className="flex items-center gap-1">
               <Wrench className="size-3" />
-              <span>{stats.maintenanceTasksCount} صيانة</span>
+              <span>{isLoading ? "—" : `${stats.maintenanceTasksCount} صيانة`}</span>
             </div>
             <span className="size-1 rounded-full bg-[#d5c5a5]" />
             <div className="flex items-center gap-1">
               <Sparkles className="size-3" />
-              <span>{stats.cleaningTasksCount} تنظيف</span>
+              <span>{isLoading ? "—" : `${stats.cleaningTasksCount} تنظيف`}</span>
             </div>
           </div>
         </div>
@@ -173,7 +177,11 @@ export function TeamOverviewView() {
               </span>
               <div className="flex items-baseline gap-1 mt-1 justify-end">
                 <span className="text-[40px] font-bold text-[#181d17] leading-none font-cairo">
-                  {stats.pausedOrLeaveCount}
+                  {isLoading ? (
+                    <span className="inline-block w-12 h-9 bg-[#dfe4db]/60 rounded-lg animate-pulse" />
+                  ) : (
+                    stats.pausedOrLeaveCount
+                  )}
                 </span>
                 <span className="text-[14px] text-[#75786f] font-normal font-cairo">
                   غير متاحين مؤقتاً
@@ -199,7 +207,11 @@ export function TeamOverviewView() {
               </span>
               <div className="flex items-baseline gap-1 mt-1 justify-end">
                 <span className="text-[40px] font-bold text-[#181d17] leading-none font-cairo">
-                  {stats.activeMembers}
+                  {isLoading ? (
+                    <span className="inline-block w-12 h-9 bg-[#dfe4db]/60 rounded-lg animate-pulse" />
+                  ) : (
+                    stats.activeMembers
+                  )}
                 </span>
                 <span className="text-[14px] text-[#34422a] font-bold font-cairo">
                   جاهزون للمهام
@@ -225,7 +237,11 @@ export function TeamOverviewView() {
               </span>
               <div className="flex items-baseline gap-1 mt-1 justify-end">
                 <span className="text-[40px] font-bold text-[#181d17] leading-none font-cairo">
-                  {stats.totalMembers}
+                  {isLoading ? (
+                    <span className="inline-block w-12 h-9 bg-[#dfe4db]/60 rounded-lg animate-pulse" />
+                  ) : (
+                    stats.totalMembers
+                  )}
                 </span>
                 <span className="text-[14px] text-[#75786f] font-normal font-cairo">
                   عضواً مسجلاً
@@ -256,6 +272,7 @@ export function TeamOverviewView() {
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         onResetFilter={resetFilters}
+        isLoading={isLoading}
       />
 
       {/* SECTION 4: DATA TABLE */}

@@ -16,6 +16,7 @@ interface TeamFiltersProps {
   onOpenAdvancedFilter: () => void;
   activeFiltersCount?: number;
   onResetFilter?: () => void;
+  isLoading?: boolean;
 }
 
 export function TeamFilters({
@@ -27,12 +28,13 @@ export function TeamFilters({
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
   onResetFilter,
+  isLoading = false,
 }: TeamFiltersProps) {
   const tabs = [
-    { id: "all", label: `الكل (${counts.all})` },
-    { id: "active", label: `نشط (${counts.active})` },
-    { id: "pending", label: `بانتظار المراجعة (${counts.pending})` },
-    { id: "inactive", label: `غير نشط (${counts.inactive})` },
+    { id: "all", label: isLoading ? "الكل" : `الكل (${counts.all})` },
+    { id: "active", label: isLoading ? "نشط" : `نشط (${counts.active})` },
+    { id: "pending", label: isLoading ? "بانتظار المراجعة" : `بانتظار المراجعة (${counts.pending})` },
+    { id: "inactive", label: isLoading ? "غير نشط" : `غير نشط (${counts.inactive})` },
   ];
 
   return (

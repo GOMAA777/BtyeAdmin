@@ -128,6 +128,7 @@ export function NotificationsView() {
   const router = useRouter();
   const {
     notifications,
+    hasHydrated,
     markAsRead,
     markAsUnread,
     markAllAsRead,
@@ -136,7 +137,7 @@ export function NotificationsView() {
     resetToDefault,
   } = useNotificationsStore();
 
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydrated = hasHydrated;
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<NotificationFilterTab>("all");
   const [viewMode, setViewMode] = useState<"cards" | "compact">("cards");
@@ -145,10 +146,6 @@ export function NotificationsView() {
   const [advancedFilters, setAdvancedFilters] = useState<NotificationsFilterState>(
     initialNotificationsFilterState
   );
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   // Active filters count for "شكل الفلتر" badge
   const activeFiltersCount = useMemo(() => {
@@ -159,25 +156,29 @@ export function NotificationsView() {
     return count;
   }, [advancedFilters]);
 
-  // Stats calculation
-  const totalCount = notifications.length;
+  // Stats calculation (strictly guarded by isHydrated to prevent phantom numbers on initial load)
+  const totalCount = isHydrated ? notifications.length : 0;
   const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
-    [notifications]
+    () => (isHydrated ? notifications.filter((n) => !n.read).length : 0),
+    [notifications, isHydrated]
   );
   const urgentCount = useMemo(
     () =>
-      notifications.filter(
-        (n) => n.priority === "urgent" || n.category === "operations"
-      ).length,
-    [notifications]
+      isHydrated
+        ? notifications.filter(
+            (n) => n.priority === "urgent" || n.category === "operations"
+          ).length
+        : 0,
+    [notifications, isHydrated]
   );
   const financeAndBookingCount = useMemo(
     () =>
-      notifications.filter(
-        (n) => n.category === "bookings" || n.category === "billing"
-      ).length,
-    [notifications]
+      isHydrated
+        ? notifications.filter(
+            (n) => n.category === "bookings" || n.category === "billing"
+          ).length
+        : 0,
+    [notifications, isHydrated]
   );
 
   // Filtered Notifications combining Tabs, Advanced Drawer Filters, and Search
@@ -293,35 +294,45 @@ export function NotificationsView() {
   // Concise tab labels so ALL elements fit on the SAME line without wrapping
   const tabs: AnimatedTabItem[] = useMemo(
     () => [
-      { id: "all", label: "الكل", badge: totalCount },
-      { id: "unread", label: "غير مقروءة", badge: unreadCount },
+      { id: "all", label: "الكل", badge: isHydrated ? totalCount : undefined },
+      { id: "unread", label: "غير مقروءة", badge: isHydrated ? unreadCount : undefined },
       {
         id: "bookings",
         label: "الحجوزات",
-        badge: notifications.filter((n) => n.category === "bookings").length,
+        badge: isHydrated
+          ? notifications.filter((n) => n.category === "bookings").length
+          : undefined,
       },
       {
         id: "operations",
         label: "العمليات",
-        badge: notifications.filter((n) => n.category === "operations").length,
+        badge: isHydrated
+          ? notifications.filter((n) => n.category === "operations").length
+          : undefined,
       },
       {
         id: "billing",
         label: "المالية",
-        badge: notifications.filter((n) => n.category === "billing").length,
+        badge: isHydrated
+          ? notifications.filter((n) => n.category === "billing").length
+          : undefined,
       },
       {
         id: "automation",
         label: "الأتمتة",
-        badge: notifications.filter((n) => n.category === "automation").length,
+        badge: isHydrated
+          ? notifications.filter((n) => n.category === "automation").length
+          : undefined,
       },
       {
         id: "system",
         label: "النظام",
-        badge: notifications.filter((n) => n.category === "system").length,
+        badge: isHydrated
+          ? notifications.filter((n) => n.category === "system").length
+          : undefined,
       },
     ],
-    [totalCount, unreadCount, notifications]
+    [totalCount, unreadCount, notifications, isHydrated]
   );
 
   return (
@@ -392,7 +403,13 @@ export function NotificationsView() {
         <div className="bg-white p-4 rounded-2xl border border-[#DCE2D7] shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-[#687163]">إجمالي الإشعارات</span>
-            <div className="text-2xl font-bold text-[#252A24] mt-1">{totalCount}</div>
+            <div className="text-2xl font-bold text-[#252A24] mt-1">
+              {!isHydrated ? (
+                <span className="inline-block w-8 h-7 bg-[#EFF2EB] rounded animate-pulse" />
+              ) : (
+                totalCount
+              )}
+            </div>
           </div>
           <div className="w-11 h-11 rounded-xl bg-[#EFF2EB] text-[#4B5940] flex items-center justify-center">
             <Bell className="w-5 h-5" />
@@ -403,7 +420,13 @@ export function NotificationsView() {
         <div className="bg-white p-4 rounded-2xl border border-[#DCE2D7] shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-[#687163]">تنبيهات غير مقروءة</span>
-            <div className="text-2xl font-bold text-[#C02828] mt-1">{unreadCount}</div>
+            <div className="text-2xl font-bold text-[#C02828] mt-1">
+              {!isHydrated ? (
+                <span className="inline-block w-8 h-7 bg-[#EFF2EB] rounded animate-pulse" />
+              ) : (
+                unreadCount
+              )}
+            </div>
           </div>
           <div className="w-11 h-11 rounded-xl bg-[#C02828]/10 text-[#C02828] flex items-center justify-center">
             <Clock className="w-5 h-5" />
@@ -414,7 +437,13 @@ export function NotificationsView() {
         <div className="bg-white p-4 rounded-2xl border border-[#DCE2D7] shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-[#687163]">بلاغات الصيانة والتشغيل</span>
-            <div className="text-2xl font-bold text-amber-700 mt-1">{urgentCount}</div>
+            <div className="text-2xl font-bold text-amber-700 mt-1">
+              {!isHydrated ? (
+                <span className="inline-block w-8 h-7 bg-[#EFF2EB] rounded animate-pulse" />
+              ) : (
+                urgentCount
+              )}
+            </div>
           </div>
           <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
             <Wrench className="w-5 h-5" />
@@ -426,7 +455,11 @@ export function NotificationsView() {
           <div>
             <span className="text-xs font-medium text-[#687163]">حجوزات وفوترة مالية</span>
             <div className="text-2xl font-bold text-[#4B5940] mt-1">
-              {financeAndBookingCount}
+              {!isHydrated ? (
+                <span className="inline-block w-8 h-7 bg-[#EFF2EB] rounded animate-pulse" />
+              ) : (
+                financeAndBookingCount
+              )}
             </div>
           </div>
           <div className="w-11 h-11 rounded-xl bg-[#4B5940]/10 text-[#4B5940] flex items-center justify-center">

@@ -138,11 +138,11 @@ export function MainBookingsPageView({
         filterButtonTitle="تصفية الحجوزات"
         onResetFilter={handleResetFilters}
         tabs={[
-          { id: "all", label: `الكل (${statusCounts.all})` },
-          { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },
-          { id: "active", label: `الحالية (${statusCounts.active})` },
-          { id: "completed", label: `المنتهية (${statusCounts.completed})` },
-          { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
+          { id: "all", label: isLoading ? "الكل" : `الكل (${statusCounts.all})` },
+          { id: "upcoming", label: isLoading ? "القادمة" : `القادمة (${statusCounts.upcoming})` },
+          { id: "active", label: isLoading ? "الحالية" : `الحالية (${statusCounts.active})` },
+          { id: "completed", label: isLoading ? "المنتهية" : `المنتهية (${statusCounts.completed})` },
+          { id: "cancelled", label: isLoading ? "الملغاة" : `الملغاة (${statusCounts.cancelled})` },
         ]}
         currentTab={filterStatus}
         onTabChange={(id) => {

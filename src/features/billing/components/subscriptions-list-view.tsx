@@ -119,14 +119,14 @@ export function SubscriptionsListView() {
 
   const billingTabs = useMemo(
     () => [
-      { id: "all", label: `الكل (${subCounts.total})` },
-      { id: "active", label: `نشطة (${subCounts.active})` },
-      { id: "trial", label: `تجريبية (${subCounts.trial})` },
-      { id: "expiring_soon", label: `منتهية (${subCounts.expiring})` },
-      { id: "paused", label: `موقوفة (${subCounts.paused})` },
-      { id: "cancelled", label: `ملغاة (${subCounts.cancelled})` },
+      { id: "all", label: isLoading ? "الكل" : `الكل (${subCounts.total})` },
+      { id: "active", label: isLoading ? "نشطة" : `نشطة (${subCounts.active})` },
+      { id: "trial", label: isLoading ? "تجريبية" : `تجريبية (${subCounts.trial})` },
+      { id: "expiring_soon", label: isLoading ? "منتهية" : `منتهية (${subCounts.expiring})` },
+      { id: "paused", label: isLoading ? "موقوفة" : `موقوفة (${subCounts.paused})` },
+      { id: "cancelled", label: isLoading ? "ملغاة" : `ملغاة (${subCounts.cancelled})` },
     ],
-    [subCounts]
+    [subCounts, isLoading]
   );
 
   const handleRefresh = () => {
@@ -282,7 +282,11 @@ export function SubscriptionsListView() {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.total}</span>
+            {isLoading ? (
+              <span className="inline-block w-12 h-8 bg-[#f1f5eb] rounded animate-pulse" />
+            ) : (
+              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.total}</span>
+            )}
             <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#f1f5eb] text-[#454840]">
               كل المسجل
             </span>
@@ -299,10 +303,16 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.active}</span>
-              <span className="size-2.5 rounded-full bg-[#059669]" />
+              {isLoading ? (
+                <span className="inline-block w-12 h-8 bg-[#f1f5eb] rounded animate-pulse" />
+              ) : (
+                <>
+                  <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.active}</span>
+                  <span className="size-2.5 rounded-full bg-[#059669]" />
+                </>
+              )}
             </div>
-            <span className="text-[11px] font-medium text-[#54624c]">{subCounts.activePct}</span>
+            {!isLoading && <span className="text-[11px] font-medium text-[#54624c]">{subCounts.activePct}</span>}
           </div>
         </div>
 
@@ -316,8 +326,14 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.trial}</span>
-              <span className="size-2.5 rounded-full bg-[#3b82f6]" />
+              {isLoading ? (
+                <span className="inline-block w-12 h-8 bg-[#f1f5eb] rounded animate-pulse" />
+              ) : (
+                <>
+                  <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.trial}</span>
+                  <span className="size-2.5 rounded-full bg-[#3b82f6]" />
+                </>
+              )}
             </div>
             <span className="text-[11px] font-medium text-[#454840]">فترة مجانية</span>
           </div>
@@ -333,8 +349,14 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.expiring}</span>
-              <span className="size-2.5 rounded-full bg-[#ba1a1a]" />
+              {isLoading ? (
+                <span className="inline-block w-12 h-8 bg-[#f1f5eb] rounded animate-pulse" />
+              ) : (
+                <>
+                  <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.expiring}</span>
+                  <span className="size-2.5 rounded-full bg-[#ba1a1a]" />
+                </>
+              )}
             </div>
             <span className="text-[11px] font-medium text-[#ba1a1a]">بحاجة للتجديد</span>
           </div>
@@ -350,8 +372,14 @@ export function SubscriptionsListView() {
           </div>
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.paused}</span>
-              <span className="size-2.5 rounded-full bg-[#f59e0b]" />
+              {isLoading ? (
+                <span className="inline-block w-12 h-8 bg-[#f1f5eb] rounded animate-pulse" />
+              ) : (
+                <>
+                  <span className="text-[30px] font-bold text-[#181d17] leading-[42px]">{subCounts.paused}</span>
+                  <span className="size-2.5 rounded-full bg-[#f59e0b]" />
+                </>
+              )}
             </div>
             <span className="text-[11px] font-medium text-[#454840]">تعليق إداري</span>
           </div>
