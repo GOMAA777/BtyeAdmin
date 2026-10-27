@@ -1,14 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { AutomationRule } from "../types";
-import { initialAutomationRules } from "../data/mock-automation";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
-export function useAutomationRulesManager(
-  initialRules: AutomationRule[] = initialAutomationRules
-) {
-  const [rules, setRules] = useState<AutomationRule[]>(initialRules);
+const emptyRules: AutomationRule[] = [];
+
+export function useAutomationRulesManager(initialRules?: AutomationRule[]) {
+  const storeRules = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().automationRules,
+    () => emptyRules
+  );
+  const rules = initialRules || storeRules;
+
+  useEffect(() => {
+    ensureStoreHydrated();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -100,30 +110,31 @@ export function useAutomationRulesManager(
 
   const confirmPause = () => {
     if (activeRuleForModal) {
-      setRules((prev) =>
-        prev.map((r) =>
-          r.id === activeRuleForModal.id ? { ...r, status: "paused" } : r
-        )
-      );
+      useAppDataStore.getState().updateAutomationRule(activeRuleForModal.id, {
+        status: "paused",
+        statusLabel: "متوقفة",
+      });
       toast.success(`تم إيقاف القاعدة: ${activeRuleForModal.title}`);
+      setIsPauseOpen(false);
     }
   };
 
   const confirmActivate = () => {
     if (activeRuleForModal) {
-      setRules((prev) =>
-        prev.map((r) =>
-          r.id === activeRuleForModal.id ? { ...r, status: "active" } : r
-        )
-      );
+      useAppDataStore.getState().updateAutomationRule(activeRuleForModal.id, {
+        status: "active",
+        statusLabel: "مفعلة",
+      });
       toast.success(`تم تفعيل القاعدة: ${activeRuleForModal.title}`);
+      setIsActivateOpen(false);
     }
   };
 
   const confirmDelete = () => {
     if (activeRuleForModal) {
-      setRules((prev) => prev.filter((r) => r.id !== activeRuleForModal.id));
+      useAppDataStore.getState().deleteAutomationRule(activeRuleForModal.id);
       toast.success(`تم حذف القاعدة: ${activeRuleForModal.title}`);
+      setIsDeleteOpen(false);
     }
   };
 

@@ -33,12 +33,10 @@ import { useConfirm } from "@/hooks/use-confirm";
 export function CreateRuleView() {
   const router = useRouter();
 
-  // Form states matching Figma node 1:21892
-  const [ruleName, setRuleName] = useState("إرسال تفاصيل الوصول الذاتي وموقع الوحدة");
+  // Form states matching Figma node 1:21892 (initialized empty for user entry)
+  const [ruleName, setRuleName] = useState("");
   const [category, setCategory] = useState("وصول ذاتي وكود الدخول");
-  const [description, setDescription] = useState(
-    "إرسال رسالة واتساب رسمية تتضمن موقع العقار الجغرافي، رقم الوحدة، وكود القفل الإلكتروني المشفر قبل موعد الدخول المحدد بـ 24 ساعة بدقة."
-  );
+  const [description, setDescription] = useState("");
   const [initialStatus, setInitialStatus] = useState<"active" | "draft">("active");
   const [triggerEvent, setTriggerEvent] = useState("قبل موعد الوصول (Before Check-in)");
   const [triggerTime, setTriggerTime] = useState("الساعة 3 م");
@@ -47,9 +45,7 @@ export function CreateRuleView() {
   const [passcodeCondition, setPasscodeCondition] = useState("كود مخصص لكل حجز");
   const [selectedTemplate, setSelectedTemplate] = useState("تفاصيل الوصول وكود القفل");
   const [targetRecipient, setTargetRecipient] = useState("رقم جوال النزيل الأساسي المسجل بالحجز");
-  const [auditNote, setAuditNote] = useState(
-    "توثيق إرسال تفاصيل الوصول آلياً عبر محرك الأتمتة المركزي لحجز المنصة"
-  );
+  const [auditNote, setAuditNote] = useState("");
   const [scope, setScope] = useState<"all" | "custom" | "regional">("all");
 
   // Simulation states & bookings
@@ -82,6 +78,11 @@ export function CreateRuleView() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!ruleName.trim()) {
+      toast.error("يرجى إدخال اسم قاعدة الأتمتة أولاً");
+      return;
+    }
+
     const ok = await confirm({
       title: "تأكيد حفظ وتفعيل قاعدة الأتمتة",
       message: `هل أنت متأكد من حفظ وتفعيل قاعدة الأتمتة "${ruleName}"؟ سيبدأ محرك الأتمتة المركزي المعالجة الفورية مع أول حدث مؤهل.`,
@@ -93,8 +94,8 @@ export function CreateRuleView() {
     try {
       setIsSubmitting(true);
       await automationService.create({
-        title: ruleName,
-        description: description,
+        title: ruleName.trim(),
+        description: description.trim() || "قاعدة أتمتة مخصصة",
         category: "self_checkin",
         categoryLabel: category,
         triggerType: triggerEvent,
@@ -115,6 +116,11 @@ export function CreateRuleView() {
   };
 
   const handleDraftSave = async () => {
+    if (!ruleName.trim()) {
+      toast.error("يرجى إدخال اسم قاعدة الأتمتة لحفظها كمسودة");
+      return;
+    }
+
     const ok = await confirm({
       title: "حفظ كمسودة",
       message: `هل تريد حفظ قاعدة الأتمتة "${ruleName}" كمسودة؟`,
@@ -125,8 +131,8 @@ export function CreateRuleView() {
     try {
       setIsSubmitting(true);
       await automationService.create({
-        title: ruleName,
-        description: description,
+        title: ruleName.trim(),
+        description: description.trim() || "مسودة قاعدة أتمتة",
         category: "self_checkin",
         categoryLabel: category,
         triggerType: triggerEvent,
@@ -214,7 +220,7 @@ export function CreateRuleView() {
                     value={ruleName}
                     onChange={(e) => setRuleName(e.target.value)}
                     required
-                    placeholder="إرسال تفاصيل الوصول الذاتي وموقع الوحدة"
+                    placeholder="مثال: إرسال تفاصيل الوصول الذاتي وموقع الوحدة"
                     className="bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] py-[9px] text-[#181d17] text-[14px] font-normal w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] transition-all"
                   />
                 </div>
@@ -262,6 +268,7 @@ export function CreateRuleView() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={2}
+                    placeholder="أدخل وصفاً توضيحياً لمسار عمل قاعدة الأتمتة..."
                     className="bg-[#f1f5eb] rounded-[12px] p-[16px] text-[#181d17] text-[14px] font-normal leading-[22.75px] w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] transition-all resize-none"
                   />
                 </div>
@@ -632,6 +639,7 @@ export function CreateRuleView() {
                       type="text"
                       value={auditNote}
                       onChange={(e) => setAuditNote(e.target.value)}
+                      placeholder="أدخل ملاحظة التدقيق والتوثيق..."
                       className="bg-white rounded-[8px] h-[40px] px-[12px] py-[8px] text-[13px] font-normal text-[#181d17] w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a]"
                     />
                   </div>
@@ -870,7 +878,9 @@ export function CreateRuleView() {
                   صياغة القاعدة:{" "}
                 </span>
                 <span className="font-normal text-[#181d17] text-[13px] leading-[21.13px]">
-                  "عند اقتراب الوصول بـ 24 ساعة وكان الحجز عبر whatsapp.com ولديه كود ذكي ← إرسال رسالة WhatsApp للنزيل وتوثيق تدقيق آلي في كافة العقارات."
+                  {ruleName.trim()
+                    ? `عند ${triggerEvent} وكان الحجز عبر ${sourceCondition} ← إرسال رسالة WhatsApp (${selectedTemplate}) للنزيل وتوثيق تدقيق آلي في ${scope === "all" ? "كافة العقارات" : "العقارات المحددة"}.`
+                    : "أدخل اسم ومحددات القاعدة لعرض الصياغة الآلية لسير العمل..."}
                 </span>
               </div>
             </div>

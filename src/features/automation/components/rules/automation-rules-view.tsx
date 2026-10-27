@@ -151,7 +151,15 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
   return (
     <div className="space-y-5 font-cairo">
       {/* Top 3 Main Tabs Nav (Figma node 1:21388) */}
-      <AutomationTabsNav activeTab="rules" onTabChange={onTabChange} />
+      <AutomationTabsNav
+        activeTab="rules"
+        onTabChange={onTabChange}
+        counts={{
+          rules: rules.filter((r) => r.status === "active").length,
+          templates: 0,
+          logs: 0,
+        }}
+      />
 
       {/* 1. Hero Greeting Bar (Figma node 1:21354) */}
       <div className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -181,15 +189,6 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
             <span>تصدير السجل</span>
             <Download className="size-[14px] text-[#181d17]" />
           </button>
-
-          {/* Toggle for empty state view testing */}
-          <button
-            type="button"
-            onClick={() => setIsEmptyPreview(!isEmptyPreview)}
-            className="px-2.5 py-1 text-xs text-[#4b5940] bg-[#ebefe6] rounded-lg border border-[#e5e8e2] hover:underline cursor-pointer"
-          >
-            {isEmptyPreview ? "عرض البيانات" : "معاينة فارغة"}
-          </button>
         </div>
       </div>
 
@@ -208,7 +207,7 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
       />
 
       {/* Empty State View [1:26151] vs Table View */}
-      {isEmptyPreview || filteredRules.length === 0 ? (
+      {rules.length === 0 ? (
         <AutomationEmptyStateCard
           icon={<AutomationGraphIcon className="size-[40px]" />}
           title="لا توجد قواعد أتمتة"
@@ -222,7 +221,6 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
           secondaryAction={{
             label: "تحديث الصفحة",
             onClick: () => {
-              setIsEmptyPreview(false);
               handleResetFilters();
             },
           }}
@@ -232,6 +230,18 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
             icon: <AddUserPlusIcon className="size-[16px] text-white" />,
           }}
         />
+      ) : filteredRules.length === 0 ? (
+        <div className="bg-white border border-[#e5e8e2] rounded-[16px] p-12 text-center">
+          <p className="text-[16px] font-bold text-[#181d17]">لا توجد نتائج مطابقة لمعايير البحث</p>
+          <p className="text-[13px] text-[#454840] mt-1">جرّب تغيير كلمات البحث أو إعادة ضبط خيارات التصفية.</p>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="mt-4 px-4 py-2 bg-[#f1f5eb] text-[#34422a] rounded-[10px] text-[13px] font-semibold hover:bg-[#e2ead9] transition-colors cursor-pointer"
+          >
+            إعادة ضبط التصفية
+          </button>
+        </div>
       ) : (
         <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden">
             <div className="overflow-x-auto">

@@ -36,22 +36,14 @@ export function CreateTemplateView() {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Form states matching 1:24243
-  const [templateName, setTemplateName] = useState("تأكيد الحجز وموقع الوحدة");
-  const [templateCode, setTemplateCode] = useState("tpl_booking_confirmation_v2");
+  // Form states matching 1:24243 (initialized empty for user entry)
+  const [templateName, setTemplateName] = useState("");
+  const [templateCode, setTemplateCode] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("bookings");
   const [language] = useState("العربية (ar)");
 
-  const defaultMessageBody = `مرحبًا {{اسم العميل}}،
-تم تأكيد حجزك في {{اسم العقار}} - الوحدة {{رقم الوحدة}}.
-الوصول: {{تاريخ الوصول}} الساعة {{وقت الوصول}}.
-المغادرة: {{تاريخ المغادرة}}.
-كود الدخول: {{كود الدخول}}.
-الموقع: {{رابط الموقع}}
-نسعد بخدمتكم ونتمنى لكم إقامة ممتعة!`;
-
-  const [messageBody, setMessageBody] = useState(defaultMessageBody);
-  const [buttonLabel, setButtonLabel] = useState("فتح الموقع في الخرائط");
+  const [messageBody, setMessageBody] = useState("");
+  const [buttonLabel, setButtonLabel] = useState("");
   const [governanceStatus, setGovernanceStatus] = useState<"active" | "draft" | "paused">("active");
   const [applyGlobally, setApplyGlobally] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
