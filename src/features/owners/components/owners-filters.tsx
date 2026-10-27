@@ -15,6 +15,7 @@ interface OwnersFiltersProps {
   };
   onOpenAdvancedFilter: () => void;
   activeFiltersCount?: number;
+  onResetFilter?: () => void;
 }
 
 export function OwnersFilters({
@@ -25,6 +26,7 @@ export function OwnersFilters({
   counts,
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
+  onResetFilter,
 }: OwnersFiltersProps) {
   const tabs = [
     { id: "all", label: `الكل (${counts.all})` },
@@ -41,6 +43,7 @@ export function OwnersFilters({
       onOpenAdvancedFilter={onOpenAdvancedFilter}
       activeFiltersCount={activeFiltersCount}
       filterButtonTitle="التصفية المتقدمة"
+      onResetFilter={onResetFilter}
       tabs={tabs}
       currentTab={currentFilter}
       onTabChange={onFilterChange}

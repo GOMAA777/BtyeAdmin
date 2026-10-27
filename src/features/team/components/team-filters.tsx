@@ -15,6 +15,7 @@ interface TeamFiltersProps {
   };
   onOpenAdvancedFilter: () => void;
   activeFiltersCount?: number;
+  onResetFilter?: () => void;
 }
 
 export function TeamFilters({
@@ -25,6 +26,7 @@ export function TeamFilters({
   counts,
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
+  onResetFilter,
 }: TeamFiltersProps) {
   const tabs = [
     { id: "all", label: `الكل (${counts.all})` },
@@ -41,6 +43,7 @@ export function TeamFilters({
       onOpenAdvancedFilter={onOpenAdvancedFilter}
       activeFiltersCount={activeFiltersCount}
       filterButtonTitle="تصفية أعضاء الفريق المتقدمة"
+      onResetFilter={onResetFilter}
       tabs={tabs}
       currentTab={currentFilter}
       onTabChange={onFilterChange}

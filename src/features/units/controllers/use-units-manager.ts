@@ -53,6 +53,8 @@ export function useUnitsManager(initialData?: Unit[]) {
 
   const handleResetFilters = () => {
     setAdvancedFilters(defaultAdvancedFilters);
+    setTabFilter("all");
+    setSearchQuery("");
     setCurrentPage(1);
   };
 

@@ -203,6 +203,7 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية قواعد الأتمتة المتقدمة"
+        onResetFilter={handleResetFilters}
         tabsLayoutId="automationRulesFilterPill"
       />
 

@@ -194,6 +194,7 @@ export function OwnerPropertiesTabView({
       sortBy: "default",
     });
     setStatusFilter("all");
+    setSearchQuery("");
   };
 
   const filteredProperties = useMemo(() => {
@@ -280,6 +281,7 @@ export function OwnerPropertiesTabView({
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية العقارات"
+        onResetFilter={handleResetFilters}
         tabs={[
           { id: "all", label: `الكل (${counts.all})` },
           { id: "available", label: `متاحة (${counts.available})` },

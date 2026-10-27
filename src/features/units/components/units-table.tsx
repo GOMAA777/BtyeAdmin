@@ -188,6 +188,7 @@ export function UnitsTable() {
         counts={counts}
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
+        onResetFilter={handleResetFilters}
       />
 
       {/* 2. Units Table Card */}

@@ -50,6 +50,14 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
     (actionTypeFilter !== "all" ? 1 : 0) +
     (propertyFilter !== "all" ? 1 : 0);
 
+  const handleResetAllFilters = () => {
+    setStatusFilter("all");
+    setActionTypeFilter("all");
+    setPropertyFilter("all");
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -196,6 +204,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية سجلات التنفيذ المتقدمة"
+        onResetFilter={handleResetAllFilters}
         tabsLayoutId="executionLogsFilterPill"
       />
 
@@ -501,11 +510,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
           setActionTypeFilter(newFilters.actionType);
           setPropertyFilter(newFilters.propertyName);
         }}
-        onResetFilters={() => {
-          setStatusFilter("all");
-          setActionTypeFilter("all");
-          setPropertyFilter("all");
-        }}
+        onResetFilters={handleResetAllFilters}
         totalResultsCount={totalFiltered}
       />
     </div>

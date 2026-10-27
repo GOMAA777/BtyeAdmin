@@ -46,6 +46,18 @@ export function WhatsAppFilterBar({
     { id: "extension", label: "تمديد إقامة (4)" },
   ];
 
+  const handleResetAllFilters = () => {
+    setAdvancedFilters({
+      property: "all",
+      conversationType: "all",
+      readStatus: "all",
+      windowStatus: "all",
+    });
+    onPropertyChange("all");
+    onFilterChange("all");
+    onSearchChange("");
+  };
+
   return (
     <>
       <TableToolbar
@@ -58,6 +70,7 @@ export function WhatsAppFilterBar({
         onOpenAdvancedFilter={() => setIsDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية محادثات واتساب"
+        onResetFilter={handleResetAllFilters}
         tabsLayoutId="whatsappFilterPill"
       />
 
@@ -72,15 +85,7 @@ export function WhatsAppFilterBar({
           setAdvancedFilters(newFilters);
           onPropertyChange(newFilters.property);
         }}
-        onResetFilters={() => {
-          setAdvancedFilters({
-            property: "all",
-            conversationType: "all",
-            readStatus: "all",
-            windowStatus: "all",
-          });
-          onPropertyChange("all");
-        }}
+        onResetFilters={handleResetAllFilters}
       />
     </>
   );

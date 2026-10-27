@@ -230,6 +230,8 @@ export function useBookingsManager(
 
   const handleResetFilters = () => {
     setBookingFilters(initialBookingFilterState);
+    setFilterStatus("all");
+    setSearchQuery("");
     setCurrentPage(1);
   };
 

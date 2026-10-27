@@ -152,6 +152,18 @@ export function OwnerBookingsTabView({
     searchParams?.get("empty") === "true" ||
     searchParams?.get("state") === "empty";
 
+  const handleResetAllFilters = () => {
+    setBookingFilters({
+      source: "all",
+      accessStatus: "all",
+      propertyName: "all",
+      sortBy: "default",
+    });
+    setFilterStatus("all");
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   if (bookings.length === 0 || forceEmpty) {
     return <BookingsEmptyStateView />;
   }
@@ -172,6 +184,7 @@ export function OwnerBookingsTabView({
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية الحجوزات"
+        onResetFilter={handleResetAllFilters}
         tabs={[
           { id: "all", label: `الكل (${statusCounts.all})` },
           { id: "active", label: `الحالية (${statusCounts.active})` },

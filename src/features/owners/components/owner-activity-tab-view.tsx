@@ -355,6 +355,17 @@ export function OwnerActivityTabView() {
     return count;
   }, [activityFilters]);
 
+  const handleResetAllFilters = () => {
+    setActivityFilters({
+      category: "all",
+      actor: "all",
+      timeRange: "all",
+      sortBy: "latest",
+    });
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   const selectedEvent = useMemo(() => {
     return events.find((e) => e.id === selectedEventId) || events[0];
   }, [events, selectedEventId]);
@@ -490,6 +501,7 @@ export function OwnerActivityTabView() {
             onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
             activeFiltersCount={activeFiltersCount}
             filterButtonTitle="تصفية سجل النشاط"
+            onResetFilter={handleResetAllFilters}
           >
             <button
               type="button"

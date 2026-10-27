@@ -61,6 +61,14 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
     (statusFilter !== "all" ? 1 : 0) +
     (languageFilter !== "all" ? 1 : 0);
 
+  const handleResetAllFilters = () => {
+    setSelectedCategory("all");
+    setStatusFilter("all");
+    setLanguageFilter("all");
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   // Modals state
   const [previewTemplate, setPreviewTemplate] = useState<WhatsAppTemplate | null>(null);
   const [pauseTargetTemplate, setPauseTargetTemplate] = useState<WhatsAppTemplate | null>(null);
@@ -209,6 +217,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية قوالب واتساب المتقدمة"
+        onResetFilter={handleResetAllFilters}
         tabsLayoutId="whatsappTemplatesCategoryPill"
       />
 
@@ -461,11 +470,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           setStatusFilter(newFilters.status);
           setLanguageFilter(newFilters.language);
         }}
-        onResetFilters={() => {
-          setSelectedCategory("all");
-          setStatusFilter("all");
-          setLanguageFilter("all");
-        }}
+        onResetFilters={handleResetAllFilters}
         totalResultsCount={totalFiltered}
       />
     </div>

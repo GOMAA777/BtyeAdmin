@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import {
   OperationCategoryFilter,
   OperationSubFilter,
@@ -9,28 +9,23 @@ import {
   initialOperationFilterState,
 } from "../types";
 import { operationsService } from "@/services/operations-service";
-import { useAppDataStore, getInitialHydratedState, ensureStoreHydrated } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
+
+const emptyOperations: OperationTask[] = [];
 
 export function useOperationsManager(
   initialTasks?: OperationTask[]
 ) {
-  const [tasks, setTasks] = useState<OperationTask[]>(
-    initialTasks || getInitialHydratedState((s) => s.operations, [])
+  const storeOperations = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().operations,
+    () => emptyOperations
   );
-
-  const loadTasks = useCallback(async () => {
-    await ensureStoreHydrated();
-    const data = await operationsService.getAll();
-    setTasks(data);
-  }, []);
+  const tasks = initialTasks || storeOperations;
 
   useEffect(() => {
-    loadTasks();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setTasks(state.operations);
-    });
-    return () => unsub();
-  }, [loadTasks]);
+    ensureStoreHydrated();
+  }, []);
 
   const [categoryFilter, setCategoryFilter] =
     useState<OperationCategoryFilter>("all");
@@ -175,6 +170,9 @@ export function useOperationsManager(
 
   const handleResetAdvancedFilters = () => {
     setAdvancedFilters(initialOperationFilterState);
+    setCategoryFilter("all");
+    setSubFilter("all");
+    setSearchQuery("");
   };
 
   return {

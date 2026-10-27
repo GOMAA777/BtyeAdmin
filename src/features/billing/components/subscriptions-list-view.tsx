@@ -54,6 +54,15 @@ export function SubscriptionsListView() {
     (paymentStatusFilter !== "all" ? 1 : 0) +
     (billingCycleFilter !== "all" ? 1 : 0);
 
+  const handleResetAllFilters = () => {
+    setPackageFilter("all");
+    setStatusFilter("all");
+    setPaymentStatusFilter("all");
+    setBillingCycleFilter("all");
+    setActiveTab("all");
+    setSearchQuery("");
+  };
+
   const subCounts = useMemo(() => {
     const total = subscriptions.length;
     const active = subscriptions.filter((s) => s.status === "active").length;
@@ -307,6 +316,7 @@ export function SubscriptionsListView() {
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeBillingFiltersCount}
         filterButtonTitle="تصفية الاشتراكات المتقدمة"
+        onResetFilter={handleResetAllFilters}
         tabsLayoutId="billingFilterPill"
       />
 
@@ -637,12 +647,7 @@ export function SubscriptionsListView() {
           setPaymentStatusFilter(newFilters.paymentStatusFilter);
           setBillingCycleFilter(newFilters.billingCycleFilter);
         }}
-        onResetFilters={() => {
-          setPackageFilter("all");
-          setStatusFilter("all");
-          setPaymentStatusFilter("all");
-          setBillingCycleFilter("all");
-        }}
+        onResetFilters={handleResetAllFilters}
         totalResultsCount={filteredSubscriptions.length}
       />
     </div>

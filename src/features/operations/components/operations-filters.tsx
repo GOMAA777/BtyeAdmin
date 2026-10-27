@@ -16,6 +16,7 @@ interface OperationsFiltersProps {
   };
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
+  onResetFilter?: () => void;
 }
 
 export function OperationsFilters({
@@ -26,6 +27,7 @@ export function OperationsFilters({
   subCounts,
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
+  onResetFilter,
 }: OperationsFiltersProps) {
   const subFilters = [
     { id: "all", label: `الكل (${subCounts.all})` },
@@ -42,6 +44,7 @@ export function OperationsFilters({
       onOpenAdvancedFilter={onOpenAdvancedFilter}
       activeFiltersCount={activeFiltersCount}
       filterButtonTitle="التصفية المتقدمة"
+      onResetFilter={onResetFilter}
       tabs={subFilters}
       currentTab={currentSubFilter}
       onTabChange={(id) => onSubFilterChange(id as OperationSubFilter)}

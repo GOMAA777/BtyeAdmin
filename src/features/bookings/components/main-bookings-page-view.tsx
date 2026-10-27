@@ -130,6 +130,7 @@ export function MainBookingsPageView({
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية الحجوزات"
+        onResetFilter={handleResetFilters}
         tabs={[
           { id: "all", label: `الكل (${statusCounts.all})` },
           { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },

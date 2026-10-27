@@ -103,6 +103,7 @@ export function useOwnersManager(initialData?: Owner[]) {
   const handleResetAdvancedFilters = () => {
     setAdvancedFilters(defaultAdvancedFilters);
     setFilter("all");
+    setSearch("");
     setCurrentPage(1);
   };
 

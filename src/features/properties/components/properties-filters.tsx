@@ -15,6 +15,7 @@ interface PropertiesFiltersProps {
   };
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
+  onResetFilter?: () => void;
 }
 
 export function PropertiesFilters({
@@ -25,6 +26,7 @@ export function PropertiesFilters({
   counts,
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
+  onResetFilter,
 }: PropertiesFiltersProps) {
   const tabs = [
     { id: "all", label: `الكل (${counts.all})` },
@@ -41,6 +43,7 @@ export function PropertiesFilters({
       onOpenAdvancedFilter={onOpenAdvancedFilter}
       activeFiltersCount={activeFiltersCount}
       filterButtonTitle="تصفية العقارات المتقدمة"
+      onResetFilter={onResetFilter}
       tabs={tabs}
       currentTab={currentFilter}
       onTabChange={onFilterChange}

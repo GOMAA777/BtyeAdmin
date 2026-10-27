@@ -251,6 +251,7 @@ export function TeamOverviewView() {
         counts={counts}
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
+        onResetFilter={resetFilters}
       />
 
       {/* SECTION 4: DATA TABLE */}

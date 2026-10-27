@@ -324,6 +324,13 @@ export function OperationsLogView({
     toast.success("جاري تصدير وتجهيز تقرير سجل نشاط الوحدة (PDF)...");
   };
 
+  const handleResetFilters = () => {
+    setSelectedPerformer("all");
+    setSelectedType("all");
+    setSearch("");
+    setActivePage(1);
+  };
+
   return (
     <div className="space-y-6 text-start" dir="rtl">
       {/* 1. TOP HERO GREETING BAR (Figma Node 1:15929) */}
@@ -503,6 +510,7 @@ export function OperationsLogView({
         searchQuery={search}
         onSearchChange={setSearch}
         searchPlaceholder="ابحث في وصف النشاط، اسم المنفذ، أو الرقم المرجعي..."
+        onResetFilter={handleResetFilters}
       >
         {/* Timeframe filter */}
         <button

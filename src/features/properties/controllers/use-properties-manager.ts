@@ -59,6 +59,8 @@ export function usePropertiesManager(initialData?: Property[]) {
 
   const handleResetFilters = () => {
     setPropertyFilters(initialPropertyFilterState);
+    setFilter("all");
+    setSearch("");
     setCurrentPage(1);
   };
 

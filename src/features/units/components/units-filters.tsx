@@ -16,6 +16,7 @@ interface UnitsFiltersProps {
   };
   onOpenAdvancedFilter?: () => void;
   activeFiltersCount?: number;
+  onResetFilter?: () => void;
 }
 
 export function UnitsFilters({
@@ -26,6 +27,7 @@ export function UnitsFilters({
   counts,
   onOpenAdvancedFilter,
   activeFiltersCount = 0,
+  onResetFilter,
 }: UnitsFiltersProps) {
   const tabs = [
     { id: "all", label: `الكل (${counts.all})` },
@@ -43,6 +45,7 @@ export function UnitsFilters({
       onOpenAdvancedFilter={onOpenAdvancedFilter}
       activeFiltersCount={activeFiltersCount}
       filterButtonTitle="تصفية الوحدات"
+      onResetFilter={onResetFilter}
       tabs={tabs}
       currentTab={currentFilter}
       onTabChange={onFilterChange}

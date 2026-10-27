@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatedTabs, type AnimatedTabItem } from "./animated-tabs";
 import { FilterButton } from "./filter-button";
@@ -25,6 +25,13 @@ export interface TableToolbarProps {
   /** Filter button label (default: "فلتر") */
   filterButtonLabel?: string;
 
+  /** Callback when clicking reset filter button */
+  onResetFilter?: () => void;
+  /** Reset filter button title / tooltip */
+  resetFilterTitle?: string;
+  /** Whether to show reset filter button (default: true) */
+  showResetFilter?: boolean;
+
   /** Status tabs items */
   tabs?: AnimatedTabItem[];
   /** Currently active tab id */
@@ -45,6 +52,7 @@ export interface TableToolbarProps {
  * Features:
  * - Rounded-full white pill container with soft border (#DCE2D7)
  * - Rounded-full sage search box (#EAEFE6) with Search icon on start (right in RTL)
+ * - Rounded-full reset filter icon button with RotateCcw
  * - Rounded-full filter pill button with badge
  * - Rounded-full animated status tabs with sliding white pill
  */
@@ -57,6 +65,9 @@ export function TableToolbar({
   activeFiltersCount = 0,
   filterButtonTitle = "التصفية المتقدمة",
   filterButtonLabel = "فلتر",
+  onResetFilter,
+  resetFilterTitle = "إعادة ضبط الفلاتر",
+  showResetFilter = true,
   tabs,
   currentTab,
   onTabChange,
@@ -64,6 +75,18 @@ export function TableToolbar({
   children,
   className,
 }: TableToolbarProps) {
+  const handleReset = () => {
+    if (onResetFilter) {
+      onResetFilter();
+    }
+    if (searchQuery) {
+      onSearchChange("");
+    }
+    if (tabs && tabs.length > 0 && onTabChange && currentTab !== tabs[0]?.id) {
+      onTabChange(tabs[0].id);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -87,6 +110,19 @@ export function TableToolbar({
 
       {/* Filter Button & Tabs Section (Left in RTL) */}
       <div className="flex items-center gap-2.5 w-full md:w-auto flex-wrap justify-start md:justify-end">
+        {/* Reset Filter Button */}
+        {showResetFilter && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-10 h-10 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-[#252A24] flex items-center justify-center transition-all cursor-pointer shrink-0 select-none active:scale-95 group"
+            title={resetFilterTitle}
+            aria-label={resetFilterTitle}
+          >
+            <RotateCcw className="w-4 h-4 text-[#252A24] group-hover:-rotate-45 transition-transform duration-200" />
+          </button>
+        )}
+
         {onOpenAdvancedFilter && (
           <FilterButton
             onClick={onOpenAdvancedFilter}

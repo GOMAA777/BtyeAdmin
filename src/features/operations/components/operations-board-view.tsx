@@ -48,6 +48,7 @@ export function OperationsBoardView() {
         subCounts={subCounts}
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
+        onResetFilter={handleResetAdvancedFilters}
       />
 
       {/* 4. Table */}

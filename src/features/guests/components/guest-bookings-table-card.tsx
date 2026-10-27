@@ -73,6 +73,16 @@ export function GuestBookingsTableCard({
 
         {/* Left in RTL: Filter Button & Table Search Filter */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className="w-10 h-10 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-[#252A24] flex items-center justify-center transition-all cursor-pointer shrink-0 select-none active:scale-95 group"
+            title="إعادة ضبط الفلاتر"
+            aria-label="إعادة ضبط الفلاتر"
+          >
+            <RotateCcw className="w-4 h-4 text-[#252A24] group-hover:-rotate-45 transition-transform duration-200" />
+          </button>
+
           <div className="relative">
             <FilterButton
               onClick={() => setIsFilterOpen(!isFilterOpen)}

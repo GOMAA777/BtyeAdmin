@@ -210,6 +210,14 @@ export function UnitOperationsLogView({
     toast.success("تم تحديث ومزامنة سجل العمليات بنجاح.");
   };
 
+  const handleResetFilters = () => {
+    setSelectedRange("all");
+    setSelectedStatus("all");
+    setSelectedType("all");
+    setSearch("");
+    setActivePage(1);
+  };
+
   return (
     <div className="space-y-6 text-start" dir="rtl">
       {/* 1. TOP HERO GREETING BAR (Figma Node 1:15459) */}
@@ -374,6 +382,7 @@ export function UnitOperationsLogView({
         searchQuery={search}
         onSearchChange={setSearch}
         searchPlaceholder="ابحث في تفاصيل العملية، رقم التذكرة، أو اسم المنفذ..."
+        onResetFilter={handleResetFilters}
       >
         {/* Timeframe Filter */}
         <div className="w-full sm:w-[175px]">
