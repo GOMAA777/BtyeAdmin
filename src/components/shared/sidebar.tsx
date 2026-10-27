@@ -47,6 +47,7 @@ const isRouteAvailable = (href: string) => {
     "/team",
     "/styleguide",
     "/settings",
+    "/profile",
   ].includes(clean);
 };
 
@@ -470,12 +471,17 @@ export function Sidebar() {
 
           {/* User Profile Card */}
           <div className="p-2.5 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#C9B99A] text-[#252A24] font-bold text-xs flex items-center justify-center">
+            <Link
+              href="/profile/"
+              onClick={(e) => handleNavClick(e, "/profile/", "الملف الشخصي")}
+              className="flex items-center gap-2.5 group cursor-pointer hover:opacity-90 transition-opacity flex-1 min-w-0"
+              title="الملف الشخصي"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#C9B99A] text-[#252A24] font-bold text-xs flex items-center justify-center shrink-0">
                 {currentUser?.fullName ? currentUser.fullName.charAt(0) : "م"}
               </div>
-              <div>
-                <div className="text-xs font-bold text-white">
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-white group-hover:text-[#d8e8c7] transition-colors truncate">
                   {currentUser?.fullName || "محمد أحمد"}
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-white/60">
@@ -483,7 +489,7 @@ export function Sidebar() {
                   <span>{currentUser?.role || "مدير النظام"}</span>
                 </div>
               </div>
-            </div>
+            </Link>
 
             <button
               type="button"
