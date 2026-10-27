@@ -12,7 +12,7 @@ export function showUnderConstructionToast(
   description: string = "يجري العمل على إتاحة هذا التبويب بجميع بياناته وتفاصيله قريباً ضمن التحديث القادم لمنظومة أبراج."
 ) {
   toast(
-    <div className="flex items-start gap-3 w-full text-start select-none pe-1 font-cairo" dir="rtl">
+    <div className="flex items-start gap-4 w-full text-start select-none pe-1 font-cairo" dir="rtl">
       <div className="size-8 rounded-[10px] bg-[rgba(75,89,64,0.3)] text-[#d8e8c7] border border-[#4b5940]/40 flex items-center justify-center shrink-0">
         <Clock className="w-4 h-4" />
       </div>
@@ -41,7 +41,7 @@ export function showUnderConstructionToast(
 
 export function showSuccessToast(title: string, description?: string) {
   toast(
-    <div className="flex items-start gap-3 w-full text-start select-none pe-1 font-cairo" dir="rtl">
+    <div className="flex items-start gap-4 w-full text-start select-none pe-1 font-cairo" dir="rtl">
       <div className="size-8 rounded-[10px] bg-[#d8e8c7] text-[#181d17] flex items-center justify-center shrink-0">
         <CheckCircle2 className="w-4 h-4" />
       </div>
@@ -72,7 +72,7 @@ export function showSuccessToast(title: string, description?: string) {
 
 export function showInfoToast(title: string, description?: string) {
   toast(
-    <div className="flex items-start gap-3 w-full text-start select-none pe-1 font-cairo" dir="rtl">
+    <div className="flex items-start gap-4 w-full text-start select-none pe-1 font-cairo" dir="rtl">
       <div className="size-8 rounded-[10px] bg-[rgba(75,89,64,0.3)] text-[#d8e8c7] border border-[#4b5940]/40 flex items-center justify-center shrink-0">
         <Info className="w-4 h-4" />
       </div>

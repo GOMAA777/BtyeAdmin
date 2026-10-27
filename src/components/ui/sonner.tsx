@@ -25,7 +25,7 @@ export function showFigmaSuccessToast({
     (t) => (
       <div
         dir="rtl"
-        className="bg-[#2d322c] drop-shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] w-[360px] max-w-[calc(100vw-32px)] py-2.5 px-3.5 flex items-center justify-between gap-3 text-right select-none border border-[#3d453b]/60 font-cairo shadow-xl"
+        className="bg-[#2d322c] drop-shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] w-[360px] max-w-[calc(100vw-32px)] py-2.5 px-3.5 flex items-center justify-between gap-4 text-right select-none border border-[#3d453b]/60 font-cairo shadow-xl"
         data-node-id="1:28510"
         data-name="NOTIFICATION (Fixed Viewport Indicator)"
       >
@@ -124,8 +124,8 @@ export function Toaster({ ...props }: ToasterProps) {
         },
         classNames: {
           toast:
-            "group toast select-none cursor-grab active:cursor-grabbing !bg-[#2d322c] !text-[#eef2e9] !border-[#3d453b]/60 shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] py-2.5 px-3.5 border font-cairo overflow-visible !gap-3",
-          icon: "!size-auto !w-auto !h-auto !m-0 shrink-0 flex items-center justify-center",
+            "group toast select-none cursor-grab active:cursor-grabbing !bg-[#2d322c] !text-[#eef2e9] !border-[#3d453b]/60 shadow-[0px_8px_16px_rgba(0,0,0,0.25)] rounded-[14px] py-2.5 px-3.5 border font-cairo overflow-visible !gap-4",
+          icon: "!w-[30px] !min-w-[30px] !max-w-[30px] !h-[30px] !min-h-[30px] !max-h-[30px] !m-0 shrink-0 flex items-center justify-center overflow-visible",
           content: "flex-1 min-w-0 !gap-0.5",
           title:
             "!text-[#eef2e9] text-[13px] font-bold leading-snug font-cairo",
