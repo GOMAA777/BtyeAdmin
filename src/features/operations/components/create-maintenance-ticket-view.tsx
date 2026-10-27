@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { BackButton } from "@/components/shared/back-button";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { useAppDataStore } from "@/stores/use-app-data-store";
+import { operationsService } from "@/services/operations-service";
 
 interface AttachedFile {
   name: string;
@@ -13,51 +16,101 @@ interface AttachedFile {
   thumbnailUrl: string;
 }
 
+const CATEGORY_OPTIONS = [
+  "أقفال ومداخل إلكترونية",
+  "تكييف وتبريد",
+  "سباكة وصرف صحي",
+  "كهرباء وإنارة",
+  "أثاث وديكور",
+];
+
+const IMPACT_OPTIONS = [
+  "تعطيل وصول النزيل كلياً",
+  "تأثير جزئي على إقامة النزيل",
+  "عطل جمالي لا يؤثر على التشغيل",
+];
+
 export function CreateMaintenanceTicketView() {
   const router = useRouter();
   const confirm = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form states matching Figma exact defaults
-  const [selectedOwner, setSelectedOwner] = useState("سارة القحطاني");
-  const [selectedProperty, setSelectedProperty] = useState("برج الياسمين — الرياض");
-  const [selectedUnit, setSelectedUnit] = useState("الوحدة 305 (الطابق 3)");
-  const [category, setCategory] = useState("أقفال ومداخل إلكترونية");
-  const [impactScope, setImpactScope] = useState("تعطيل وصول النزيل كلياً");
+  const { owners, properties, units, team } = useAppDataStore();
+
+  // Form states starting empty with validation
+  const [selectedOwner, setSelectedOwner] = useState("");
+  const [selectedProperty, setSelectedProperty] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("");
+  const [category, setCategory] = useState("");
+  const [impactScope, setImpactScope] = useState("");
   const [priority, setPriority] = useState<"urgent" | "high" | "med" | "low">("urgent");
-  const [description, setDescription] = useState(
-    "قفل الباب الذكي الرقمي لا يستجيب للبطاقات أو الأكواد المزامنة، وتظهر ومضات متقطعة حمراء عند محاولة الفتح. يرجى فحص محول الطاقة ومستشعر المغلاق قبل موعد دخول النزيل القادم."
-  );
-  const [assignee, setAssignee] = useState("م. طارق العسيري");
+  const [description, setDescription] = useState("");
+  const [assignee, setAssignee] = useState("");
   const [timeWindow, setTimeWindow] = useState("اليوم — الفترة الصباحية (خلال 90 دقيقة)");
 
-  // Attached files matching Figma design
-  const [files, setFiles] = useState<AttachedFile[]>([
-    {
-      name: "lock_diagnostic_panel.jpg",
-      size: "1.8 MB",
-      thumbnailUrl: "/images/operations/new-maintenance/lock_panel_thumb.png",
-    },
-    {
-      name: "voltage_check_reading.png",
-      size: "950 KB",
-      thumbnailUrl: "/images/operations/new-maintenance/voltage_check_thumb.png",
-    },
-  ]);
+  // Attached files
+  const [files, setFiles] = useState<AttachedFile[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const ownerOptions = owners.map((o) => ({ value: o.name, label: o.name }));
+  const propertyOptions = properties.map((p) => ({ value: p.title, label: p.title }));
+  const unitOptions = units
+    .filter((u) => !selectedProperty || u.propertyName === selectedProperty)
+    .map((u) => ({ value: `الوحدة ${u.unitNumber} (${u.floor})`, label: `الوحدة ${u.unitNumber} (${u.floor})` }));
+
+  const assigneeOptions = team
+    .filter((m) => m.role === "maintenance" || m.role === "supervisor")
+    .map((m) => ({ value: m.name, label: `${m.name} (${m.roleLabel})` }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!selectedProperty) {
+      toast.error("يرجى اختيار العقار المستضاف أولاً");
+      return;
+    }
+    if (!selectedUnit) {
+      toast.error("يرجى تحديد الوحدة");
+      return;
+    }
+    if (!category) {
+      toast.error("يرجى تحديد فئة العطل الفني");
+      return;
+    }
+
     const ok = await confirm({
       title: "تأكيد إنشاء بلاغ الصيانة",
-      message: `هل أنت متأكد من إنشاء بلاغ الصيانة لـ (${selectedUnit})؟ سيتم حظر الوحدة آلياً من التقويم المركزي وإخطار الفريق الفني فورياً.`,
+      message: `هل أنت متأكد من إنشاء بلاغ الصيانة لـ (${selectedUnit})؟ سيتم حظر الوحدة آلياً وإخطار الفريق الفني.`,
       confirmLabel: "تأكيد وبدء البلاغ",
       variant: "default",
     });
     if (!ok) return;
 
-    toast.success("تم إنشاء بلاغ الصيانة MT-2048 وحظر الوحدة آلياً من الحجوزات بنجاح!");
-    router.push("/operations/maintenance/MT-2048/");
+    try {
+      setIsSubmitting(true);
+      const propObj = properties.find((p) => p.title === selectedProperty);
+      const unitObj = units.find((u) => selectedUnit.includes(u.unitNumber));
+
+      const created = await operationsService.create({
+        title: `صيانة: ${category}`,
+        type: "maintenance",
+        propertyId: propObj?.id || "prop-1",
+        propertyName: selectedProperty,
+        unitId: unitObj?.id || "unit-1",
+        unitNumber: unitObj?.unitNumber || selectedUnit,
+        priority: priority === "urgent" ? "urgent" : priority === "high" ? "high" : "medium",
+        assigneeName: assignee,
+        notes: description,
+        ownerName: selectedOwner,
+      });
+
+      toast.success(`تم إنشاء بلاغ الصيانة ${created.taskNumber || created.id} بنجاح!`);
+      router.push("/operations/");
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ بلاغ الصيانة");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRemoveFile = async (fileName: string) => {
@@ -142,25 +195,13 @@ export function CreateMaintenanceTicketView() {
                     <span className="text-[#ba1a1a]">*</span>
                     <span>المالك المسجل</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={selectedOwner}
-                      onChange={(e) => setSelectedOwner(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="سارة القحطاني">سارة القحطاني</option>
-                      <option value="محمد العتيبي">محمد العتيبي</option>
-                      <option value="خالد الحربي">خالد الحربي</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_dropdown_arrow.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={selectedOwner}
+                    onChange={(val) => setSelectedOwner(val)}
+                    options={ownerOptions}
+                    placeholder="اختر المالك..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                 </div>
 
                 {/* 2. Property Select */}
@@ -169,25 +210,13 @@ export function CreateMaintenanceTicketView() {
                     <span className="text-[#ba1a1a]">*</span>
                     <span>العقار المستضاف</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={selectedProperty}
-                      onChange={(e) => setSelectedProperty(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="برج الياسمين — الرياض">برج الياسمين — الرياض</option>
-                      <option value="عمارة النخيل">عمارة النخيل</option>
-                      <option value="مجمع الواحة">مجمع الواحة</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_dropdown_arrow.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={selectedProperty}
+                    onChange={(val) => setSelectedProperty(val)}
+                    options={propertyOptions}
+                    placeholder="اختر العقار..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                 </div>
 
                 {/* 3. Unit Select */}
@@ -196,25 +225,13 @@ export function CreateMaintenanceTicketView() {
                     <span className="text-[#ba1a1a]">*</span>
                     <span>الوحدة المحددة</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={selectedUnit}
-                      onChange={(e) => setSelectedUnit(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="الوحدة 305 (الطابق 3)">الوحدة 305 (الطابق 3)</option>
-                      <option value="الوحدة 204 (الطابق 2)">الوحدة 204 (الطابق 2)</option>
-                      <option value="الوحدة 108 (الطابق 1)">الوحدة 108 (الطابق 1)</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_dropdown_arrow.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={selectedUnit}
+                    onChange={(val) => setSelectedUnit(val)}
+                    options={unitOptions}
+                    placeholder="اختر الوحدة..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                 </div>
               </div>
 
@@ -280,27 +297,13 @@ export function CreateMaintenanceTicketView() {
                     <span className="text-[#ba1a1a]">*</span>
                     <span>فئة العطل الفني</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="أقفال ومداخل إلكترونية">أقفال ومداخل إلكترونية</option>
-                      <option value="تكييف وتبريد">تكييف وتبريد</option>
-                      <option value="سباكة وصرف صحي">سباكة وصرف صحي</option>
-                      <option value="كهرباء وإنارة">كهرباء وإنارة</option>
-                      <option value="أثاث وديكور">أثاث وديكور</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_chevron_down.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={category}
+                    onChange={(val) => setCategory(val)}
+                    options={CATEGORY_OPTIONS}
+                    placeholder="اختر فئة العطل..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                 </div>
 
                 {/* Field Impact */}
@@ -309,25 +312,13 @@ export function CreateMaintenanceTicketView() {
                     <span className="text-[#ba1a1a]">*</span>
                     <span>نطاق التأثير الميداني</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={impactScope}
-                      onChange={(e) => setImpactScope(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="تعطيل وصول النزيل كلياً">تعطيل وصول النزيل كلياً</option>
-                      <option value="تأثير جزئي على إقامة النزيل">تأثير جزئي على إقامة النزيل</option>
-                      <option value="عطل جمالي لا يؤثر على التشغيل">عطل جمالي لا يؤثر على التشغيل</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_chevron_down.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={impactScope}
+                    onChange={(val) => setImpactScope(val)}
+                    options={IMPACT_OPTIONS}
+                    placeholder="اختر نطاق التأثير..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                   <p className="text-[11px] font-medium text-[#454840] leading-[16px] text-right">
                     يتم بناءً عليه تحديد مهلة الاستجابة المتوقعة (SLA)
                   </p>
@@ -516,25 +507,13 @@ export function CreateMaintenanceTicketView() {
                     <span>المسؤول المكلف بالمتابعة والمعالجة</span>
                     <span className="text-[#454840] font-normal">(اختياري)</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={assignee}
-                      onChange={(e) => setAssignee(e.target.value)}
-                      className="w-full appearance-none bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[14px] font-normal text-[#181d17] leading-[22px] focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="م. طارق العسيري">م. طارق العسيري</option>
-                      <option value="م. أنس الصالح">م. أنس الصالح</option>
-                      <option value="شركة الصيانة المعتمدة">شركة الصيانة المعتمدة</option>
-                    </select>
-                    <div className="absolute left-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Image
-                        src="/icons/maintenance/new-ticket/icon_chevron_down.svg"
-                        alt=""
-                        width={10}
-                        height={6}
-                      />
-                    </div>
-                  </div>
+                  <SelectDropdown
+                    value={assignee}
+                    onChange={(val) => setAssignee(val)}
+                    options={assigneeOptions}
+                    placeholder="اختر الفني المسؤول..."
+                    triggerClassName="h-[44px] rounded-[12px] bg-[#f1f5eb]"
+                  />
                   <p className="text-[11px] font-medium text-[#54624c] leading-[16px] text-right">
                     إرسال إشعار فوري إلى تطبيق الفني الميداني
                   </p>

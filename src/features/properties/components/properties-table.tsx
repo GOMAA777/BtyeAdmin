@@ -7,6 +7,7 @@ import { APP_CONFIG } from "@/lib/constants";
 import { PropertyStatus } from "../types";
 import { PropertiesFilters } from "./properties-filters";
 import { PropertiesAdvancedFilterDrawer } from "./properties-advanced-filter-drawer";
+import { PropertiesEmptyState } from "./properties-empty-state";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { usePropertiesManager } from "../controllers/use-properties-manager";
@@ -94,8 +95,20 @@ export function PropertiesTable() {
             <tbody className="divide-y divide-[#E5E8E2]">
               {paginatedProperties.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#73786F] text-[13px]">
-                    لا توجد عقارات تطابق معايير البحث
+                  <td colSpan={8} className="p-4 sm:p-8">
+                    {counts.all === 0 ? (
+                      <PropertiesEmptyState
+                        onRefresh={() => {
+                          setSearch("");
+                          setFilter("all");
+                          handleResetFilters();
+                        }}
+                      />
+                    ) : (
+                      <div className="py-12 text-center text-[#73786F] text-[13px]">
+                        لا توجد عقارات تطابق معايير البحث
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -205,10 +218,6 @@ export function PropertiesTable() {
                     <td className="py-4 px-6 text-center">
                       <div className="flex justify-center">
                         <ActionDropdown
-                          triggerIcon={
-                            <i className="lucide-icon icon-ellipsis-vertical w-4 h-4 text-[#78716C]" />
-                          }
-                          triggerClassName="w-8 h-8 rounded-[8px] hover:bg-[#EBEFE6] text-[#78716C]"
                           items={[
                             {
                               label: "تفاصيل العقار",

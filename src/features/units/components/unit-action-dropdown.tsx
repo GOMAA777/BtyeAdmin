@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
 import { MoreVertical, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { APP_CONFIG } from "@/lib/constants";
 import { Unit } from "../types";
 
 // Exact Calendar with Pencil icon matching Image 2
@@ -70,15 +70,17 @@ export function UnitActionDropdown({ unit }: UnitActionDropdownProps) {
     }
 
     if (openUp) {
-      setCoords({
-        bottom: Math.max(10, window.innerHeight - rect.top + 6),
-        left,
-      });
+      const bottom = Math.min(
+        Math.max(12, window.innerHeight - rect.top + 6),
+        window.innerHeight - 24
+      );
+      setCoords({ bottom, left });
     } else {
-      setCoords({
-        top: Math.max(10, rect.bottom + 6),
-        left,
-      });
+      const top = Math.min(
+        Math.max(12, rect.bottom + 6),
+        Math.max(12, window.innerHeight - estimatedHeight - 12)
+      );
+      setCoords({ top, left });
     }
   }, []);
 
@@ -114,13 +116,13 @@ export function UnitActionDropdown({ unit }: UnitActionDropdownProps) {
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("scroll", handleScrollOrResize, true);
     window.addEventListener("resize", handleScrollOrResize);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("scroll", handleScrollOrResize, true);
       window.removeEventListener("resize", handleScrollOrResize);
@@ -215,38 +217,42 @@ export function UnitActionDropdown({ unit }: UnitActionDropdownProps) {
               left: `${coords.left}px`,
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-56 bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1"
+            className="w-56 max-h-[calc(100vh-24px)] overflow-y-auto bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1 select-none"
           >
             {menuItems.map((item, idx) => {
               const Icon = item.icon;
 
               const itemClasses = cn(
-                "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none text-start",
+                "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none text-right",
                 item.isHighlighted
-                  ? "bg-[#EEF2E6] text-[#34432E] font-bold"
-                  : "text-[#172115] hover:bg-[#F4F6F0]"
+                  ? "bg-[#EEF2E6] text-[#34432E]"
+                  : "text-[#172115] hover:bg-[#EEF2E6] hover:text-[#172115] bg-transparent"
               );
 
               const content = (
                 <>
-                  {/* Icon on Right in RTL */}
+                  {/* Text on Right in RTL */}
+                  <span className="truncate">{item.label}</span>
+
+                  {/* Icon on Left in RTL */}
                   <Icon
                     className={cn(
-                      "w-4 h-4 shrink-0",
+                      "w-4 h-4 shrink-0 stroke-[2.2]",
                       item.isHighlighted ? "text-[#34432E]" : "text-[#172115]"
                     )}
                   />
-                  {/* Label on Left of icon */}
-                  <span className="truncate">{item.label}</span>
                 </>
               );
 
               if (item.href) {
+                const prefix = APP_CONFIG.basePath || "";
+                const href = item.href.startsWith("http")
+                  ? item.href
+                  : `${prefix}${item.href.startsWith("/") ? item.href : `/${item.href}`}`;
                 return (
-                  <Link
+                  <a
                     key={idx}
-                    href={item.href}
-                    prefetch={true}
+                    href={href}
                     onClick={() => {
                       setIsOpen(false);
                       if (item.onClick) item.onClick();
@@ -254,7 +260,7 @@ export function UnitActionDropdown({ unit }: UnitActionDropdownProps) {
                     className={itemClasses}
                   >
                     {content}
-                  </Link>
+                  </a>
                 );
               }
 

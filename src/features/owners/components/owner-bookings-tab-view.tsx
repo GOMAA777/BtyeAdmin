@@ -419,8 +419,6 @@ export function OwnerBookingsTabView({
                     {/* 9. الإجراءات (Admin) */}
                     <td className="px-6 py-5 whitespace-nowrap text-center">
                       <ActionDropdown
-                        triggerIcon="vertical"
-                        triggerClassName="w-8 h-8 rounded-[8px] border border-[#e5e8e2] bg-white hover:bg-[#f6f7f4] text-[#73786f] flex items-center justify-center transition-colors shadow-2xs mx-auto"
                         items={[
                           {
                             label: "تفاصيل الحجز",

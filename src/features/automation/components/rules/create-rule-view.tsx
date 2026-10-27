@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackButton } from "@/components/shared/back-button";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { automationService } from "@/services/automation-service";
+import { bookingsService } from "@/services/bookings-service";
 import {
   Sliders,
   Clock,
@@ -49,10 +52,22 @@ export function CreateRuleView() {
   );
   const [scope, setScope] = useState<"all" | "custom" | "regional">("all");
 
-  // Simulation states
-  const [selectedSampleBooking, setSelectedSampleBooking] = useState("(أحمد محمد - عمارة النخيل)");
+  // Simulation states & bookings
+  const [sampleBookings, setSampleBookings] = useState<string[]>([]);
+  const [selectedSampleBooking, setSelectedSampleBooking] = useState("");
   const [safeSimulationMode, setSafeSimulationMode] = useState(true);
   const [simulationRunning, setSimulationRunning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    bookingsService.getAll().then((list) => {
+      const formatted = list.map((b) => `(${b.guest?.name || "نزيل"} - ${b.propertyName})`);
+      setSampleBookings(formatted);
+      if (formatted.length > 0) {
+        setSelectedSampleBooking(formatted[0]);
+      }
+    });
+  }, []);
 
   const confirm = useConfirm();
 
@@ -75,13 +90,60 @@ export function CreateRuleView() {
     });
     if (!ok) return;
 
-    toast.success("تم حفظ وتفعيل قاعدة الأتمتة بنجاح!");
-    router.push("/automation/");
+    try {
+      setIsSubmitting(true);
+      await automationService.create({
+        title: ruleName,
+        description: description,
+        category: "self_checkin",
+        categoryLabel: category,
+        triggerType: triggerEvent,
+        triggerLabel: triggerEvent,
+        triggerTime: triggerTime,
+        actionSummary: `إرسال رسالة WhatsApp: ${selectedTemplate}`,
+        actionType: "whatsapp",
+        scope: scope === "all" ? "شامل لكافة العقارات" : "عقارات مخصصة",
+        status: initialStatus,
+      });
+      toast.success("تم حفظ وتفعيل قاعدة الأتمتة بنجاح!");
+      router.push("/automation/");
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ قاعدة الأتمتة");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDraftSave = () => {
-    toast.success("تم حفظ قاعدة الأتمتة كمسودة بنجاح");
-    router.push("/automation/");
+  const handleDraftSave = async () => {
+    const ok = await confirm({
+      title: "حفظ كمسودة",
+      message: `هل تريد حفظ قاعدة الأتمتة "${ruleName}" كمسودة؟`,
+      confirmLabel: "حفظ كمسودة",
+    });
+    if (!ok) return;
+
+    try {
+      setIsSubmitting(true);
+      await automationService.create({
+        title: ruleName,
+        description: description,
+        category: "self_checkin",
+        categoryLabel: category,
+        triggerType: triggerEvent,
+        triggerLabel: triggerEvent,
+        triggerTime: triggerTime,
+        actionSummary: `إرسال رسالة WhatsApp: ${selectedTemplate}`,
+        actionType: "whatsapp",
+        scope: scope === "all" ? "شامل لكافة العقارات" : "عقارات مخصصة",
+        status: "draft",
+      });
+      toast.success("تم حفظ قاعدة الأتمتة كمسودة بنجاح");
+      router.push("/automation/");
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ المسودة");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -294,19 +356,17 @@ export function CreateRuleView() {
                     <span>الحدث المحفّز الرئيسي</span>
                     <span className="text-[#ba1a1a]">*</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={triggerEvent}
-                      onChange={(e) => setTriggerEvent(e.target.value)}
-                      className="bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[#181d17] text-[14px] font-semibold w-full border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
-                    >
-                      <option>قبل موعد الوصول (Before Check-in)</option>
-                      <option>عند إنشاء حجز مؤكد (Booking Created)</option>
-                      <option>قبل انتهاء الحجز والمغادرة (Before Check-out)</option>
-                      <option>عند انتهاء الحجز وتسجيل الخروج (Check-out Done)</option>
-                    </select>
-                    <ChevronDown className="absolute left-[16px] top-1/2 -translate-y-1/2 size-[14px] text-[#181d17] pointer-events-none" />
-                  </div>
+                  <SelectDropdown
+                    value={triggerEvent}
+                    onChange={setTriggerEvent}
+                    options={[
+                      "قبل موعد الوصول (Before Check-in)",
+                      "عند إنشاء حجز مؤكد (Booking Created)",
+                      "قبل انتهاء الحجز والمغادرة (Before Check-out)",
+                      "عند انتهاء الحجز وتسجيل الخروج (Check-out Done)",
+                    ]}
+                    triggerClassName="bg-[#f1f5eb] h-[44px] rounded-[12px] px-[16px] text-[#181d17] text-[14px] font-semibold border-0"
+                  />
                 </div>
 
                 {/* Time-based Offset Config Box */}
@@ -384,18 +444,18 @@ export function CreateRuleView() {
                     </span>
                   </div>
 
-                  <div className="relative flex-1 max-w-[340px]">
-                    <select
+                  <div className="flex-1 max-w-[340px]">
+                    <SelectDropdown
                       value={sourceCondition}
-                      onChange={(e) => setSourceCondition(e.target.value)}
-                      className="bg-white rounded-[8px] h-[36px] w-full px-[16px] text-[13px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
-                    >
-                      <option>Whatsapp .com</option>
-                      <option>Airbnb.com</option>
-                      <option>Booking.com</option>
-                      <option>حجز مباشر عبر المنصة</option>
-                    </select>
-                    <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
+                      onChange={setSourceCondition}
+                      options={[
+                        "Whatsapp .com",
+                        "Airbnb.com",
+                        "Booking.com",
+                        "حجز مباشر عبر المنصة",
+                      ]}
+                      triggerClassName="bg-white rounded-[8px] h-[36px] px-[16px] text-[13px] font-semibold text-[#181d17] border-0"
+                    />
                   </div>
 
                   <button
@@ -416,17 +476,17 @@ export function CreateRuleView() {
                     </span>
                   </div>
 
-                  <div className="relative flex-1 max-w-[340px]">
-                    <select
+                  <div className="flex-1 max-w-[340px]">
+                    <SelectDropdown
                       value={passcodeCondition}
-                      onChange={(e) => setPasscodeCondition(e.target.value)}
-                      className="bg-white rounded-[8px] h-[36px] w-full px-[16px] text-[13px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
-                    >
-                      <option>كود مخصص لكل حجز</option>
-                      <option>كود رئيسي ثابت للوحدة</option>
-                      <option>بطاقة دخول فيزيائية</option>
-                    </select>
-                    <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
+                      onChange={setPasscodeCondition}
+                      options={[
+                        "كود مخصص لكل حجز",
+                        "كود رئيسي ثابت للوحدة",
+                        "بطاقة دخول فيزيائية",
+                      ]}
+                      triggerClassName="bg-white rounded-[8px] h-[36px] px-[16px] text-[13px] font-semibold text-[#181d17] border-0"
+                    />
                   </div>
 
                   <button
@@ -481,18 +541,16 @@ export function CreateRuleView() {
                       <label className="text-[11px] font-semibold text-[#454840]">
                         قالب الرسالة المعتمد
                       </label>
-                      <div className="relative">
-                        <select
-                          value={selectedTemplate}
-                          onChange={(e) => setSelectedTemplate(e.target.value)}
-                          className="bg-white rounded-[8px] h-[40px] w-full px-[16px] text-[12px] font-semibold text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
-                        >
-                          <option>تفاصيل الوصول وكود القفل</option>
-                          <option>تأكيد استلام الحجز وموقع العقار</option>
-                          <option>تذكير بموعد المغادرة وإجراءات الخروج</option>
-                        </select>
-                        <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
-                      </div>
+                      <SelectDropdown
+                        value={selectedTemplate}
+                        onChange={setSelectedTemplate}
+                        options={[
+                          "تفاصيل الوصول وكود القفل",
+                          "تأكيد استلام الحجز وموقع العقار",
+                          "تذكير بموعد المغادرة وإجراءات الخروج",
+                        ]}
+                        triggerClassName="bg-white rounded-[8px] h-[40px] px-[16px] text-[12px] font-semibold text-[#181d17] border-0"
+                      />
                     </div>
 
                     <div className="flex flex-col gap-[4px]">
@@ -834,18 +892,17 @@ export function CreateRuleView() {
                 <label className="text-[11px] font-semibold text-[#454840]">
                   عينة حجز نشطة للاختبار
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedSampleBooking}
-                    onChange={(e) => setSelectedSampleBooking(e.target.value)}
-                    className="bg-[#f1f5eb] rounded-[8px] h-[40px] w-full px-[16px] text-[13px] font-normal text-[#181d17] border-0 focus:outline-none focus:ring-1 focus:ring-[#34422a] appearance-none cursor-pointer"
-                  >
-                    <option>(أحمد محمد - عمارة النخيل)</option>
-                    <option>(خالد عبد الله - برج رِواق العليا)</option>
-                    <option>(سارة علي - فلل الياسمين)</option>
-                  </select>
-                  <ChevronDown className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[13px] text-[#181d17] pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={selectedSampleBooking}
+                  onChange={setSelectedSampleBooking}
+                  options={
+                    sampleBookings.length > 0
+                      ? sampleBookings
+                      : ["(لا توجد حجوزات مسجلة حالياً)"]
+                  }
+                  placeholder="اختر عينة حجز..."
+                  triggerClassName="bg-[#f1f5eb] rounded-[8px] h-[40px] px-[16px] text-[13px] font-normal text-[#181d17] border-0"
+                />
               </div>
 
               {/* Safe Simulation Mode Switch */}

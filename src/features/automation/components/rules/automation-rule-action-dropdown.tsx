@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hardNavigate } from "@/lib/constants";
 import { AutomationRule } from "../../types";
@@ -180,15 +181,17 @@ export function AutomationRuleActionDropdown({
     }
 
     if (openUp) {
-      setCoords({
-        bottom: Math.max(10, window.innerHeight - rect.top + 6),
-        left,
-      });
+      const bottom = Math.min(
+        Math.max(12, window.innerHeight - rect.top + 6),
+        window.innerHeight - 24
+      );
+      setCoords({ bottom, left });
     } else {
-      setCoords({
-        top: Math.max(10, rect.bottom + 6),
-        left,
-      });
+      const top = Math.min(
+        Math.max(12, rect.bottom + 6),
+        Math.max(12, window.innerHeight - menuHeight - 12)
+      );
+      setCoords({ top, left });
     }
   }, []);
 
@@ -251,7 +254,7 @@ export function AutomationRuleActionDropdown({
 
   return (
     <>
-      {/* Trigger Button - 32x32px rounded-lg with 3 vertical dots (Figma 1:21467) */}
+      {/* Trigger Button - rounded-full with 3 vertical dots */}
       <button
         ref={triggerRef}
         type="button"
@@ -259,15 +262,15 @@ export function AutomationRuleActionDropdown({
         aria-label="الاجراءات"
         aria-expanded={isOpen}
         className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center text-[#73786F] hover:text-[#181D17] hover:bg-[#EBEFE6] transition-colors cursor-pointer select-none",
-          isOpen && "bg-[#EBEFE6] text-[#181D17]",
+          "w-8 h-8 rounded-full border border-transparent hover:border-[#D5DDD0] hover:bg-[#EEF2E6] text-[#7D8A78] hover:text-[#181D17] inline-flex items-center justify-center transition-all cursor-pointer select-none",
+          isOpen && "bg-[#EEF2E6] text-[#181D17] border-[#CCD5C5] shadow-2xs",
           className
         )}
       >
-        <ThreeDotsIcon className="text-current" />
+        <MoreVertical className="w-4 h-4" />
       </button>
 
-      {/* Popover Menu: 100% exact match to Figma node 1:23723 ("الاجراءات") */}
+      {/* Popover Menu: matching Image 1 design system */}
       {isMounted && isOpen && coords &&
         createPortal(
           <div
@@ -281,7 +284,7 @@ export function AutomationRuleActionDropdown({
             }}
             onClick={(e) => e.stopPropagation()}
             onMouseLeave={() => setHoveredIndex(0)}
-            className="w-[208px] bg-white border border-[#E5E8E2] rounded-[14px] p-[7px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] flex flex-col gap-[4px] z-[9999] font-cairo select-none animate-in fade-in zoom-in-95 duration-100"
+            className="w-52 max-h-[calc(100vh-24px)] overflow-y-auto bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1 font-cairo select-none"
           >
             {/* Item 1: تفاصيل قاعدة الأتمتة (Figma 1:23725) */}
             <button

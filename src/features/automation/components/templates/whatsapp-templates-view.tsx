@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { WhatsAppTemplate, AutomationMainTab } from "../../types";
 import { initialWhatsAppTemplates } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -59,24 +60,9 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
     (statusFilter !== "all" ? 1 : 0) +
     (languageFilter !== "all" ? 1 : 0);
 
-  // Active open dropdown menu template id
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
   // Modals state
   const [previewTemplate, setPreviewTemplate] = useState<WhatsAppTemplate | null>(null);
   const [pauseTargetTemplate, setPauseTargetTemplate] = useState<WhatsAppTemplate | null>(null);
-
-  // Close dropdown menu on outside click
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenuId(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const categories = useMemo(
     () => [
@@ -353,84 +339,41 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
                     <div className="text-[11px] text-[#75786F] mt-0.5">{template.lastModifiedAuthor}</div>
                   </td>
 
-                  {/* Actions (3-dots menu) [1:24764] */}
-                  <td className="py-4 pl-4 text-center relative">
-                    <div className="inline-block">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenMenuId(openMenuId === template.id ? null : template.id);
-                        }}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-                          openMenuId === template.id
-                            ? "bg-[#EAF1E8] text-[#34422A]"
-                            : "hover:bg-gray-100 text-[#75786F]"
-                        }`}
-                        title="خيارات القالب"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-
-                      {/* Floating Dropdown Actions Menu [1:24764] */}
-                      {openMenuId === template.id && (
-                        <div
-                          ref={menuRef}
-                          className="w-[208px] bg-white border border-[#E5E8E2] rounded-[12px] p-[7px] flex flex-col gap-[4px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] absolute z-50 left-0 top-full mt-1 font-cairo text-right animate-in fade-in-50 zoom-in-95 duration-100"
-                        >
-                          {/* 1. عرض القالب */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              setPreviewTemplate(template);
-                            }}
-                            className="h-[32px] rounded-[8px] bg-[#EAF1E8] hover:bg-[#E0EBE0] px-2.5 flex items-center justify-between text-right text-[12px] font-bold text-[#4B5940] transition-colors w-full cursor-pointer"
-                          >
-                            <span>عرض القالب</span>
-                            <Eye className="w-4 h-4 text-[#4B5940]" />
-                          </button>
-
-                          {/* 2. معاينة الرسالة */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              setPreviewTemplate(template);
-                            }}
-                            className="h-[32px] rounded-[8px] hover:bg-[#FAFBF9] px-2.5 flex items-center justify-between text-right text-[12px] font-semibold text-[#252A24] transition-colors w-full cursor-pointer"
-                          >
-                            <span>معاينة الرسالة</span>
-                            <Eye className="w-4 h-4 text-[#252A24]" />
-                          </button>
-
-                          {/* 3. تعديل القالب */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              router.push(`/automation/templates/new?id=${template.id}`);
-                            }}
-                            className="h-[32px] rounded-[8px] hover:bg-[#FAFBF9] px-2.5 flex items-center justify-between text-right text-[12px] font-semibold text-[#252A24] transition-colors w-full cursor-pointer"
-                          >
-                            <span>تعديل القالب</span>
-                            <Edit3 className="w-4 h-4 text-[#252A24]" />
-                          </button>
-
-                          {/* 4. إيقاف القالب */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              setPauseTargetTemplate(template);
-                            }}
-                            className="h-[32px] rounded-[8px] hover:bg-red-50/50 px-2.5 flex items-center justify-between text-right text-[12px] font-semibold text-[#B02515] transition-colors w-full cursor-pointer"
-                          >
-                            <span>إيقاف القالب</span>
-                            <PauseCircle className="w-4 h-4 text-[#B02515]" />
-                          </button>
-                        </div>
-                      )}
+                  {/* Actions (3-dots menu) */}
+                  <td className="py-4 pl-4 text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-center">
+                      <ActionDropdown
+                        items={[
+                          {
+                            label: "عرض القالب",
+                            icon: Eye,
+                            onClick: () => setPreviewTemplate(template),
+                          },
+                          {
+                            label: "معاينة الرسالة",
+                            icon: Eye,
+                            onClick: () => setPreviewTemplate(template),
+                          },
+                          {
+                            label: "تعديل القالب",
+                            icon: Edit3,
+                            href: `/automation/templates/new?id=${template.id}`,
+                          },
+                          {
+                            label: "إيقاف القالب",
+                            icon: PauseCircle,
+                            variant: "destructive",
+                            confirm: {
+                              title: "إيقاف القالب",
+                              message: `هل أنت متأكد من رغبتك في إيقاف تشغيل قالب "${template.title}"؟`,
+                              confirmLabel: "إيقاف القالب",
+                              cancelLabel: "تراجع",
+                              variant: "destructive",
+                            },
+                            onClick: () => setPauseTargetTemplate(template),
+                          },
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>

@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { defaultWhatsAppMessages } from "../data/mock-whatsapp-messages";
 import { WhatsAppMessageItem } from "../types/whatsapp";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
 
 interface BookingWhatsAppLogViewProps {
   bookingCode?: string;
@@ -58,11 +59,37 @@ export function BookingWhatsAppLogView({
   const [manualMessageText, setManualMessageText] = useState("");
   const [manualTemplate, setManualTemplate] = useState("sa_custom_support");
 
+  const fallbackMessage: WhatsAppMessageItem = {
+    id: "msg-default",
+    messageId: "wamid.HBgL...",
+    recipientPhone: "+966 50 000 0000",
+    templateName: "sa_checkin_auto",
+    language: "العربية (ar)",
+    title: "تفاصيل الرسالة",
+    categoryBadge: "إشعار أتمتة",
+    status: "delivered",
+    statusText: "تم التسليم",
+    timestamp: "18 سبتمبر 2026 — 02:00 م",
+    bubbleText: "تفاصيل الرسالة...",
+    previewBubbleText: {
+      sender: "منظومة إبراج",
+      greeting: "مرحباً بك",
+      body: "لا توجد رسائل مسجلة حالياً لهذا الحجز.",
+      time: "02:00 م",
+    },
+    footerInfo: {
+      template: "sa_custom",
+      leftNote: "WhatsApp Cloud API",
+    },
+    timeline: [],
+  };
+
   // Selected message object
   const selectedMessage = useMemo(() => {
     return (
       defaultWhatsAppMessages.find((m) => m.id === selectedMessageId) ||
-      defaultWhatsAppMessages[1]
+      defaultWhatsAppMessages[0] ||
+      fallbackMessage
     );
   }, [selectedMessageId]);
 
@@ -712,15 +739,16 @@ export function BookingWhatsAppLogView({
             {/* Template Selector */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-[#172115]">قالب الرسالة</label>
-              <select
+              <SelectDropdown
                 value={manualTemplate}
-                onChange={(e) => setManualTemplate(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl bg-[#F0F4EC] border border-transparent text-xs text-[#172115] focus:bg-white focus:border-[#CCD5C5] focus:outline-none transition-all"
-              >
-                <option value="sa_custom_support">رسالة دعم وتنسيق مخصصة (sa_custom_support)</option>
-                <option value="sa_checkin_instructions_v2">تعليمات الدخول الذكي المحدثة (sa_checkin_instructions_v2)</option>
-                <option value="sa_luggage_coordination">تنسيق استلام وحفظ الأمتعة (sa_luggage_coordination)</option>
-              </select>
+                onChange={setManualTemplate}
+                options={[
+                  { value: "sa_custom_support", label: "رسالة دعم وتنسيق مخصصة (sa_custom_support)" },
+                  { value: "sa_checkin_instructions_v2", label: "تعليمات الدخول الذكي المحدثة (sa_checkin_instructions_v2)" },
+                  { value: "sa_luggage_coordination", label: "تنسيق استلام وحفظ الأمتعة (sa_luggage_coordination)" },
+                ]}
+                triggerClassName="w-full h-11 px-3.5 rounded-xl bg-[#F0F4EC] border border-transparent text-xs text-[#172115]"
+              />
             </div>
 
             {/* Message Body Input */}

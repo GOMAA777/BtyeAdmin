@@ -158,9 +158,14 @@ export function SelectDropdown({
             menuClassName
           )}
         >
-          {normalizedOptions.map((opt) => {
-            const isSelected = opt.value === value;
-            const Icon = opt.icon;
+          {normalizedOptions.length === 0 ? (
+            <div className="py-4 px-3 text-center text-xs text-[#7D8A78] select-none">
+              لا توجد خيارات متاحة
+            </div>
+          ) : (
+            normalizedOptions.map((opt) => {
+              const isSelected = opt.value === value;
+              const Icon = opt.icon;
 
             return (
               <button
@@ -190,7 +195,7 @@ export function SelectDropdown({
                 )}
               </button>
             );
-          })}
+          }))}
         </div>
       )}
     </div>

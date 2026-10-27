@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, ReactNode, useCallback } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
 import { MoreVertical, MoreHorizontal, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConfirm, type ConfirmOptions } from "@/hooks/use-confirm";
+import { hardNavigate } from "@/lib/constants";
 
 export interface ActionDropdownItem {
   label: string;
@@ -55,7 +55,7 @@ export function ActionDropdown({
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
-    // Flip upwards if not enough space below AND there is room above
+    // Flip upwards if not enough space below AND there is more room above
     const openUp = spaceBelow < estimatedHeight + 12 && spaceAbove > spaceBelow;
 
     // In RTL tables, the 3-dots button is on the left edge.
@@ -76,15 +76,17 @@ export function ActionDropdown({
     }
 
     if (openUp) {
-      setCoords({
-        bottom: Math.max(10, window.innerHeight - rect.top + 6),
-        left,
-      });
+      const bottom = Math.min(
+        Math.max(12, window.innerHeight - rect.top + 6),
+        window.innerHeight - 24
+      );
+      setCoords({ bottom, left });
     } else {
-      setCoords({
-        top: Math.max(10, rect.bottom + 6),
-        left,
-      });
+      const top = Math.min(
+        Math.max(12, rect.bottom + 6),
+        Math.max(12, window.innerHeight - estimatedHeight - 12)
+      );
+      setCoords({ top, left });
     }
   }, [items.length, align]);
 
@@ -122,13 +124,14 @@ export function ActionDropdown({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Use click (not mousedown) so menu item navigations aren't cancelled
+    document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("scroll", handleScrollOrResize, true);
     window.addEventListener("resize", handleScrollOrResize);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("scroll", handleScrollOrResize, true);
       window.removeEventListener("resize", handleScrollOrResize);
@@ -178,17 +181,20 @@ export function ActionDropdown({
               left: `${coords.left}px`,
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-48 sm:w-52 bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1"
+            className="w-48 sm:w-52 max-h-[calc(100vh-24px)] overflow-y-auto bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1 font-cairo select-none"
           >
             {items.map((item, idx) => {
               const Icon = item.icon;
               const isDestructive = item.variant === "destructive";
+              const isActive = item.variant === "active";
 
               const itemClasses = cn(
-                "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none text-right bg-transparent",
+                "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none text-right",
                 isDestructive
-                  ? "text-[#C93B2B] hover:bg-[#FDF2F0] hover:text-[#B92A1A]"
-                  : "text-[#172115] hover:bg-[#EEF2E6] hover:text-[#172115]"
+                  ? "text-[#C93B2B] hover:bg-[#FDF2F0] hover:text-[#B92A1A] bg-transparent"
+                  : isActive
+                  ? "bg-[#EEF2E6] text-[#2E3C29] hover:bg-[#E5EAE0]"
+                  : "text-[#172115] hover:bg-[#EEF2E6] hover:text-[#172115] bg-transparent"
               );
 
               const content = (
@@ -200,7 +206,11 @@ export function ActionDropdown({
                   <Icon
                     className={cn(
                       "w-4 h-4 shrink-0 stroke-[2.2]",
-                      isDestructive ? "text-[#C93B2B]" : "text-[#172115]"
+                      isDestructive
+                        ? "text-[#C93B2B]"
+                        : isActive
+                        ? "text-[#2E3C29]"
+                        : "text-[#172115]"
                     )}
                   />
                 </>
@@ -208,15 +218,17 @@ export function ActionDropdown({
 
               if (item.href) {
                 return (
-                  <Link
+                  <button
                     key={idx}
-                    href={item.href}
-                    prefetch={true}
-                    onClick={() => setIsOpen(false)}
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      hardNavigate(item.href!);
+                    }}
                     className={itemClasses}
                   >
                     {content}
-                  </Link>
+                  </button>
                 );
               }
 

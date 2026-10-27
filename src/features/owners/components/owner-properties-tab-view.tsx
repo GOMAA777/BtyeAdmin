@@ -407,8 +407,6 @@ export function OwnerPropertiesTabView({
                           <span>العقار</span>
                         </Link>
                         <ActionDropdown
-                          triggerIcon={<ThreeDotsHorizontalIcon className="w-3 h-1 text-[#768071]" />}
-                          triggerClassName="w-7 h-7 rounded-lg hover:bg-[#F2F5F0] text-[#768071] inline-flex items-center justify-center transition-all cursor-pointer select-none"
                           items={[
                             {
                               label: "تفاصيل العقار",

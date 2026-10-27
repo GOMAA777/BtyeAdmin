@@ -21,12 +21,14 @@ import {
   User,
   Pause,
   XCircle,
+  Trash2,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
+import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { SubscriptionsAdvancedFilterDrawer } from "./subscriptions-advanced-filter-drawer";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
@@ -45,7 +47,6 @@ export function SubscriptionsListView() {
   const [billingCycleFilter, setBillingCycleFilter] = useState<string>("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const activeBillingFiltersCount =
     (packageFilter !== "all" ? 1 : 0) +
@@ -76,19 +77,6 @@ export function SubscriptionsListView() {
     [subCounts]
   );
 
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenuId(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const handleRefresh = () => {
     setIsRefreshing(true);
     setTimeout(() => {
@@ -104,8 +92,8 @@ export function SubscriptionsListView() {
     }, 800);
   };
 
-  const handleToggleResume = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggleResume = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setSubscriptions((prev) =>
       prev.map((sub) =>
         sub.id === id
@@ -126,7 +114,6 @@ export function SubscriptionsListView() {
   };
 
   const handlePauseSubscription = (id: string, ownerName: string) => {
-    setOpenMenuId(null);
     setSubscriptions((prev) =>
       prev.map((sub) =>
         sub.id === id
@@ -144,12 +131,10 @@ export function SubscriptionsListView() {
   };
 
   const handleCancelSubscription = (id: string, ownerName: string) => {
-    setOpenMenuId(null);
     toast.error(`تم إلغاء اشتراك ${ownerName}.`);
   };
 
   const handleRenewSubscription = (ownerName: string) => {
-    setOpenMenuId(null);
     toast.success(`تم إرسال طلب تجديد الاشتراك للمالك ${ownerName}.`);
   };
 
@@ -502,105 +487,96 @@ export function SubscriptionsListView() {
                     )}
                   </td>
 
-                  {/* Column 10: Actions (Dropdown [1:27421]) */}
-                  <td className="py-4 pl-6 text-center relative" onClick={(e) => e.stopPropagation()}>
-                    {sub.status === "paused" ? (
-                      <button
-                        type="button"
-                        onClick={(e) => handleToggleResume(sub.id, e)}
-                        className="size-8 rounded-full border border-[#ebefe6] flex items-center justify-center text-[#454840] hover:text-[#34422a] hover:bg-[#ebefe6] transition-colors cursor-pointer inline-flex"
-                        title="استئناف وتفعيل الاشتراك"
-                      >
-                        <Play className="size-3.5 fill-current" />
-                      </button>
-                    ) : (
-                      <div className="relative inline-block text-right">
-                        <button
-                          type="button"
-                          onClick={() => setOpenMenuId(openMenuId === sub.id ? null : sub.id)}
-                          className={`size-8 rounded-[8px] flex items-center justify-center transition-colors cursor-pointer ${
-                            openMenuId === sub.id
-                              ? "bg-[#ebefe6] text-[#34422a]"
-                              : "hover:bg-[#ebefe6] text-[#75786f]"
-                          }`}
-                          title="الإجراءات"
-                        >
-                          <MoreVertical className="size-4" />
-                        </button>
-
-                        {/* Floating Action Menu [1:27421] - EXACT FIGMA REPRODUCTION */}
-                        {openMenuId === sub.id && (
-                          <div
-                            ref={menuRef}
-                            className="absolute left-0 top-full mt-1 w-[192px] bg-white border border-[#ebefe6] rounded-[12px] p-[6px] shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] z-50 flex flex-col gap-[2px] text-right animate-in fade-in-50 zoom-in-95 duration-100"
-                            data-node-id="1:27421"
-                          >
-                            {/* 1. عرض الاشتراك */}
-                            <Link
-                              href={`/billing/${sub.id}/`}
-                              onClick={() => setOpenMenuId(null)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#f1f5eb] text-[#181d17] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer"
-                            >
-                              <Eye className="size-[15px] text-[#181d17] shrink-0" />
-                              <span>عرض الاشتراك</span>
-                            </Link>
-
-                            {/* 2. عرض المالك */}
-                            <Link
-                              href={`/owners/${sub.ownerId}/`}
-                              onClick={() => setOpenMenuId(null)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#f1f5eb] text-[#181d17] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer"
-                            >
-                              <User className="size-[15px] text-[#181d17] shrink-0" />
-                              <span>عرض المالك</span>
-                            </Link>
-
-                            {/* 3. تغيير الباقة */}
-                            <Link
-                              href="/billing/pricing/"
-                              onClick={() => setOpenMenuId(null)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#f1f5eb] text-[#181d17] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer"
-                            >
-                              <ArrowUp className="size-[15px] text-[#181d17] shrink-0" />
-                              <span>تغيير الباقة</span>
-                            </Link>
-
-                            {/* 4. تجديد الاشتراك */}
-                            <button
-                              type="button"
-                              onClick={() => handleRenewSubscription(sub.ownerName)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#f1f5eb] text-[#181d17] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer w-full text-right"
-                            >
-                              <RotateCw className="size-[15px] text-[#181d17] shrink-0" />
-                              <span>تجديد الاشتراك</span>
-                            </button>
-
-                            {/* Divider line */}
-                            <div className="h-px bg-[#ebefe6] my-1 w-full" />
-
-                            {/* 5. تعليق الاشتراك */}
-                            <button
-                              type="button"
-                              onClick={() => handlePauseSubscription(sub.id, sub.ownerName)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#fef3c7]/60 text-[#b45309] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer w-full text-right"
-                            >
-                              <Pause className="size-[14px] text-[#b45309] shrink-0" />
-                              <span>تعليق الاشتراك</span>
-                            </button>
-
-                            {/* 6. إلغاء الاشتراك */}
-                            <button
-                              type="button"
-                              onClick={() => handleCancelSubscription(sub.id, sub.ownerName)}
-                              className="flex items-center gap-[10px] px-3 py-2 rounded-[8px] hover:bg-[#fee2e2]/60 text-[#ba1a1a] text-[11px] font-medium leading-[16px] transition-colors cursor-pointer w-full text-right"
-                            >
-                              <XCircle className="size-[15px] text-[#ba1a1a] shrink-0" />
-                              <span>إلغاء الاشتراك</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                  {/* Column 10: Actions (ActionDropdown) */}
+                  <td className="py-4 pl-6 text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-center">
+                      <ActionDropdown
+                        items={
+                          sub.status === "paused"
+                            ? [
+                                {
+                                  label: "عرض الاشتراك",
+                                  icon: Eye,
+                                  href: `/billing/${sub.id}/`,
+                                },
+                                {
+                                  label: "عرض المالك",
+                                  icon: User,
+                                  href: `/owners/${sub.ownerId}/`,
+                                },
+                                {
+                                  label: "تغيير الباقة",
+                                  icon: ArrowUp,
+                                  href: "/billing/pricing/",
+                                },
+                                {
+                                  label: "استئناف وتفعيل الاشتراك",
+                                  icon: Play,
+                                  onClick: () => handleToggleResume(sub.id),
+                                },
+                                {
+                                  label: "إلغاء الاشتراك",
+                                  icon: Trash2,
+                                  variant: "destructive",
+                                  confirm: {
+                                    title: "إلغاء الاشتراك",
+                                    message: `هل أنت متأكد من رغبتك في إلغاء اشتراك "${sub.ownerName}"؟`,
+                                    confirmLabel: "إلغاء الاشتراك",
+                                    cancelLabel: "تراجع",
+                                    variant: "destructive",
+                                  },
+                                  onClick: () => handleCancelSubscription(sub.id, sub.ownerName),
+                                },
+                              ]
+                            : [
+                                {
+                                  label: "عرض الاشتراك",
+                                  icon: Eye,
+                                  href: `/billing/${sub.id}/`,
+                                },
+                                {
+                                  label: "عرض المالك",
+                                  icon: User,
+                                  href: `/owners/${sub.ownerId}/`,
+                                },
+                                {
+                                  label: "تغيير الباقة",
+                                  icon: ArrowUp,
+                                  href: "/billing/pricing/",
+                                },
+                                {
+                                  label: "تجديد الاشتراك",
+                                  icon: RotateCw,
+                                  onClick: () => handleRenewSubscription(sub.ownerName),
+                                },
+                                {
+                                  label: "تعليق الاشتراك",
+                                  icon: Pause,
+                                  confirm: {
+                                    title: "تعليق الاشتراك",
+                                    message: `هل أنت متأكد من تعليق اشتراك "${sub.ownerName}" مؤقتاً؟`,
+                                    confirmLabel: "تعليق الاشتراك",
+                                    cancelLabel: "تراجع",
+                                  },
+                                  onClick: () => handlePauseSubscription(sub.id, sub.ownerName),
+                                },
+                                {
+                                  label: "إلغاء الاشتراك",
+                                  icon: Trash2,
+                                  variant: "destructive",
+                                  confirm: {
+                                    title: "إلغاء الاشتراك",
+                                    message: `هل أنت متأكد من رغبتك في إلغاء اشتراك "${sub.ownerName}"؟`,
+                                    confirmLabel: "إلغاء الاشتراك",
+                                    cancelLabel: "تراجع",
+                                    variant: "destructive",
+                                  },
+                                  onClick: () => handleCancelSubscription(sub.id, sub.ownerName),
+                                },
+                              ]
+                        }
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { MoreHorizontal, Eye, UserPlus, Wrench, History } from "lucide-react";
+import { MoreVertical, Eye, UserPlus, Wrench, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OperationTask } from "../types";
 
@@ -50,15 +50,17 @@ export function OperationActionDropdown({
     }
 
     if (openUp) {
-      setCoords({
-        bottom: Math.max(10, window.innerHeight - rect.top + 6),
-        left,
-      });
+      const bottom = Math.min(
+        Math.max(12, window.innerHeight - rect.top + 6),
+        window.innerHeight - 24
+      );
+      setCoords({ bottom, left });
     } else {
-      setCoords({
-        top: Math.max(10, rect.bottom + 6),
-        left,
-      });
+      const top = Math.min(
+        Math.max(12, rect.bottom + 6),
+        Math.max(12, window.innerHeight - estimatedHeight - 12)
+      );
+      setCoords({ top, left });
     }
   }, []);
 
@@ -126,7 +128,7 @@ export function OperationActionDropdown({
           isOpen && "bg-[#EEF2E6] text-[#172115] border-[#CCD5C5] shadow-2xs"
         )}
       >
-        <MoreHorizontal className="w-4 h-4" />
+        <MoreVertical className="w-4 h-4" />
       </button>
 
       {/* Popover Action Menu rendered via Portal */}
@@ -146,7 +148,7 @@ export function OperationActionDropdown({
               left: `${coords.left}px`,
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-52 bg-white rounded-2xl p-1.5 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1 font-cairo"
+            className="w-52 max-h-[calc(100vh-24px)] overflow-y-auto bg-white rounded-2xl p-2 border border-[#E2E6DC] shadow-[0_12px_32px_rgba(0,0,0,0.14)] z-[9999] animate-in fade-in zoom-in-95 duration-150 space-y-1 font-cairo select-none"
           >
             {/* 1. تفاصيل العملية */}
             <Link

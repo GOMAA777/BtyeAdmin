@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   MessageSquare,
@@ -17,6 +17,9 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { propertiesService } from "@/services/properties-service";
+import { unitsService } from "@/services/units-service";
 import { TeamMember } from "../../types";
 
 interface SendWhatsappMessageModalProps {
@@ -33,9 +36,26 @@ export function SendWhatsappMessageModal({
   onSend,
 }: SendWhatsappMessageModalProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<number>(1);
-  const [selectedProperty, setSelectedProperty] = useState("عمارة النخيل السكنية (حي الصحافة، الرياض)");
-  const [selectedUnit, setSelectedUnit] = useState("شقة 204 — (المغادرة اليوم 12:00 ظهراً)");
+  const [propertyList, setPropertyList] = useState<{ id: string; name: string }[]>([]);
+  const [unitList, setUnitList] = useState<{ id: string; name: string }[]>([]);
+  const [selectedProperty, setSelectedProperty] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("");
   const [includeSmartLock, setIncludeSmartLock] = useState(true);
+
+  useEffect(() => {
+    propertiesService.getAll().then((props) => {
+      setPropertyList(props.map((p) => ({ id: p.id, name: p.title })));
+      if (props.length > 0 && !selectedProperty) {
+        setSelectedProperty(props[0].title);
+      }
+    });
+    unitsService.getAll().then((units) => {
+      setUnitList(units.map((u) => ({ id: u.id, name: `شقة ${u.unitNumber}` })));
+      if (units.length > 0 && !selectedUnit) {
+        setSelectedUnit(`شقة ${units[0].unitNumber}`);
+      }
+    });
+  }, []);
 
   if (!isOpen || !member) return null;
 
@@ -169,15 +189,17 @@ https://abraj.sa/task/CLN-2055`,
                   <Building2 className="size-3.5 text-[#34422a]" />
                   <span>العقار المستهدف:</span>
                 </label>
-                <select
+                <SelectDropdown
                   value={selectedProperty}
-                  onChange={(e) => setSelectedProperty(e.target.value)}
-                  className="w-full bg-white border border-[#dfe4db] rounded-[10px] h-11 px-3 text-[13px] font-medium text-[#181d17] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#34422a] font-cairo"
-                >
-                  <option value="عمارة النخيل السكنية (حي الصحافة، الرياض)">عمارة النخيل السكنية (حي الصحافة، الرياض)</option>
-                  <option value="برج الياسمين الفندقي (طريق الملك فهد، الرياض)">برج الياسمين الفندقي (طريق الملك فهد، الرياض)</option>
-                  <option value="فيلا النرجس المستقلة (حي النرجس، الرياض)">فيلا النرجس المستقلة (حي النرجس، الرياض)</option>
-                </select>
+                  onChange={setSelectedProperty}
+                  options={
+                    propertyList.length > 0
+                      ? propertyList.map((p) => p.name)
+                      : ["لا توجد عقارات مسجلة حالياً"]
+                  }
+                  placeholder="اختر العقار..."
+                  triggerClassName="w-full bg-white border border-[#dfe4db] rounded-[10px] h-11 px-3 text-[13px] font-medium text-[#181d17] shadow-sm font-cairo"
+                />
               </div>
 
               <div className="space-y-1">
@@ -185,15 +207,17 @@ https://abraj.sa/task/CLN-2055`,
                   <Home className="size-3.5 text-[#34422a]" />
                   <span>الوحدة السكنية والجدول:</span>
                 </label>
-                <select
+                <SelectDropdown
                   value={selectedUnit}
-                  onChange={(e) => setSelectedUnit(e.target.value)}
-                  className="w-full bg-white border border-[#dfe4db] rounded-[10px] h-11 px-3 text-[13px] font-medium text-[#181d17] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#34422a] font-cairo"
-                >
-                  <option value="شقة 204 — (المغادرة اليوم 12:00 ظهراً)">شقة 204 — (المغادرة اليوم 12:00 ظهراً)</option>
-                  <option value="جناح 202 — (مجدولة 02:00 م اليوم)">جناح 202 — (مجدولة 02:00 م اليوم)</option>
-                  <option value="شقة 104 — (مكتملة ومتاحة)">شقة 104 — (مكتملة ومتاحة)</option>
-                </select>
+                  onChange={setSelectedUnit}
+                  options={
+                    unitList.length > 0
+                      ? unitList.map((u) => u.name)
+                      : ["لا توجد وحدات مسجلة حالياً"]
+                  }
+                  placeholder="اختر الوحدة..."
+                  triggerClassName="w-full bg-white border border-[#dfe4db] rounded-[10px] h-11 px-3 text-[13px] font-medium text-[#181d17] shadow-sm font-cairo"
+                />
               </div>
             </div>
 
