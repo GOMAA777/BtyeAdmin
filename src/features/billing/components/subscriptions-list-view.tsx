@@ -66,12 +66,12 @@ export function SubscriptionsListView() {
 
   const billingTabs = useMemo(
     () => [
-      { id: "all", label: "الكل", count: subCounts.total },
-      { id: "active", label: "نشطة", count: subCounts.active },
-      { id: "trial", label: "تجريبية", count: subCounts.trial },
-      { id: "expiring_soon", label: "منتهية", count: subCounts.expiring },
-      { id: "paused", label: "موقوفة", count: subCounts.paused },
-      { id: "cancelled", label: "ملغاة", count: subCounts.cancelled },
+      { id: "all", label: `الكل (${subCounts.total})` },
+      { id: "active", label: `نشطة (${subCounts.active})` },
+      { id: "trial", label: `تجريبية (${subCounts.trial})` },
+      { id: "expiring_soon", label: `منتهية (${subCounts.expiring})` },
+      { id: "paused", label: `موقوفة (${subCounts.paused})` },
+      { id: "cancelled", label: `ملغاة (${subCounts.cancelled})` },
     ],
     [subCounts]
   );
@@ -311,36 +311,22 @@ export function SubscriptionsListView() {
         </div>
       </div>
 
-      {/* 3. Main Content Container: Tabs, Search, Filters & Table [1:26783] */}
+      {/* 3. Search & Filter Toolbar (Identical to all other dashboard pages) */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="ابحث باسم المالك أو المعرف أو رقم الاشتراك..."
+        tabs={billingTabs}
+        currentTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as any)}
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeBillingFiltersCount}
+        filterButtonTitle="تصفية الاشتراكات المتقدمة"
+        tabsLayoutId="billingFilterPill"
+      />
+
+      {/* 4. Subscriptions Data Table [1:26857] */}
       <div className="bg-white rounded-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-[#e5eae0]/60 overflow-hidden">
-        {/* Status Tabs Bar & Toolbar [1:26822] */}
-        <div className="p-4 sm:p-5 border-b border-[#e5eae0] flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#454840]">قائمة الاشتراكات والعقود</span>
-            <button
-              type="button"
-              onClick={handleRefresh}
-              className="flex items-center gap-2 text-[11px] font-medium text-[#454840] hover:text-[#181d17] transition-colors cursor-pointer shrink-0"
-            >
-              <span>آخر تحديث: منذ دقيقتين</span>
-              <RotateCw className={`size-3 text-[#454840] ${isRefreshing ? "animate-spin text-[#4b5940]" : ""}`} />
-            </button>
-          </div>
-
-          <TableToolbar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="ابحث باسم المالك، المعرف، أو رقم الاشتراك..."
-            tabs={billingTabs}
-            currentTab={activeTab}
-            onTabChange={(tabId) => setActiveTab(tabId as any)}
-            onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
-            activeFiltersCount={activeBillingFiltersCount}
-            filterButtonTitle="تصفية الاشتراكات المتقدمة"
-          />
-        </div>
-
-        {/* 4. Subscriptions Data Table [1:26857] */}
         <div className="overflow-x-auto">
           <table className="w-full text-right text-xs">
             <thead>

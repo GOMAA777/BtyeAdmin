@@ -131,21 +131,18 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
 
   const ruleTabs = useMemo(
     () => [
-      { id: "all", label: "الكل", count: rules.length },
+      { id: "all", label: `الكل (${rules.length})` },
       {
         id: "active",
-        label: "مفعلة",
-        count: rules.filter((r) => r.status === "active").length,
+        label: `مفعلة (${rules.filter((r) => r.status === "active").length})`,
       },
       {
         id: "paused",
-        label: "متوقفة",
-        count: rules.filter((r) => r.status === "paused").length,
+        label: `متوقفة (${rules.filter((r) => r.status === "paused").length})`,
       },
       {
         id: "draft",
-        label: "مسودة",
-        count: rules.filter((r) => r.status === "draft").length,
+        label: `مسودة (${rules.filter((r) => r.status === "draft").length})`,
       },
     ],
     [rules]
@@ -207,6 +204,7 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
         activeFiltersCount={activeFiltersCount}
         filterButtonTitle="تصفية قواعد الأتمتة المتقدمة"
+        tabsLayoutId="automationRulesFilterPill"
       />
 
       {/* Empty State View [1:26151] vs Table View */}
