@@ -19,6 +19,8 @@ import {
 import { cn } from "@/lib/utils";
 import { hardNavigate } from "@/lib/constants";
 import { AnimatedTabs } from "@/components/shared/animated-tabs";
+import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { ExtendStayModal } from "@/features/bookings/components/extend-stay-modal";
@@ -115,72 +117,31 @@ export function MainBookingsPageView({
         </div>
       </div>
 
-      {/* 2. SEARCH & STATUS FILTER BAR (Matching Figma node 1:6577) */}
-      <div className="bg-white border border-[#e5e8e2] rounded-[16px] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] px-5 py-3.5 flex flex-col lg:flex-row items-center justify-between gap-3">
-        {/* Right in RTL: Search Input with Magnifier on Far Right */}
-        <div className="relative w-full lg:w-[480px]">
-          <div className="bg-[#f6f7f4] rounded-[12px] h-[36px] flex items-center px-4 relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="ابحث باسم العميل، رقم الحجز، العقار أو الوحدة..."
-              className="w-full bg-transparent text-[12px] text-[#252a24] placeholder:text-[rgba(115,120,111,0.7)] pe-7 focus:outline-none placeholder:text-right font-medium"
-            />
-            <div className="absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[rgba(115,120,111,0.7)]">
-              <Search className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
-
-        {/* Left in RTL: Filter Button & Status Filter Tabs */}
-        <div className="flex items-center gap-2.5 w-full lg:w-auto flex-wrap">
-          {/* Advanced Filter Button */}
-          <button
-            type="button"
-            onClick={() => setIsFilterDrawerOpen(true)}
-            className={cn(
-              "h-[36px] px-3.5 rounded-[12px] text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer select-none",
-              activeFiltersCount > 0
-                ? "bg-[#34432E] text-white shadow-xs"
-                : "bg-[#f6f7f4] hover:bg-[#e5ebd8] text-[#252a24]"
-            )}
-            title="تصفية الحجوزات"
-          >
-            {activeFiltersCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#4b5940]" />
-            )}
-            <span>فلتر</span>
-            <SlidersHorizontal
-              className={cn(
-                "w-3.5 h-3.5",
-                activeFiltersCount > 0 ? "text-white" : "text-[#252a24]"
-              )}
-            />
-          </button>
-
-          <AnimatedTabs
-            tabs={[
-              { id: "all", label: `الكل (${statusCounts.all})` },
-              { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },
-              { id: "active", label: `الحالية(${statusCounts.active})` },
-              { id: "completed", label: `المنتهية(${statusCounts.completed})` },
-              { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
-            ]}
-            value={filterStatus}
-            onChange={(id) => {
-              setFilterStatus(id as "all" | BookingStatus);
-              setCurrentPage(1);
-            }}
-            layoutId="bookingsFilterPill"
-            variant="light"
-            trackClassName="bg-[#f6f7f4] rounded-[12px]"
-          />
-        </div>
-      </div>
+      {/* 2. SEARCH & STATUS FILTER BAR */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="ابحث باسم العميل، رقم الحجز، العقار أو الوحدة..."
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية الحجوزات"
+        tabs={[
+          { id: "all", label: `الكل (${statusCounts.all})` },
+          { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },
+          { id: "active", label: `الحالية (${statusCounts.active})` },
+          { id: "completed", label: `المنتهية (${statusCounts.completed})` },
+          { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
+        ]}
+        currentTab={filterStatus}
+        onTabChange={(id) => {
+          setFilterStatus(id as "all" | BookingStatus);
+          setCurrentPage(1);
+        }}
+        tabsLayoutId="bookingsFilterPill"
+      />
 
       {/* 3. HIGH-FIDELITY TABLE CONTAINER (Matching Figma node 1:6597) */}
       <div className="bg-white border border-[#e5e8e2] rounded-[16px] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] overflow-hidden">

@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Search,
   Download,
@@ -27,12 +26,12 @@ import {
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { SubscriptionsAdvancedFilterDrawer } from "./subscriptions-advanced-filter-drawer";
 import { Subscription } from "../types";
 import { initialSubscriptions } from "../data/mock-billing";
 
 export function SubscriptionsListView() {
-  const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -445,39 +444,26 @@ export function SubscriptionsListView() {
         </div>
 
         {/* Filters & Search Toolbar [1:26822] */}
-        <div className="bg-[rgba(241,245,235,0.4)] p-6 flex flex-col lg:flex-row items-center justify-between gap-3 border-b border-[#e5eae0]">
-          {/* Search Input [1:26851] (Right side in RTL) */}
-          <div className="relative flex-1 max-w-[512px] w-full">
-            <div className="bg-white h-[44px] rounded-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-transparent focus-within:border-[#4b5940] flex items-center pr-11 pl-4 transition-colors">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث باسم المالك، المعرف، أو رقم الاشتراك..."
-                className="w-full bg-transparent text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none"
-              />
-            </div>
-            <Search className="size-[15px] text-[#75786f] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          {/* Filter Dropdowns & Reset Button [1:26823] (Left side in RTL) */}
-          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-            <FilterButton
-              onClick={() => setIsFilterDrawerOpen(true)}
-              activeCount={activeBillingFiltersCount}
-              title="تصفية الاشتراكات المتقدمة"
-            />
+        <div className="p-4 sm:p-5 border-b border-[#e5eae0]">
+          <TableToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="ابحث باسم المالك، المعرف، أو رقم الاشتراك..."
+            onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+            activeFiltersCount={activeBillingFiltersCount}
+            filterButtonTitle="تصفية الاشتراكات المتقدمة"
+          >
             {/* 1. Package Filter */}
             <div className="relative">
               <select
                 value={packageFilter}
                 onChange={(e) => setPackageFilter(e.target.value)}
-                className="h-[44px] pr-3 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
+                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
               >
                 <option value="all">الباقة: الكل</option>
                 <option value="standard">باقة الشقق المرخصة</option>
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
             {/* 2. Status Filter */}
@@ -485,7 +471,7 @@ export function SubscriptionsListView() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-[44px] pr-3 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
+                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
               >
                 <option value="all">الحالة: الكل</option>
                 <option value="active">نشط</option>
@@ -493,7 +479,7 @@ export function SubscriptionsListView() {
                 <option value="expiring_soon">قريب الانتهاء</option>
                 <option value="paused">موقوف</option>
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
             {/* 3. Payment Status Filter */}
@@ -501,13 +487,13 @@ export function SubscriptionsListView() {
               <select
                 value={paymentStatusFilter}
                 onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="h-[44px] pr-3 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
+                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
               >
                 <option value="all">حالة الدفع: الكل</option>
                 <option value="paid">مسدد تلقائياً</option>
                 <option value="pending">فاتورة معلقة</option>
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
             {/* 4. Billing Cycle Filter */}
@@ -515,13 +501,13 @@ export function SubscriptionsListView() {
               <select
                 value={billingCycleFilter}
                 onChange={(e) => setBillingCycleFilter(e.target.value)}
-                className="h-[44px] pr-3 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
+                className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
               >
                 <option value="all">دورة الفوترة: الكل</option>
                 <option value="monthly">شهري</option>
                 <option value="annual">سنوي</option>
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
             {/* 5. Reset Filters Button */}
@@ -536,12 +522,13 @@ export function SubscriptionsListView() {
                 setPackageFilter("all");
                 toast.info("تمت استعادة إعدادات التصفية الافتراضية.");
               }}
-              className="size-[44px] rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex items-center justify-center text-[#454840] hover:bg-gray-50 transition-colors cursor-pointer"
+              className="h-10 px-3.5 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] flex items-center justify-center text-[#454840] transition-colors cursor-pointer select-none gap-1.5 text-xs font-medium font-cairo"
               title="إعادة ضبط الفلاتر"
             >
-              <RotateCcw className="size-[14px]" />
+              <RotateCcw className="size-3.5" />
+              <span>إعادة ضبط</span>
             </button>
-          </div>
+          </TableToolbar>
         </div>
 
         {/* 4. Subscriptions Data Table [1:26857] */}
@@ -572,11 +559,17 @@ export function SubscriptionsListView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e5eae0] text-[#181d17]">
-              {paginatedSubscriptions.map((sub) => (
+              {paginatedSubscriptions.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-16 text-center text-[#75786f] text-[13px] font-medium">
+                    لا توجد أي اشتراكات مسجلة تطابق خيارات التصفية الحالية
+                  </td>
+                </tr>
+              ) : (
+                paginatedSubscriptions.map((sub) => (
                 <tr
                   key={sub.id}
-                  onClick={() => router.push(`/billing/${sub.id}/`)}
-                  className="hover:bg-[#fafbf9] transition-colors group cursor-pointer"
+                  className="hover:bg-[#fafbf9] transition-colors"
                 >
                   {/* Column 1: Owner */}
                   <td className="py-4 pr-6">
@@ -585,7 +578,7 @@ export function SubscriptionsListView() {
                         {sub.avatarInitials}
                       </div>
                       <div>
-                        <div className="font-semibold text-[14px] text-[#181d17] group-hover:text-[#4b5940] transition-colors">
+                        <div className="font-semibold text-[14px] text-[#181d17]">
                           {sub.ownerName}
                         </div>
                         <div className="text-[11px] text-[#75786f] font-medium mt-0.5 tracking-[0.5px]">
@@ -815,8 +808,9 @@ export function SubscriptionsListView() {
                     )}
                   </td>
                 </tr>
-              ))}
-            </tbody>
+              ))
+            )}
+          </tbody>
           </table>
         </div>
 

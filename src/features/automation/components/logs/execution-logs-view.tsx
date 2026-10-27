@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ExecutionLog, AutomationMainTab } from "../../types";
 import { initialExecutionLogs } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -46,6 +47,16 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
 
   // Retry modal state
   const [retryTargetLog, setRetryTargetLog] = useState<ExecutionLog | null>(null);
+
+  const logTabs = useMemo(
+    () => [
+      { id: "all", label: `الكل (${logs.length})` },
+      { id: "success", label: `نجح (${logs.filter((l) => l.status === "success").length})` },
+      { id: "failed", label: `فشل (${logs.filter((l) => l.status === "failed").length})` },
+      { id: "in_progress", label: `قيد التنفيذ (${logs.filter((l) => l.status === "in_progress").length})` },
+    ],
+    [logs]
+  );
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -159,89 +170,16 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         </div>
       </div>
 
-      {/* 3. Search Field & Status Filter Bar (Figma node 1:25043) */}
-      <div className="bg-white rounded-[16px] border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] p-[16px] flex flex-col md:flex-row md:items-center justify-between gap-[16px]">
-        {/* Right side in RTL: Search Input */}
-        <div className="relative flex-1 max-w-full md:max-w-[480px]">
-          <div className="bg-[#f6f7f4] rounded-[12px] flex items-center pr-[14px] pl-[16px] py-[8px] border border-transparent focus-within:border-[#4b5940] transition-colors">
-            <Search className="size-[15px] text-[#73786f] shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث برقم الحجز، اسم العميل، اسم القاعدة أو معرف العملية..."
-              className="w-full bg-transparent border-0 outline-none pr-[10px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)]"
-            />
-          </div>
-        </div>
-
-        {/* Left side in RTL: Filter Button & Status Segmented Tabs */}
-        <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
-          <FilterButton
-            onClick={() => {
-              if (statusFilter === "all") setStatusFilter("success");
-              else if (statusFilter === "success") setStatusFilter("failed");
-              else if (statusFilter === "failed") setStatusFilter("in_progress");
-              else setStatusFilter("all");
-            }}
-            activeCount={statusFilter !== "all" ? 1 : 0}
-            title="تصفية سجلات التنفيذ"
-          />
-          <div className="bg-[#f6f7f4] rounded-[12px] p-[4px] flex items-center gap-[4px] overflow-x-auto">
-          {/* All */}
-          <button
-            type="button"
-            onClick={() => setStatusFilter("all")}
-            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              statusFilter === "all"
-                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
-                : "text-[#73786f] hover:text-[#252a24]"
-            }`}
-          >
-            الكل ({logs.length})
-          </button>
-
-          {/* Success */}
-          <button
-            type="button"
-            onClick={() => setStatusFilter("success")}
-            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              statusFilter === "success"
-                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
-                : "text-[#73786f] hover:text-[#252a24]"
-            }`}
-          >
-            نجح ({logs.filter((l) => l.status === "success").length})
-          </button>
-
-          {/* Failed */}
-          <button
-            type="button"
-            onClick={() => setStatusFilter("failed")}
-            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              statusFilter === "failed"
-                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
-                : "text-[#73786f] hover:text-[#252a24]"
-            }`}
-          >
-            فشل ({logs.filter((l) => l.status === "failed").length})
-          </button>
-
-          {/* In Progress */}
-          <button
-            type="button"
-            onClick={() => setStatusFilter("in_progress")}
-            className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              statusFilter === "in_progress"
-                ? "bg-white text-[#252a24] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]"
-                : "text-[#73786f] hover:text-[#252a24]"
-            }`}
-          >
-            قيد التنفيذ ({logs.filter((l) => l.status === "in_progress").length})
-          </button>
-        </div>
-      </div>
-    </div>
+      {/* 3. Search Field & Status Filter Bar */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="ابحث برقم الحجز، اسم العميل، اسم القاعدة أو معرف العملية..."
+        tabs={logTabs}
+        currentTab={statusFilter}
+        onTabChange={(id) => setStatusFilter(id as "all" | "success" | "failed" | "in_progress")}
+        tabsLayoutId="executionLogsFilterPill"
+      />
 
       {isEmptyPreview || filteredLogs.length === 0 ? (
         /* Central Hero Empty State Card (Figma node 1:26564 / 1:26605) */

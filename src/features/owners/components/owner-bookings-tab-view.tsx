@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatedTabs } from "@/components/shared/animated-tabs";
+import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { ExtendStayModal } from "@/features/bookings/components/extend-stay-modal";
 import { CancelBookingModal } from "@/features/bookings/components/cancel-booking-modal";
@@ -159,74 +161,31 @@ export function OwnerBookingsTabView({
       {/* 1. 4 REQUIRED KPI CARDS (Matching Figma frame 1:3435 exactly) */}
       <OwnerBookingsKPIs kpis={kpis} />
 
-      {/* 2. Search & Status Filter Bar (Matching Figma frame 1:3493 exactly) */}
-      <div className="bg-white border border-[#e5e8e2] rounded-[16px] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] px-5 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Right side in RTL: Search Input with Magnifier on Far Right */}
-        <div className="relative w-full md:w-[480px]">
-          <div className="bg-[#f6f7f4] rounded-[12px] h-[35px] flex items-center px-4 relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="ابحث باسم العقار أو المدينة أو الحي..."
-              className="w-full bg-transparent text-xs text-[#252a24] placeholder:text-[rgba(115,120,111,0.7)] pe-7 focus:outline-none placeholder:text-right"
-            />
-            <div className="absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[rgba(115,120,111,0.7)]">
-              <Search className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
-
-        {/* Left side in RTL: Filter Button & Status Filter Tabs Container */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
-          {/* Advanced Filter Button */}
-          <button
-            type="button"
-            onClick={() => setIsFilterDrawerOpen(true)}
-            className={cn(
-              "h-[35px] px-4 rounded-[12px] text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer select-none",
-              activeFiltersCount > 0
-                ? "bg-[#34432E] text-white shadow-xs"
-                : "bg-[#f6f7f4] hover:bg-[#e5ebd8] text-[#252a24]"
-            )}
-            title="تصفية الحجوزات"
-          >
-            <span>فلتر</span>
-            <SlidersHorizontal
-              className={cn(
-                "w-3.5 h-3.5",
-                activeFiltersCount > 0 ? "text-white" : "text-[#252a24]"
-              )}
-            />
-            {activeFiltersCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-white text-[#34432E] text-[10px] font-bold flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-
-          <AnimatedTabs
-            tabs={[
-              { id: "all", label: `الكل (${statusCounts.all})` },
-              { id: "active", label: `الحالية (${statusCounts.active})` },
-              { id: "upcoming", label: `القادمة(${statusCounts.upcoming})` },
-              { id: "completed", label: `المنتهية (${statusCounts.completed})` },
-              { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
-            ]}
-            value={filterStatus}
-            onChange={(id) => {
-              setFilterStatus(id as any);
-              setCurrentPage(1);
-            }}
-            layoutId="ownerBookingsFilterPill"
-            variant="light"
-            trackClassName="bg-[#f6f7f4] rounded-[12px]"
-          />
-        </div>
-      </div>
+      {/* 2. Search & Status Filter Bar */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="ابحث باسم العقار أو المدينة أو الحي..."
+        onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية الحجوزات"
+        tabs={[
+          { id: "all", label: `الكل (${statusCounts.all})` },
+          { id: "active", label: `الحالية (${statusCounts.active})` },
+          { id: "upcoming", label: `القادمة (${statusCounts.upcoming})` },
+          { id: "completed", label: `المنتهية (${statusCounts.completed})` },
+          { id: "cancelled", label: `الملغاة (${statusCounts.cancelled})` },
+        ]}
+        currentTab={filterStatus}
+        onTabChange={(id) => {
+          setFilterStatus(id as any);
+          setCurrentPage(1);
+        }}
+        tabsLayoutId="ownerBookingsFilterPill"
+      />
 
       {/* 3. Enterprise Bookings Table & Footer (Matching Figma frame 1:3513 & 1:3846) */}
       <div className="bg-white border border-[#e5e8e2] rounded-[16px] overflow-hidden drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">

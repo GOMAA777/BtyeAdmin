@@ -24,6 +24,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import {
   OwnerActivityFilterDrawer,
   ActivityFilterState,
@@ -481,58 +483,23 @@ export function OwnerActivityTabView() {
           </div>
 
           {/* Filters Bar */}
-          <div className="bg-white rounded-3xl p-2 sm:p-2.5 border border-[#E0E4D8]/60 flex flex-col md:flex-row items-center justify-between gap-3 shadow-xs">
-            {/* Search Input */}
-            <div className="relative w-full md:w-96 lg:w-[440px]">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث في سجل النشاط (نوع الإجراء، العنصر، المنفذ...)"
-                className="w-full h-10 pe-4 ps-11 rounded-2xl bg-[#F1F5EB] border border-transparent text-xs text-[#172115] placeholder:text-[#8D9B88] focus:bg-white focus:border-[#CCD5C5] focus:outline-none transition-all shadow-2xs"
-              />
-              <div className="absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7D8A78]">
-                <Search className="w-4 h-4" />
-              </div>
-            </div>
-
-            {/* Filter and Action Buttons */}
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <button
-                type="button"
-                onClick={() => setIsFilterDrawerOpen(true)}
-                className={cn(
-                  "h-10 px-4 rounded-2xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer select-none",
-                  activeFiltersCount > 0
-                    ? "bg-[#34432E] text-white shadow-xs"
-                    : "bg-[#F1F5EB] hover:bg-[#E5EBDD] text-[#172115]"
-                )}
-                title="تصفية سجل النشاط"
-              >
-                <span>فلتر</span>
-                <SlidersHorizontal
-                  className={cn(
-                    "w-3.5 h-3.5",
-                    activeFiltersCount > 0 ? "text-white" : "text-[#172115]"
-                  )}
-                />
-                {activeFiltersCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-white text-[#34432E] text-[10px] font-bold flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toast.success("تم تحديث سجل العمليات بنجاح")}
-                className="w-10 h-10 rounded-2xl bg-[#F1F5EB] hover:bg-[#E5EBDD] flex items-center justify-center text-[#172115] transition-colors cursor-pointer shrink-0 select-none"
-                title="تحديث السجل"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          <TableToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="ابحث في سجل النشاط (نوع الإجراء، العنصر، المنفذ...)"
+            onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
+            activeFiltersCount={activeFiltersCount}
+            filterButtonTitle="تصفية سجل النشاط"
+          >
+            <button
+              type="button"
+              onClick={() => toast.success("تم تحديث سجل العمليات بنجاح")}
+              className="w-10 h-10 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] flex items-center justify-center text-[#172115] transition-colors cursor-pointer shrink-0 select-none"
+              title="تحديث السجل"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </TableToolbar>
 
           {/* Table */}
           <div className="overflow-x-auto -mx-2 sm:mx-0">

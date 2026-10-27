@@ -214,13 +214,13 @@ export function ChangeUnitModal({
             </div>
 
             {/* Search Input (node 1:9195) */}
-            <div className="bg-[#F1F5EB] rounded-[12px] h-[44px] px-4 flex items-center justify-between text-xs transition-colors focus-within:ring-1 focus-within:ring-[#4B5940]">
+            <div className="bg-[#EAEFE6] border border-[#CCD4C6] rounded-full h-10 px-4 flex items-center justify-between text-xs transition-colors focus-within:ring-2 focus-within:ring-[#4B5940]/20 focus-within:border-[#4B5940] focus-within:bg-white">
               <input
                 type="text"
                 placeholder="ابحث برقم الوحدة، الدور، أو نوع الجناح..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-[13px] text-[#181D17] placeholder-[#75786F] w-full pe-2"
+                className="bg-transparent border-none outline-none text-xs text-[#181D17] placeholder-[#75786F] w-full pe-2 font-cairo"
               />
               <Search className="w-4 h-4 text-[#75786F] shrink-0" />
             </div>

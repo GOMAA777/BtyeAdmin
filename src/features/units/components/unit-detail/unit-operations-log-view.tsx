@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
 import { BackButton } from "@/components/shared/back-button";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 
 interface OperationRecord {
   id: string;
@@ -368,53 +369,42 @@ export function UnitOperationsLogView({
         </div>
       </div>
 
-      {/* 3. SEARCH & FILTER CONTROLS BAR (Figma Node 1:15538) */}
-      <div className="bg-white rounded-[16px] p-3.5 border border-[#E5E8E2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-        {/* Search Field */}
-        <div className="relative flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="ابحث في تفاصيل العملية، رقم التذكرة، أو اسم المنفذ..."
-            className="w-full bg-[#F6F7F4] text-[#181D17] placeholder:text-[#75786F]/70 text-[12px] font-medium rounded-[12px] pr-10 pl-4 py-2.5 border-0 focus:outline-none focus:ring-1 focus:ring-[#4B5940] transition-all"
+      {/* 3. SEARCH & FILTER CONTROLS BAR */}
+      <TableToolbar
+        searchQuery={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ابحث في تفاصيل العملية، رقم التذكرة، أو اسم المنفذ..."
+      >
+        {/* Timeframe Filter */}
+        <div className="w-full sm:w-[175px]">
+          <SelectDropdown
+            value={selectedRange}
+            options={rangeOptions}
+            onChange={setSelectedRange}
+            triggerClassName="bg-[#EFF2EB] hover:bg-[#E2E7DE] border-0 text-[#181D17] text-xs font-semibold rounded-full h-10 px-3.5 transition-all font-cairo"
           />
-          <Search className="w-4 h-4 text-[#75786F] absolute right-3.5 top-1/2 -translate-y-1/2 shrink-0 pointer-events-none" />
         </div>
 
-        {/* Filter Dropdowns Group */}
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          {/* Timeframe Filter */}
-          <div className="w-full sm:w-[175px]">
-            <SelectDropdown
-              value={selectedRange}
-              options={rangeOptions}
-              onChange={setSelectedRange}
-              triggerClassName="bg-[#F1F5EB] border-0 text-[#181D17] text-[12px] font-semibold rounded-[12px] h-[44px] px-3.5"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div className="w-full sm:w-[130px]">
-            <SelectDropdown
-              value={selectedStatus}
-              options={statusOptions}
-              onChange={setSelectedStatus}
-              triggerClassName="bg-[#F1F5EB] border-0 text-[#181D17] text-[12px] font-semibold rounded-[12px] h-[44px] px-3.5"
-            />
-          </div>
-
-          {/* Type Filter */}
-          <div className="w-full sm:w-[160px]">
-            <SelectDropdown
-              value={selectedType}
-              options={typeOptions}
-              onChange={setSelectedType}
-              triggerClassName="bg-[#F1F5EB] border-0 text-[#181D17] text-[12px] font-semibold rounded-[12px] h-[44px] px-3.5"
-            />
-          </div>
+        {/* Status Filter */}
+        <div className="w-full sm:w-[130px]">
+          <SelectDropdown
+            value={selectedStatus}
+            options={statusOptions}
+            onChange={setSelectedStatus}
+            triggerClassName="bg-[#EFF2EB] hover:bg-[#E2E7DE] border-0 text-[#181D17] text-xs font-semibold rounded-full h-10 px-3.5 transition-all font-cairo"
+          />
         </div>
-      </div>
+
+        {/* Type Filter */}
+        <div className="w-full sm:w-[160px]">
+          <SelectDropdown
+            value={selectedType}
+            options={typeOptions}
+            onChange={setSelectedType}
+            triggerClassName="bg-[#EFF2EB] hover:bg-[#E2E7DE] border-0 text-[#181D17] text-xs font-semibold rounded-full h-10 px-3.5 transition-all font-cairo"
+          />
+        </div>
+      </TableToolbar>
 
       {/* 4. HIGH-FIDELITY OPERATIONS TABLE CONTAINER (Figma Node 1:15566) */}
       <div className="bg-white rounded-[16px] border border-[#E5E8E2] overflow-hidden drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">

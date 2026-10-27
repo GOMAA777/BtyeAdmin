@@ -9,7 +9,10 @@ import {
   Home,
   Eye,
   CheckCircle2,
+  Check,
 } from "lucide-react";
+import { FilterButton } from "@/components/shared/filter-button";
+import { cn } from "@/lib/utils";
 import { GuestBooking } from "../types";
 
 interface GuestBookingsTableCardProps {
@@ -22,15 +25,21 @@ export function GuestBookingsTableCard({
   totalRevenue = 10300,
 }: GuestBookingsTableCardProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredBookings = bookings.filter((b) => {
-    if (!searchQuery.trim()) return true;
+    const matchesStatus =
+      statusFilter === "all" || b.status === statusFilter;
+
+    if (!searchQuery.trim()) return matchesStatus;
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       b.bookingCode.toLowerCase().includes(q) ||
       b.propertyName.toLowerCase().includes(q) ||
-      b.unitName.toLowerCase().includes(q)
-    );
+      b.unitName.toLowerCase().includes(q);
+
+    return matchesStatus && matchesSearch;
   });
 
   const formatMoney = (val: number) => {
@@ -62,17 +71,58 @@ export function GuestBookingsTableCard({
           </span>
         </div>
 
-        {/* Left in RTL: Table Search Filter (Figma node 1:11153) */}
-        <div className="relative w-full sm:w-[320px]">
-          <div className="bg-[#F1F5EB] rounded-[12px] h-[44px] px-4 flex items-center gap-2.5">
-            <Search className="w-3.5 h-3.5 text-[#75786F] shrink-0" />
+        {/* Left in RTL: Filter Button & Table Search Filter */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
+          <div className="relative">
+            <FilterButton
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              activeCount={statusFilter !== "all" ? 1 : 0}
+              title="تصفية حجوزات النزيل"
+            />
+            {isFilterOpen && (
+              <div className="absolute top-full start-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-[#EEF2E6] p-2 z-30 space-y-1 font-cairo">
+                <div className="text-[11px] font-bold text-[#556350] px-2.5 py-1">
+                  حالة الحجز
+                </div>
+                {[
+                  { id: "all", label: "الكل" },
+                  { id: "upcoming", label: "الحجوزات القادمة" },
+                  { id: "completed", label: "الحجوزات المكتملة" },
+                  { id: "cancelled", label: "الحجوزات الملغاة" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(opt.id);
+                      setIsFilterOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between text-start cursor-pointer transition-colors",
+                      statusFilter === opt.id
+                        ? "bg-[#4B5940] text-white"
+                        : "hover:bg-[#F6F8F4] text-[#252A24]"
+                    )}
+                  >
+                    <span>{opt.label}</span>
+                    {statusFilter === opt.id && <Check className="w-3.5 h-3.5" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="relative w-full sm:w-[300px]">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث برقم الحجز أو اسم العقار..."
-              className="bg-transparent text-[13px] text-[#181D17] placeholder:text-[#75786F] outline-none w-full text-right font-normal"
+              className="w-full h-10 pe-4 ps-10 rounded-full bg-[#EAEFE6] border border-[#CCD4C6] text-xs text-[#252A24] placeholder:text-[#727A6E] focus:bg-white focus:border-[#4B5940] focus:outline-none focus:ring-2 focus:ring-[#4B5940]/20 transition-all shadow-2xs font-medium font-cairo"
             />
+            <div className="absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#727A6E]">
+              <Search className="w-4 h-4" />
+            </div>
           </div>
         </div>
       </div>

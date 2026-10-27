@@ -48,7 +48,7 @@ export function Topbar() {
           <input
             type="text"
             placeholder="ابحث عن مالك، عقار، وحدة أو حجز..."
-            className="w-full h-9 pe-3 ps-9 rounded-xl bg-[#EAEFE6] border border-[#CCD4C6] text-xs text-[#252A24] placeholder:text-[#727A6E] focus:bg-white focus:border-[#4B5940] focus:outline-none focus:ring-2 focus:ring-[#4B5940]/20 transition-all shadow-2xs"
+            className="w-full h-9 pe-3 ps-9 rounded-full bg-[#EAEFE6] border border-[#CCD4C6] text-xs text-[#252A24] placeholder:text-[#727A6E] focus:bg-white focus:border-[#4B5940] focus:outline-none focus:ring-2 focus:ring-[#4B5940]/20 transition-all shadow-2xs font-medium font-cairo"
           />
           {/* Magnifying glass icon on the start */}
           <div className="absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#727A6E]">

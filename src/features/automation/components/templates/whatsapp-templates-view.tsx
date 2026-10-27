@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/shared/table-pagination";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { WhatsAppTemplate, AutomationMainTab } from "../../types";
 import { initialWhatsAppTemplates } from "../../data/mock-automation";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -69,12 +70,15 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const categories = [
-    { id: "all", label: "الكل", count: 7 },
-    { id: "bookings", label: "الحجوزات", count: 12 },
-    { id: "arrival", label: "الوصول", count: 2 },
-    { id: "door_pin", label: "كود الدخول", count: 2 },
-  ];
+  const categories = useMemo(
+    () => [
+      { id: "all", label: `الكل (${templates.length})` },
+      { id: "bookings", label: `الحجوزات (${templates.filter((t) => t.category === "bookings").length})` },
+      { id: "arrival", label: `الوصول (${templates.filter((t) => t.category === "arrival").length})` },
+      { id: "door_pin", label: `كود الدخول (${templates.filter((t) => t.category === "door_pin").length})` },
+    ],
+    [templates]
+  );
 
   const filteredTemplates = useMemo(() => {
     return templates.filter((template) => {
@@ -148,7 +152,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
       <AutomationTabsNav
         activeTab="templates"
         onTabChange={onTabChange}
-        counts={{ rules: 12, templates: 8, logs: 1420 }}
+        counts={{ rules: 0, templates: templates.length, logs: 0 }}
       />
 
       {/* 2. Top Header & Actions [1:26440] */}
@@ -196,39 +200,16 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         </div>
       </div>
 
-      {/* 3. Filters and Search Bar [1:26361] */}
-      <div className="bg-white border border-[#e5e8e2] drop-shadow-[0px_2px_5px_rgba(0,0,0,0.03)] rounded-[16px] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search Input */}
-        <div className="relative w-full md:w-[420px] bg-[#f6f7f4] rounded-[12px] flex items-center">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث باسم القالب، الرمز أو المحفز..."
-            className="w-full bg-transparent py-[8px] pe-[40px] ps-[16px] text-[12px] font-medium text-[#181d17] placeholder:text-[rgba(115,120,111,0.7)] outline-none"
-          />
-          <Search className="size-[15px] absolute end-[14px] top-1/2 -translate-y-1/2 text-[#73786f]" />
-        </div>
-
-        {/* Categories Bar */}
-        <div className="bg-[#f6f7f4] h-[36px] rounded-[12px] p-[2px] flex items-center gap-1 w-full md:w-auto">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-[16px] py-[6px] rounded-[8px] text-[12px] font-semibold transition-all cursor-pointer select-none ${
-                selectedCategory === cat.id
-                  ? "bg-white text-[#252a24] shadow-xs"
-                  : "text-[#73786f] hover:text-[#252a24]"
-              }`}
-            >
-              <span>{cat.label}</span>
-              <span className="ms-1 text-[11px] opacity-80">({cat.count})</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* 3. Filters and Search Bar */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="ابحث باسم القالب، الرمز أو المحفز..."
+        tabs={categories}
+        currentTab={selectedCategory}
+        onTabChange={setSelectedCategory}
+        tabsLayoutId="whatsappTemplatesCategoryPill"
+      />
 
       {/* 4. Empty State View [1:26359] vs Templates Table */}
       {isEmptyPreview || filteredTemplates.length === 0 ? (

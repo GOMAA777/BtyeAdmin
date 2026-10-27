@@ -125,7 +125,7 @@ export function PropertyPickerPopup({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث باسم العقار، المدينة، أو رقم المعرف..."
-              className="w-full h-[38px] rounded-[10px] bg-[#F1F5EB] ps-10 pe-10 text-[12px] text-[#181D17] placeholder:text-[#5E6B56] focus:outline-none"
+              className="w-full h-10 rounded-full bg-[#EAEFE6] border border-[#CCD4C6] ps-10 pe-10 text-[12px] text-[#181D17] placeholder:text-[#5E6B56] focus:outline-none focus:bg-white focus:border-[#4B5940] transition-all font-cairo"
             />
             {search && (
               <button

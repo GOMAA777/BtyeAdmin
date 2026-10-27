@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterButton } from "@/components/shared/filter-button";
+import { TableToolbar } from "@/components/shared/table-toolbar";
 import { AutomationRuleActionDropdown } from "./automation-rule-action-dropdown";
 import { AutomationMainTab, AutomationRule } from "../../types";
 import { AutomationTabsNav } from "../automation-tabs-nav";
@@ -169,108 +170,95 @@ export function AutomationRulesView({ onSelectRule, onTabChange }: AutomationRul
         </div>
       </div>
 
-      {/* 2. Filter & Search Toolbar (Matching Subscriptions Design Fidelity) */}
-      <div className="bg-[rgba(241,245,235,0.4)] p-4 sm:p-5 rounded-[16px] border border-[#e5eae0]/60 flex flex-col lg:flex-row items-center justify-between gap-3 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-        {/* Search Input (Right side in RTL) */}
-        <div className="relative flex-1 max-w-[480px] w-full">
-          <div className="bg-white h-[44px] rounded-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] border border-transparent focus-within:border-[#4b5940] flex items-center pr-11 pl-4 transition-colors">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث باسم القاعدة، الكود، المحفز، أو الإجراء..."
-              className="w-full bg-transparent text-[13px] text-[#181d17] placeholder-[#75786f] focus:outline-none"
-            />
-          </div>
-          <Search className="size-[15px] text-[#75786f] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      {/* 2. Filter & Search Toolbar */}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="ابحث باسم القاعدة، الكود، المحفز، أو الإجراء..."
+        activeFiltersCount={activeFiltersCount}
+        filterButtonTitle="تصفية قواعد الأتمتة السريعة"
+      >
+        {/* 1. Category Filter */}
+        <div className="relative">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
+          >
+            <option value="all">الفئة: الكل</option>
+            <option value="confirm_checkout">واتساب وحجوزات</option>
+            <option value="self_checkin">وصول ذاتي</option>
+            <option value="cleaning_ops">تشغيل ميداني</option>
+            <option value="governance_security">حوكمة وأمان</option>
+            <option value="marketing_review">تسويق وتقييمات</option>
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* Filter Dropdowns & Reset Button (Left side in RTL) */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-          <FilterButton
-            activeCount={activeFiltersCount}
-            title="تصفية قواعد الأتمتة السريعة"
-          />
+        {/* 2. Trigger Filter */}
+        <div className="relative">
+          <select
+            value={triggerFilter}
+            onChange={(e) => setTriggerFilter(e.target.value)}
+            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
+          >
+            <option value="all">المحفز: الكل</option>
+            <option value="booking_created">عند إنشاء حجز</option>
+            <option value="before_checkin_24h">قبل الوصول بـ 24 ساعة</option>
+            <option value="before_checkout_6h">قبل انتهاء الحجز بـ 6 ساعات</option>
+            <option value="checkout_done">عند انتهاء الحجز وتسجيل الخروج</option>
+            <option value="after_checkout_2h">بعد المغادرة بساعتين</option>
+            <option value="battery_low">انخفاض بطارية القفل</option>
+            <option value="whatsapp_failed">فشل إرسال WhatsApp</option>
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
 
-          {/* 1. Category Filter */}
-          <div className="relative">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="h-[44px] pr-3.5 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
-            >
-              <option value="all">الفئة: الكل</option>
-              <option value="confirm_checkout">واتساب وحجوزات</option>
-              <option value="self_checkin">وصول ذاتي</option>
-              <option value="cleaning_ops">تشغيل ميداني</option>
-              <option value="governance_security">حوكمة وأمان</option>
-              <option value="marketing_review">تسويق وتقييمات</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+        {/* 3. Action Type Filter */}
+        <div className="relative">
+          <select
+            value={actionFilter}
+            onChange={(e) => setActionFilter(e.target.value)}
+            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
+          >
+            <option value="all">الإجراء: الكل</option>
+            <option value="whatsapp">رسالة WhatsApp</option>
+            <option value="smart_lock">كود القفل الذكي</option>
+            <option value="cleaning_task">مهمة تنظيف</option>
+            <option value="security_alert">تنبيه أمان / صيانة</option>
+            <option value="review">طلب تقييم</option>
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
 
-          {/* 2. Trigger Filter */}
-          <div className="relative">
-            <select
-              value={triggerFilter}
-              onChange={(e) => setTriggerFilter(e.target.value)}
-              className="h-[44px] pr-3.5 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
-            >
-              <option value="all">المحفز: الكل</option>
-              <option value="booking_created">عند إنشاء حجز</option>
-              <option value="before_checkin_24h">قبل الوصول بـ 24 ساعة</option>
-              <option value="before_checkout_6h">قبل انتهاء الحجز بـ 6 ساعات</option>
-              <option value="checkout_done">عند انتهاء الحجز وتسجيل الخروج</option>
-              <option value="after_checkout_2h">بعد المغادرة بساعتين</option>
-              <option value="battery_low">انخفاض بطارية القفل</option>
-              <option value="whatsapp_failed">فشل إرسال WhatsApp</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+        {/* 4. Status Filter */}
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-10 pe-3 ps-8 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] text-xs font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0 transition-all font-cairo"
+          >
+            <option value="all">الحالة: الكل</option>
+            <option value="active">مفعلة</option>
+            <option value="paused">متوقفة</option>
+            <option value="draft">مسودة</option>
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute start-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
 
-          {/* 3. Action Type Filter */}
-          <div className="relative">
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="h-[44px] pr-3.5 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
-            >
-              <option value="all">الإجراء: الكل</option>
-              <option value="whatsapp">رسالة WhatsApp</option>
-              <option value="smart_lock">كود القفل الذكي</option>
-              <option value="cleaning_task">مهمة تنظيف</option>
-              <option value="security_alert">تنبيه أمان / صيانة</option>
-              <option value="review">طلب تقييم</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          {/* 4. Status Filter */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-[44px] pr-3.5 pl-8 rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-[12px] font-semibold text-[#181d17] focus:outline-none focus:ring-1 focus:ring-[#4b5940] cursor-pointer appearance-none border-0"
-            >
-              <option value="all">الحالة: الكل</option>
-              <option value="active">مفعلة</option>
-              <option value="paused">متوقفة</option>
-              <option value="draft">مسودة</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          {/* 5. Reset Filters Button */}
+        {/* 5. Reset Filters Button */}
+        {activeFiltersCount > 0 && (
           <button
             type="button"
             onClick={handleResetFilters}
-            className="size-[44px] rounded-[12px] bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex items-center justify-center text-[#454840] hover:bg-gray-50 transition-colors cursor-pointer shrink-0"
+            className="h-10 px-3.5 rounded-full bg-[#EFF2EB] hover:bg-[#E2E7DE] flex items-center justify-center text-[#454840] transition-colors cursor-pointer select-none gap-1.5 text-xs font-medium font-cairo"
             title="إعادة ضبط الفلاتر"
           >
-            <RotateCcw className="size-[14px]" />
+            <RotateCcw className="size-3.5" />
+            <span>إعادة ضبط</span>
           </button>
-        </div>
-      </div>
+        )}
+      </TableToolbar>
 
       {/* Empty State View [1:26151] vs Table View */}
       {isEmptyPreview || filteredRules.length === 0 ? (
