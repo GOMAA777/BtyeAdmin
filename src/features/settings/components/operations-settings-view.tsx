@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useOperationsSettings } from "../controllers/use-operations-settings";
 import { DockingBottomBar } from "@/components/shared/docking-bottom-bar";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
 
 export function OperationsSettingsView() {
   const {
@@ -110,17 +111,15 @@ export function OperationsSettingsView() {
                 <label className="text-[13px] font-bold text-[#181d17] block">
                   الحالة التلقائية للوحدة عند الجدولة
                 </label>
-                <div className="relative">
-                  <select
-                    value={settings.defaultUnitStatusOnSchedule}
-                    onChange={(e) => updateSetting("defaultUnitStatusOnSchedule", e.target.value)}
-                    className="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#34422a]"
-                  >
-                    <option value="يحتاج تنظيف">يحتاج تنظيف</option>
-                    <option value="تحت الفحص">تحت الفحص المبدئي</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#75786f] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={settings.defaultUnitStatusOnSchedule}
+                  onChange={(val) => updateSetting("defaultUnitStatusOnSchedule", val)}
+                  options={[
+                    { value: "يحتاج تنظيف", label: "يحتاج تنظيف" },
+                    { value: "تحت الفحص", label: "تحت الفحص المبدئي" },
+                  ]}
+                  triggerClassName="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17]"
+                />
                 <div className="flex items-center gap-1.5 text-[11px] text-[#75786f]">
                   <span className="size-1.5 rounded-full bg-[#f59e0b]" />
                   <span>الحالة الحالية المقبولة: يحتاج تنظيف</span>
@@ -132,17 +131,15 @@ export function OperationsSettingsView() {
                 <label className="text-[13px] font-bold text-[#181d17] block">
                   آلية تعيين مهام التنظيف الافتراضية
                 </label>
-                <div className="relative">
-                  <select
-                    value={settings.cleaningAssignmentMethod}
-                    onChange={(e) => updateSetting("cleaningAssignmentMethod", e.target.value)}
-                    className="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#34422a]"
-                  >
-                    <option value="تعيين تلقائي لمشرف الموقع">تعيين تلقائي لمشرف الموقع</option>
-                    <option value="إسناد يدوي من المشرف">إسناد يدوي من المشرف</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#75786f] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={settings.cleaningAssignmentMethod}
+                  onChange={(val) => updateSetting("cleaningAssignmentMethod", val)}
+                  options={[
+                    { value: "تعيين تلقائي لمشرف الموقع", label: "تعيين تلقائي لمشرف الموقع" },
+                    { value: "إسناد يدوي من المشرف", label: "إسناد يدوي من المشرف" },
+                  ]}
+                  triggerClassName="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17]"
+                />
                 <p className="text-[11px] text-[#75786f] leading-[16px]">
                   يُشعر المشرف تلقائياً عبر تطبيق الجوال الميداني
                 </p>
@@ -485,18 +482,16 @@ export function OperationsSettingsView() {
               <label className="text-[11px] font-semibold text-[#75786f] block">
                 هامش التجهيز التلقائي
               </label>
-              <div className="relative">
-                <select
-                  value={settings.autoPreparationBuffer}
-                  onChange={(e) => updateSetting("autoPreparationBuffer", e.target.value)}
-                  className="w-full bg-[#f1f5eb] border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-bold text-[#181d17] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#34422a]"
-                >
-                  <option value="2 ساعات">2 ساعات</option>
-                  <option value="3 ساعات (موصى به)">3 ساعات (موصى به)</option>
-                  <option value="4 ساعات">4 ساعات</option>
-                </select>
-                <ChevronDown className="w-4 h-4 text-[#75786f] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+              <SelectDropdown
+                value={settings.autoPreparationBuffer}
+                onChange={(val) => updateSetting("autoPreparationBuffer", val)}
+                options={[
+                  { value: "2 ساعات", label: "2 ساعات" },
+                  { value: "3 ساعات (موصى به)", label: "3 ساعات (موصى به)" },
+                  { value: "4 ساعات", label: "4 ساعات" },
+                ]}
+                triggerClassName="w-full bg-[#f1f5eb] border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-bold text-[#181d17]"
+              />
             </div>
           </div>
         </div>

@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { CleaningDetailView } from "@/features/operations/components/cleaning-detail-view";
 
+import { cleaningTaskStaticParams } from "@/lib/static-params";
+
 export function generateStaticParams() {
-  return [
-    { id: "CL-10482" },
-    { id: "CL-10481" },
-    { id: "CL-10479" },
-    { id: "1" },
-    { id: "2" },
-  ];
+  return cleaningTaskStaticParams();
 }
 
 interface CleaningTaskPageProps {
@@ -20,7 +16,7 @@ export async function generateMetadata({
 }: CleaningTaskPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: `مهمة تنظيف ${id} - ابراج`,
+    title: `مهمة تنظيف ${id} - BYTE HOME`,
     description: `تفاصيل ومتابعة مهمة التنظيف ${id} على مستوى المنصة`,
   };
 }

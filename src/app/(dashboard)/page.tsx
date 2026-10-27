@@ -9,7 +9,7 @@ import { DashboardRecentProperties } from "@/features/dashboard/components/dashb
 import { DashboardActivityFeed } from "@/features/dashboard/components/dashboard-activity-feed";
 
 export const metadata: Metadata = {
-  title: "الرئيسية - ابراج لإدارة الأملاك",
+  title: "الرئيسية - BYTE HOME",
   description: "لوحة التحكم الرئيسية لإدارة وتشغيل الأصول والوحدات العقارية.",
 };
 

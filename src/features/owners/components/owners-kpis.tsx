@@ -62,7 +62,21 @@ function KeyHorizontalIcon({ className = "w-5 h-3 text-[#4B5940]" }: { className
   );
 }
 
-export function OwnersKPIs() {
+interface OwnersKPIsProps {
+  totalOwners?: number;
+  activeAccounts?: number;
+  pendingAccounts?: number;
+  newRegistrations?: number;
+}
+
+export function OwnersKPIs({
+  totalOwners = 0,
+  activeAccounts = 0,
+  pendingAccounts = 0,
+  newRegistrations = 0,
+}: OwnersKPIsProps) {
+  const activePercent = totalOwners > 0 ? ((activeAccounts / totalOwners) * 100).toFixed(1) : "0";
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 font-cairo">
       {/* 1. إجمالي أصحاب العقارات */}
@@ -77,23 +91,23 @@ export function OwnersKPIs() {
           </div>
         </div>
 
-        {/* Middle: Value & Badge (dir="ltr" so arrow is on left: ↑ +5.2%) */}
+        {/* Middle: Value & Badge (dir="ltr" so arrow is on left: ↑ +0%) */}
         <div className="flex items-center gap-2.5 my-1">
           <span className="text-3xl sm:text-[34px] font-bold text-[#181D17] tracking-tight font-cairo">
-            248
+            {totalOwners}
           </span>
           <div
             dir="ltr"
             className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8E8CB] text-[#3D4B36] text-[11px] font-bold select-none"
           >
             <TrendArrowIcon className="w-2.5 h-2.5 shrink-0" />
-            <span>+   5.2%</span>
+            <span>+ 0%</span>
           </div>
         </div>
 
         {/* Bottom: Subtext */}
         <div className="text-xs text-[#75786F] font-normal leading-relaxed">
-          12 تسجيل جديد هذا الشهر
+          {newRegistrations} تسجيل جديد هذا الشهر
         </div>
       </div>
 
@@ -112,10 +126,10 @@ export function OwnersKPIs() {
         {/* Middle: Value & Badge */}
         <div className="flex items-center gap-2.5 my-1">
           <span className="text-3xl sm:text-[34px] font-bold text-[#181D17] tracking-tight font-cairo">
-            386
+            {activeAccounts}
           </span>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#D8E8CB] text-[#3D4B36] text-[11px] font-bold select-none">
-            <span>86.3% نشط</span>
+            <span>{activePercent}% نشط</span>
           </div>
         </div>
 
@@ -140,10 +154,10 @@ export function OwnersKPIs() {
         {/* Middle: Value on right & Badge on left (matching Figma & image layout) */}
         <div className="flex items-center justify-between my-1">
           <span className="text-3xl sm:text-[34px] font-bold text-[#181D17] tracking-tight font-cairo">
-            12
+            {pendingAccounts}
           </span>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#9A6208] text-[11px] font-bold select-none">
-            <span>يتطلب اعتماد</span>
+            <span>{pendingAccounts > 0 ? "يتطلب اعتماد" : "لا يوجد معلق"}</span>
           </div>
         </div>
 
@@ -170,10 +184,10 @@ export function OwnersKPIs() {
         {/* Middle: Value on right & Badge on left (matching Figma & image layout) */}
         <div className="flex items-center justify-between my-1">
           <span className="text-3xl sm:text-[34px] font-bold text-[#181D17] tracking-tight font-cairo">
-            22
+            {newRegistrations}
           </span>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] text-[11px] font-bold select-none">
-            <span>+14%</span>
+            <span>+0%</span>
           </div>
         </div>
 

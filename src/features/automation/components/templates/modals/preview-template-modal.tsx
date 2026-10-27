@@ -103,7 +103,7 @@ export function PreviewTemplateModal({
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-[13px] font-bold text-[#181D17]">
-                    <span>أبراج لإدارة الأصول العقارية</span>
+                    <span>BYTE HOME لإدارة الأصول العقارية</span>
                     <BadgeCheck className="w-4 h-4 text-[#3E8A5A] fill-[#3E8A5A]/20" />
                   </div>
                   <div className="text-[11px] text-[#75786F]">حساب أعمال رسمي موثّق</div>

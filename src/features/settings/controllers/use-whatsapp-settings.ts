@@ -7,7 +7,7 @@ import { WhatsAppSettingsState } from "../types";
 export function useWhatsAppSettings() {
   const initialData: WhatsAppSettingsState = {
     account: {
-      accountName: "ابراج لإدارة العقارات الفندقية",
+      accountName: "BYTE HOME لإدارة العقارات الفندقية",
       osName: "Rawaq Living OS",
       wabaId: "WABA-948201948271032",
       officialPhoneNumber: "+966 11 482 9000",

@@ -4,9 +4,11 @@ import { initialTeamMembers } from "@/features/team/data/mock-team";
 import { TeamMemberProfileView } from "@/features/team/components/team-member-profile-view";
 
 export function generateStaticParams() {
-  return initialTeamMembers.map((member) => ({
+  const ids = initialTeamMembers.map((member) => ({
     id: member.id,
   }));
+  if (ids.length > 0) return ids;
+  return Array.from({ length: 15 }, (_, i) => ({ id: String(i + 1) }));
 }
 
 interface TeamMemberProfilePageProps {

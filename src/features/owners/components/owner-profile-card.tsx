@@ -1,10 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { CheckCircle2, IdCard, Calendar, CreditCard } from "lucide-react";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
+import { ownersService } from "@/services/owners-service";
+import type { Owner } from "../types";
 
 interface OwnerProfileCardProps {
   owner?: {
+    id?: string;
     name?: string;
     initials?: string;
     code?: string;
@@ -18,13 +22,23 @@ interface OwnerProfileCardProps {
 }
 
 export function OwnerProfileCard({ owner }: OwnerProfileCardProps) {
-  const name = owner?.name || "محمد بن سالم العتيبي";
-  const initials = owner?.initials || "ع م";
-  const code = owner?.code || "#PO-8821";
-  const joinDate = owner?.joinDate || "16 سبتمبر 2026";
+  const [realOwner, setRealOwner] = useState<Owner | null>(null);
+
+  useEffect(() => {
+    if (owner?.id) {
+      ownersService.getById(owner.id).then((o) => {
+        if (o) setRealOwner(o);
+      });
+    }
+  }, [owner?.id]);
+
+  const name = realOwner?.name || owner?.name || "محمد بن سالم العتيبي";
+  const initials = realOwner?.initials || owner?.initials || "ع م";
+  const code = owner?.code || (realOwner ? `#PO-${realOwner.id.slice(-4)}` : "#PO-8821");
+  const joinDate = realOwner?.registrationDate || owner?.joinDate || "16 سبتمبر 2026";
   const relativeJoin = owner?.relativeJoin || "منذ 4 أيام";
-  const email = owner?.email || "m.otaibi@domain.sa";
-  const phone = owner?.phone || "+966 50 482 9102";
+  const email = realOwner?.email || owner?.email || "m.otaibi@domain.sa";
+  const phone = realOwner?.phone || owner?.phone || "+966 50 482 9102";
   const paymentMethod = owner?.paymentMethod || "مدى / فيزا (4912••)";
 
   useSetBreadcrumbTitle(name, code);

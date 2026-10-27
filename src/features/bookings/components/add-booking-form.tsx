@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { resolveAssetUrl } from "@/lib/constants";
@@ -33,6 +33,16 @@ import {
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
+import { DatePicker } from "@/components/shared/date-picker";
+import { TimePicker } from "@/components/shared/time-picker";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { bookingsService } from "@/services/bookings-service";
+import { propertiesService } from "@/services/properties-service";
+import { unitsService } from "@/services/units-service";
+import { ownersService } from "@/services/owners-service";
+import type { Property } from "@/features/properties/types";
+import type { Unit } from "@/features/units/types";
+import type { Owner } from "@/features/owners/types";
 
 interface AddBookingFormProps {
   onSuccess: () => void;
@@ -40,22 +50,67 @@ interface AddBookingFormProps {
 
 export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
   const confirm = useConfirm();
+
+  // Entities state from services
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [owners, setOwners] = useState<Owner[]>([]);
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [selectedUnitId, setSelectedUnitId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Guest Steppers State
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(1);
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
 
-  // Form Fields State
-  const [guestName, setGuestName] = useState("سلطان بن فهد الدوسري");
-  const [guestPhone, setGuestPhone] = useState("+966 54 892 1104");
-  const [guestEmail, setGuestEmail] = useState("sultan.aldosari@example.com");
-  const [checkInDate, setCheckInDate] = useState("22 سبتمبر 2026");
-  const [checkInTime, setCheckInTime] = useState("03:00 م");
-  const [checkOutDate, setCheckOutDate] = useState("26 سبتمبر 2026");
-  const [checkOutTime, setCheckOutTime] = useState("12:00 م");
-  const [notes, setNotes] = useState(
-    "طلب النزيل تسجيل وصول مبكر الساعة 1:00 م إن أمكن. تم التنسيق المبدئي مع فريق الاستقبال لتجهيز باقة الضيافة الترحيبية وتجهيز المواقف السفلية رقم 14-B."
+  // Form Fields State (starts empty for user entry)
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [checkInDate, setCheckInDate] = useState("2026-10-27");
+  const [checkInTime, setCheckInTime] = useState("15:00");
+  const [checkOutDate, setCheckOutDate] = useState("2026-10-28");
+  const [checkOutTime, setCheckOutTime] = useState("12:00");
+  const [notes, setNotes] = useState("");
+
+  const loadData = useCallback(async () => {
+    const [pList, uList, oList] = await Promise.all([
+      propertiesService.getAll(),
+      unitsService.getAll(),
+      ownersService.getAll(),
+    ]);
+    setProperties(pList);
+    setUnits(uList);
+    setOwners(oList);
+
+    if (pList.length > 0 && !selectedPropertyId) {
+      setSelectedPropertyId(pList[0].id);
+      const firstPropUnits = uList.filter((u) => u.propertyId === pList[0].id);
+      if (firstPropUnits.length > 0) {
+        setSelectedUnitId(firstPropUnits[0].id);
+      }
+    }
+  }, [selectedPropertyId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const selectedProperty = properties.find((p) => p.id === selectedPropertyId);
+  const availableUnits = units.filter((u) => u.propertyId === selectedPropertyId);
+  const selectedUnit = availableUnits.find((u) => u.id === selectedUnitId) || availableUnits[0];
+  const matchedOwner = owners.find(
+    (o) => o.id === selectedProperty?.ownerId || o.name === selectedProperty?.ownerName
   );
+
+  const nightsCount = useMemo(() => {
+    if (!checkInDate || !checkOutDate) return 1;
+    const d1 = new Date(checkInDate).getTime();
+    const d2 = new Date(checkOutDate).getTime();
+    if (isNaN(d1) || isNaN(d2) || d2 <= d1) return 1;
+    return Math.round((d2 - d1) / (1000 * 3600 * 24));
+  }, [checkInDate, checkOutDate]);
 
   const copyBookingCode = () => {
     navigator.clipboard.writeText("BK-10483");
@@ -65,15 +120,61 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
+    if (!guestName.trim()) {
+      toast.error("يرجى إدخال اسم العميل");
+      return;
+    }
+    if (!guestPhone.trim()) {
+      toast.error("يرجى إدخال رقم جوال العميل");
+      return;
+    }
+    if (!selectedPropertyId) {
+      toast.error("يرجى اختيار العقار التابع");
+      return;
+    }
+    if (!selectedUnit) {
+      toast.error("يرجى اختيار الوحدة المستهدفة");
+      return;
+    }
+
     const ok = await confirm({
       title: "تأكيد اعتماد الحجز",
-      message: `هل أنت متأكد من حفظ واعتماد الحجز الجديد رقم BK-10483 باسم (${guestName})؟`,
+      message: `هل أنت متأكد من حفظ واعتماد الحجز الجديد باسم "${guestName}" للوحدة "${selectedUnit.name || selectedUnit.unitNumber}"؟`,
       confirmLabel: "حفظ واعتماد الحجز",
       variant: "default",
     });
     if (!ok) return;
 
-    onSuccess();
+    try {
+      setIsSubmitting(true);
+      await bookingsService.create({
+        guestName: guestName.trim(),
+        guestPhone: guestPhone.trim(),
+        guestEmail: guestEmail.trim(),
+        propertyId: selectedProperty?.id || "",
+        propertyName: selectedProperty?.title || selectedProperty?.name || "عقار غير محدد",
+        unitId: selectedUnit.id,
+        unitNumber: selectedUnit.unitNumber || selectedUnit.name || "101",
+        unitType: String(selectedUnit.type || selectedUnit.typeLabel || "شقة كاملة"),
+        checkInDate,
+        checkInTime,
+        checkOutDate,
+        checkOutTime,
+        nightsCount,
+        adultsCount: adults,
+        childrenCount: children,
+        totalAmount: (selectedUnit.pricePerNight || 320) * nightsCount,
+        notes: notes.trim(),
+        status: "upcoming",
+      });
+
+      toast.success("تم اعتماد الحجز بنجاح!");
+      onSuccess();
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ الحجز");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -137,35 +238,17 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                 </span>
               </div>
 
-              {/* Owner Search Bar */}
-              <div className="bg-[#EEF2E8] border border-[#E0E5D8]/70 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-2xs">
-                {/* Right in RTL: Icon + Name */}
-                <div className="flex items-center gap-2.5 text-xs text-[#172115] font-semibold px-2">
-                  <UserSearch className="w-4 h-4 text-[#7D8A78]" />
-                  <span>محمد بن سعود العتيبي</span>
-                </div>
-
-                {/* Left in RTL: تغيير button */}
-                <button
-                  type="button"
-                  onClick={() => toast.info("تغيير المالك")}
-                  className="bg-[#DDE5D6] hover:bg-[#D2DDD6] text-[#2C3825] px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                >
-                  تغيير
-                </button>
-              </div>
-
-              {/* Selected Owner Detail Box */}
+            {/* Owner Section */}
+            {matchedOwner && (
               <div className="bg-[#EEF2E8] border border-[#E0E5D8]/70 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                {/* Right side in RTL: Avatar + Text */}
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-[#D5E0CD] text-[#34432E] font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                    ع.م
+                    {matchedOwner.initials || matchedOwner.name.charAt(0)}
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-[#172115]">
-                        محمد بن سعود العتيبي
+                        {matchedOwner.name}
                       </span>
                       <span className="bg-[#DDE5D6] text-[#34432E] text-[11px] font-bold px-2 py-0.5 rounded-md">
                         مالك معتمد
@@ -173,78 +256,96 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                     </div>
                     <div className="text-xs text-[#7D8A78] flex items-center gap-1.5 font-medium">
                       <Smartphone className="w-3.5 h-3.5 text-[#7D8A78]" />
-                      <span dir="ltr">+966 50 123 4567</span>
+                      <span dir="ltr">{matchedOwner.phone}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Left side in RTL: View Owner Profile Button */}
                 <Link
-                  href="/owners/1/"
+                  href={`/owners/${matchedOwner.id}/`}
                   className="bg-white hover:bg-[#FAFBF9] border border-[#E2E6DC] text-xs font-bold text-[#172115] px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-2xs self-start sm:self-auto"
                 >
                   <span>عرض ملف المالك</span>
                   <ExternalLink className="w-3.5 h-3.5 text-[#7D8A78]" />
                 </Link>
               </div>
+            )}
             </div>
 
             {/* Selectors: العقار التابع & الوحدة المستهدفة */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              {/* العقار التابع on the right in RTL */}
+              {/* العقار التابع */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#172115] text-start">
-                  العقار التابع <span className="text-red-500">*</span>
-                </label>
-                <div className="bg-[#EEF2E8] hover:bg-[#E8EDE2] border border-[#E0E5D8]/70 rounded-2xl p-3.5 flex items-center justify-between gap-2 transition-colors cursor-pointer shadow-2xs">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#D4E2CC] text-[#34432E] flex items-center justify-center shrink-0">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#172115] truncate">
-                        عمارة النخيل (الرياض - حي العليا)
-                      </div>
-                      <div className="text-[11px] text-[#7D8A78] mt-0.5 font-medium">
-                        كود العقار: PR-1048 • 12 وحدة مسجلة
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-[#7D8A78] shrink-0" />
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-[#172115] text-start">
+                    العقار التابع <span className="text-red-500">*</span>
+                  </label>
+                  {properties.length === 0 && (
+                    <Link href="/properties/new/" className="text-[11px] font-bold text-[#34422A] hover:underline">
+                      + إضافة عقار
+                    </Link>
+                  )}
                 </div>
+                {properties.length === 0 ? (
+                  <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-3 text-xs text-[#8A6300]">
+                    لا توجد عقارات مسجلة حتى الآن.{" "}
+                    <Link href="/properties/new/" className="underline font-bold">
+                      أضف عقاراً أولاً
+                    </Link>
+                  </div>
+                ) : (
+                  <SelectDropdown
+                    value={selectedPropertyId}
+                    onChange={(val) => {
+                      setSelectedPropertyId(val);
+                      const propUnits = units.filter((u) => u.propertyId === val);
+                      if (propUnits.length > 0) {
+                        setSelectedUnitId(propUnits[0].id);
+                      } else {
+                        setSelectedUnitId("");
+                      }
+                    }}
+                    options={properties.map((p) => ({
+                      value: p.id,
+                      label: `${p.title || p.name || "عقار"} (${p.city} - ${p.district})`,
+                    }))}
+                    placeholder="اختر العقار..."
+                    triggerClassName="w-full bg-[#EEF2E8] border border-[#E0E5D8]/70 rounded-2xl p-3.5 text-xs font-semibold text-[#172115]"
+                  />
+                )}
               </div>
 
-              {/* الوحدة المستهدفة on the left in RTL */}
+              {/* الوحدة المستهدفة */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#172115] text-start">
-                  الوحدة المستهدفة <span className="text-red-500">*</span>
-                </label>
-                <div className="bg-[#EEF2E8] hover:bg-[#E8EDE2] border border-[#E0E5D8]/70 rounded-2xl p-3.5 flex items-center justify-between gap-2 transition-colors cursor-pointer shadow-2xs">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#D4E2CC] text-[#34432E] flex items-center justify-center shrink-0">
-                      <DoorClosed className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 text-start">
-                      <div className="font-bold text-xs text-[#172115]">
-                        وحدة 204 - جناح تنفيذي
-                      </div>
-                      <div className="text-[10px] text-[#7D8A78] mt-1 flex items-center gap-1.5 font-medium">
-                        <div className="flex items-center gap-1 text-[#10B981] font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] inline-block" />
-                          <span>متاحة للحجز</span>
-                        </div>
-                        <span>•</span>
-                        <span>غرفتين نوم، صالة متكاملة</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="bg-[#DDE5D6] text-[#34432E] text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      الدور الثاني
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-[#7D8A78]" />
-                  </div>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-[#172115] text-start">
+                    الوحدة المستهدفة <span className="text-red-500">*</span>
+                  </label>
+                  {availableUnits.length === 0 && (
+                    <Link href="/units/new/" className="text-[11px] font-bold text-[#34422A] hover:underline">
+                      + إضافة وحدة
+                    </Link>
+                  )}
                 </div>
+                {availableUnits.length === 0 ? (
+                  <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-3 text-xs text-[#8A6300]">
+                    لا توجد وحدات في هذا العقار.{" "}
+                    <Link href="/units/new/" className="underline font-bold">
+                      أضف وحدة جديدة
+                    </Link>
+                  </div>
+                ) : (
+                  <SelectDropdown
+                    value={selectedUnitId}
+                    onChange={setSelectedUnitId}
+                    options={availableUnits.map((u) => ({
+                      value: u.id,
+                      label: `${u.name || `وحدة ${u.unitNumber}`} — ${u.type || u.typeLabel || "شقة"} (${u.floor})`,
+                    }))}
+                    placeholder="اختر الوحدة..."
+                    triggerClassName="w-full bg-[#EEF2E8] border border-[#E0E5D8]/70 rounded-2xl p-3.5 text-xs font-semibold text-[#172115]"
+                  />
+                )}
               </div>
             </div>
 
@@ -296,7 +397,7 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
               </div>
 
               <span className="bg-[#DCE6D5] text-[#2E3C29] text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 self-start sm:self-auto">
-                <span>مدة الإقامة: 4 ليال</span>
+                <span>مدة الإقامة: {nightsCount} ليال</span>
               </span>
             </div>
 
@@ -308,24 +409,24 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                   <Plane className="w-4 h-4 text-[#2E3C29] rotate-45" />
                   <span>تاريخ ووقت الوصول (Check-in)</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs">
-                    <div>
-                      <div className="text-[10px] text-[#7D8A78]">التاريخ</div>
-                      <div className="font-bold text-[#172115] mt-0.5">
-                        {checkInDate}
-                      </div>
-                    </div>
-                    <Calendar className="w-3.5 h-3.5 text-[#7D8A78]" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="bg-white rounded-xl p-2 shadow-2xs space-y-1">
+                    <label className="text-[10px] text-[#7D8A78] font-bold block">التاريخ</label>
+                    <DatePicker
+                      value={checkInDate}
+                      onChange={setCheckInDate}
+                      placeholder="تاريخ الوصول..."
+                      className="w-full"
+                    />
                   </div>
-                  <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs">
-                    <div>
-                      <div className="text-[10px] text-[#7D8A78]">وقت الدخول</div>
-                      <div className="font-bold text-[#172115] mt-0.5">
-                        {checkInTime}
-                      </div>
-                    </div>
-                    <Clock className="w-3.5 h-3.5 text-[#7D8A78]" />
+                  <div className="bg-white rounded-xl p-2 shadow-2xs space-y-1">
+                    <label className="text-[10px] text-[#7D8A78] font-bold block">وقت الدخول</label>
+                    <TimePicker
+                      value={checkInTime}
+                      onChange={setCheckInTime}
+                      placeholder="وقت الدخول..."
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -336,24 +437,24 @@ export function AddBookingForm({ onSuccess }: AddBookingFormProps) {
                   <Plane className="w-4 h-4 text-[#2E3C29] -rotate-45" />
                   <span>تاريخ ووقت المغادرة (Check-out)</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs">
-                    <div>
-                      <div className="text-[10px] text-[#7D8A78]">التاريخ</div>
-                      <div className="font-bold text-[#172115] mt-0.5">
-                        {checkOutDate}
-                      </div>
-                    </div>
-                    <Calendar className="w-3.5 h-3.5 text-[#7D8A78]" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="bg-white rounded-xl p-2 shadow-2xs space-y-1">
+                    <label className="text-[10px] text-[#7D8A78] font-bold block">التاريخ</label>
+                    <DatePicker
+                      value={checkOutDate}
+                      onChange={setCheckOutDate}
+                      placeholder="تاريخ المغادرة..."
+                      className="w-full"
+                    />
                   </div>
-                  <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs">
-                    <div>
-                      <div className="text-[10px] text-[#7D8A78]">وقت الخروج</div>
-                      <div className="font-bold text-[#172115] mt-0.5">
-                        {checkOutTime}
-                      </div>
-                    </div>
-                    <Clock className="w-3.5 h-3.5 text-[#7D8A78]" />
+                  <div className="bg-white rounded-xl p-2 shadow-2xs space-y-1">
+                    <label className="text-[10px] text-[#7D8A78] font-bold block">وقت الخروج</label>
+                    <TimePicker
+                      value={checkOutTime}
+                      onChange={setCheckOutTime}
+                      placeholder="وقت الخروج..."
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import {
   MainBookingItem,
@@ -8,12 +8,28 @@ import {
   MainBookingFilterState,
   initialBookingFilterState,
 } from "../types";
-import { defaultMainBookings } from "../data/mock-main-bookings";
+import { bookingsService } from "@/services/bookings-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
 export function useBookingsManager(
-  initialBookings: MainBookingItem[] = defaultMainBookings
+  initialBookings?: MainBookingItem[]
 ) {
-  const [bookings, setBookings] = useState<MainBookingItem[]>(initialBookings);
+  const [bookings, setBookings] = useState<MainBookingItem[]>(
+    initialBookings || useAppDataStore.getState().bookings
+  );
+
+  const loadBookings = useCallback(async () => {
+    const data = await bookingsService.getAll();
+    setBookings(data);
+  }, []);
+
+  useEffect(() => {
+    loadBookings();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setBookings(state.bookings);
+    });
+    return () => unsub();
+  }, [loadBookings]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | BookingStatus>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -246,16 +262,15 @@ export function useBookingsManager(
     toast.success(`تم تغيير الوحدة إلى (${newUnit}) بنجاح`);
   };
 
-  const handleConfirmCancel = () => {
+  const handleConfirmCancel = async () => {
     setIsCancelModalOpen(false);
-    setBookings((prev) =>
-      prev.map((b) =>
-        b.bookingCode === selectedBookingCode
-          ? { ...b, status: "cancelled", statusLabel: "ملغى" }
-          : b
-      )
-    );
+    await bookingsService.cancel(selectedBookingCode);
     toast.success("تم إلغاء الحجز بنجاح");
+  };
+
+  const handleDeleteBooking = async (id: string) => {
+    await bookingsService.remove(id);
+    toast.success("تم حذف الحجز بنجاح");
   };
 
   return {
@@ -297,5 +312,6 @@ export function useBookingsManager(
     handleConfirmExtend,
     handleConfirmChangeUnit,
     handleConfirmCancel,
+    handleDeleteBooking,
   };
 }

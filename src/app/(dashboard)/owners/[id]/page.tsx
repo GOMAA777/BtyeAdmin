@@ -2,17 +2,15 @@ import { Suspense } from "react";
 import { OwnerProfileCard } from "@/features/owners/components/owner-profile-card";
 import { OwnerKPICards } from "@/features/owners/components/owner-kpi-cards";
 import { OwnerTabsSection } from "@/features/owners/components/owner-tabs-section";
+import { ownerStaticParams } from "@/lib/static-params";
 
 export const metadata = {
-  title: "بيانات صاحب العقار | منصة أبراج",
+  title: "بيانات صاحب العقار | منصة BYTE HOME",
   description: "ملف صاحب العقار وتفاصيل العقارات والوحدات والحجوزات والأداء التشغيلي",
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 10 }, (_, i) => ({ id: String(i + 1) }));
-  const ownerIds = Array.from({ length: 5 }, (_, i) => ({ id: `owner-${i + 1}` }));
-  const specialIds = [{ id: "PO-8821" }, { id: "8821" }];
-  return [...numericIds, ...ownerIds, ...specialIds];
+  return ownerStaticParams();
 }
 
 interface PageProps {

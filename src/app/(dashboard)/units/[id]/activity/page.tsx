@@ -3,7 +3,7 @@ import { UnitDetailPage } from "@/features/units/components/unit-detail/unit-det
 import { unitStaticParams } from "@/lib/static-params";
 
 export const metadata = {
-  title: "سجل نشاط الوحدة — منصة أبراج",
+  title: "سجل نشاط الوحدة — منصة BYTE HOME",
   description: "سجل النشاط والتدقيق الزمني الشامل للوحدة السكنية والعمليات الفندقية والميدانية",
 };
 

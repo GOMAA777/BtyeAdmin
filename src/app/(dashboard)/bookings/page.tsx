@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { MainBookingsPageView } from "@/features/bookings/components/main-bookings-page-view";
 
 export const metadata = {
-  title: "الحجوزات | منصة أبراج",
+  title: "الحجوزات | منصة BYTE HOME",
   description: "إدارة ومتابعة جميع الحجوزات المسجلة على المنصة وحالات الوصول والمغادرة والمدفوعات المتزامنة",
 };
 

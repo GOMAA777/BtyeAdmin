@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { OwnerStatus } from "../types";
 import { OwnersFilters } from "./owners-filters";
 import { OwnersAdvancedFilterDrawer } from "./owners-advanced-filter-drawer";
+import { OwnersEmptyState } from "./owners-empty-state";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
 import { TableDateCell } from "@/components/shared/table-date-cell";
 import { TablePagination } from "@/components/shared/table-pagination";
@@ -103,8 +104,20 @@ export function OwnersTable() {
             <tbody className="divide-y divide-[#EEF2E6]">
               {paginatedOwners.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-[#7D8A78]">
-                    لا توجد نتائج تطابق معايير البحث
+                  <td colSpan={7} className="p-4 sm:p-8">
+                    {counts.all === 0 ? (
+                      <OwnersEmptyState
+                        onRefresh={() => {
+                          setSearch("");
+                          setFilter("all");
+                          handleResetAdvancedFilters();
+                        }}
+                      />
+                    ) : (
+                      <div className="py-12 text-center text-[#7D8A78]">
+                        لا توجد نتائج تطابق معايير البحث
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (

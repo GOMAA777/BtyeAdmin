@@ -31,6 +31,8 @@ import {
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { automationService } from "@/services/automation-service";
 import { AutomationRule } from "../../types";
 import { PauseRuleModal } from "./modals/pause-rule-modal";
 
@@ -107,12 +109,24 @@ export function EditRuleView({ rule }: EditRuleViewProps) {
     });
     if (!ok) return;
 
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      if (rule?.id) {
+        await automationService.update(rule.id, {
+          title: ruleName,
+          description: description,
+          triggerType: triggerEvent,
+          triggerLabel: triggerEvent,
+          triggerTime: triggerHour,
+        });
+      }
       toast.success("تم حفظ تعديلات قاعدة الأتمتة بنجاح وتحديث معايير الجدولة القادمة!");
-      router.push(`/automation/rules/${ruleCode}/`);
-    }, 600);
+      router.push(`/automation/`);
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ التعديلات");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -359,27 +373,17 @@ export function EditRuleView({ rule }: EditRuleViewProps) {
                   <label className="text-[14px] font-semibold text-[#181d17] block">
                     الحدث المحفّز الرئيسي <span className="text-[#ba1a1a]">*</span>
                   </label>
-                  <div className="relative">
-                    <select
-                      value={triggerEvent}
-                      onChange={(e) => setTriggerEvent(e.target.value)}
-                      className="w-full bg-[#f1f5eb] h-[44px] rounded-[12px] px-4 text-[14px] font-semibold text-[#181d17] border-0 appearance-none focus:outline-none focus:ring-1 focus:ring-[#34422a] cursor-pointer"
-                    >
-                      <option value="قبل موعد الوصول (Before Check-in)">
-                        قبل موعد الوصول (Before Check-in)
-                      </option>
-                      <option value="عند إنشاء حجز جديد مؤكد (Booking Confirmed)">
-                        عند إنشاء حجز جديد مؤكد (Booking Confirmed)
-                      </option>
-                      <option value="قبل موعد المغادرة (Before Checkout)">
-                        قبل موعد المغادرة (Before Checkout)
-                      </option>
-                      <option value="عند إتمام تسجيل الخروج (Checkout Completed)">
-                        عند إتمام تسجيل الخروج (Checkout Completed)
-                      </option>
-                    </select>
-                    <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#181d17] pointer-events-none" />
-                  </div>
+                  <SelectDropdown
+                    value={triggerEvent}
+                    onChange={setTriggerEvent}
+                    options={[
+                      "قبل موعد الوصول (Before Check-in)",
+                      "عند إنشاء حجز جديد مؤكد (Booking Confirmed)",
+                      "قبل موعد المغادرة (Before Checkout)",
+                      "عند إتمام تسجيل الخروج (Checkout Completed)",
+                    ]}
+                    triggerClassName="w-full bg-[#f1f5eb] h-[44px] rounded-[12px] px-4 text-[14px] font-semibold text-[#181d17] border-0"
+                  />
                 </div>
 
                 {/* Time-based Offset Config Box */}
@@ -397,33 +401,29 @@ export function EditRuleView({ rule }: EditRuleViewProps) {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="relative">
-                      <select
-                        value={triggerTimingOffset}
-                        onChange={(e) => setTriggerTimingOffset(e.target.value)}
-                        className="w-full bg-white h-10 px-4 rounded-[8px] text-[12px] font-semibold text-[#181d17] appearance-none border-0 shadow-xs cursor-pointer focus:outline-none"
-                      >
-                        <option value="قبل موعد الوصول المحدد">قبل موعد الوصول المحدد</option>
-                        <option value="في نفس موعد الوصول">في نفس موعد الوصول</option>
-                        <option value="بعد موعد الوصول بـ ساعة">بعد موعد الوصول بـ ساعة</option>
-                      </select>
-                      <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-gray-500 pointer-events-none" />
-                    </div>
+                    <SelectDropdown
+                      value={triggerTimingOffset}
+                      onChange={setTriggerTimingOffset}
+                      options={[
+                        "قبل موعد الوصول المحدد",
+                        "في نفس موعد الوصول",
+                        "بعد موعد الوصول بـ ساعة",
+                      ]}
+                      triggerClassName="w-full bg-white h-10 px-4 rounded-[8px] text-[12px] font-semibold text-[#181d17] border-0 shadow-xs"
+                    />
 
-                    <div className="relative">
-                      <select
-                        value={triggerHour}
-                        onChange={(e) => setTriggerHour(e.target.value)}
-                        className="w-full bg-white h-10 px-4 rounded-[8px] text-[12px] font-semibold text-[#181d17] appearance-none border-0 shadow-xs cursor-pointer focus:outline-none"
-                      >
-                        <option value="الساعة 3 م">الساعة 3 م</option>
-                        <option value="الساعة 12 ظهراً">الساعة 12 ظهراً</option>
-                        <option value="الساعة 1 ظهراً">الساعة 1 ظهراً</option>
-                        <option value="الساعة 2 ظهراً">الساعة 2 ظهراً</option>
-                        <option value="الساعة 4 م">الساعة 4 م</option>
-                      </select>
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-gray-500 pointer-events-none" />
-                    </div>
+                    <SelectDropdown
+                      value={triggerHour}
+                      onChange={setTriggerHour}
+                      options={[
+                        "الساعة 3 م",
+                        "الساعة 12 ظهراً",
+                        "الساعة 1 ظهراً",
+                        "الساعة 2 ظهراً",
+                        "الساعة 4 م",
+                      ]}
+                      triggerClassName="w-full bg-white h-10 px-4 rounded-[8px] text-[12px] font-semibold text-[#181d17] border-0 shadow-xs"
+                    />
                   </div>
 
                   <p className="text-[#454840] text-[13px] leading-[20px] text-right">

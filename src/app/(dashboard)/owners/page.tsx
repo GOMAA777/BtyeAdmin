@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { OwnersPageContent } from "@/features/owners/components/owners-page-content";
 
 export const metadata: Metadata = {
-  title: "إدارة أصحاب العقارات - ابراج",
+  title: "إدارة أصحاب العقارات - BYTE HOME",
   description: "إدارة ومتابعة جميع أصحاب العقارات المسجلين وتراخيصهم على المنصة.",
 };
 

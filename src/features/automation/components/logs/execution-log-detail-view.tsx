@@ -327,7 +327,7 @@ export function ExecutionLogDetailView({ log }: ExecutionLogDetailViewProps) {
                       </div>
                       <div>
                         <div className="font-bold text-[12px] leading-[16px] flex items-center gap-1">
-                          <span>ابراج لإدارة الأصول</span>
+                          <span>BYTE HOME لإدارة الأصول</span>
                           <span className="text-[10px] bg-white/30 rounded-full px-1">✓</span>
                         </div>
                         <div className="text-[10px] text-white/80 leading-[12px] mt-0.5">

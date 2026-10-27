@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BookingsEmptyStateView } from "@/features/bookings/components/bookings-empty-state-view";
 
 export const metadata: Metadata = {
-  title: "الحجوزات فارغة | منصة أبراج",
+  title: "الحجوزات فارغة | منصة BYTE HOME",
   description: "إدارة ومتابعة جميع الحجوزات المسجلة على المنصة وحالات الوصول والمغادرة والمدفوعات المتزامنة",
 };
 

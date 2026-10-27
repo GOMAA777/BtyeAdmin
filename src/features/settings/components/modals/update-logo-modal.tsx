@@ -113,10 +113,10 @@ export function UpdateLogoModal({ isOpen, onClose, onSuccess }: UpdateLogoModalP
                 <div className="flex flex-col">
                   <div className="flex gap-1.5 items-baseline">
                     <span className="font-cairo font-bold text-[#181d17] text-[18px]">
-                      ابراج
+                      BYTE HOME
                     </span>
                     <span className="font-cairo text-[#75786f] text-[11px]">
-                      / أبراج العقارية
+                      / BYTE HOME العقارية
                     </span>
                   </div>
                   <span className="font-cairo text-[#454840] text-[13px] leading-[18px]">
@@ -253,10 +253,10 @@ export function UpdateLogoModal({ isOpen, onClose, onSuccess }: UpdateLogoModalP
                       <div className="flex items-center gap-2">
                         <div className="text-right">
                           <p className="font-cairo font-bold text-white text-[14px] leading-[18px]">
-                            ابراج
+                            BYTE HOME
                           </p>
                           <p className="font-cairo text-[#bfcfaf] text-[10px] leading-[12px]">
-                            أبراج العقارية
+                            BYTE HOME العقارية
                           </p>
                         </div>
                         <div className="bg-[#4b5940] size-8 rounded-[8px] flex items-center justify-center text-white">
@@ -273,10 +273,10 @@ export function UpdateLogoModal({ isOpen, onClose, onSuccess }: UpdateLogoModalP
                       <div className="flex items-center gap-2">
                         <div className="text-right">
                           <p className="font-cairo font-bold text-[#181d17] text-[14px] leading-[18px]">
-                            ابراج
+                            BYTE HOME
                           </p>
                           <p className="font-cairo text-[#75786f] text-[10px] leading-[12px]">
-                            أبراج العقارية
+                            BYTE HOME العقارية
                           </p>
                         </div>
                         <div className="bg-[#4b5940] size-8 rounded-[8px] flex items-center justify-center text-white">

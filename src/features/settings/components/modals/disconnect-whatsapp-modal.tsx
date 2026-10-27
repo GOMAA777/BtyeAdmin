@@ -26,7 +26,7 @@ export function DisconnectWhatsAppModal({
   isOpen,
   onClose,
   onConfirm,
-  accountName = "ابراج لإدارة العقارات الفندقية",
+  accountName = "BYTE HOME لإدارة العقارات الفندقية",
   phoneNumber = "+966 11 482 9000",
   wabaId = "WABA-948201948271032",
   provider = "Meta Cloud API (v20.0)",

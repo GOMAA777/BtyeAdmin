@@ -28,17 +28,18 @@ import { CancelBookingModal } from "@/features/bookings/components/cancel-bookin
 import { ChangeUnitModal } from "@/features/bookings/components/change-unit-modal";
 import { BookingsAdvancedFilterDrawer } from "./bookings-advanced-filter-drawer";
 import { MainBookingItem, BookingStatus } from "../types";
-import { defaultMainBookings } from "../data/mock-main-bookings";
 import { useBookingsManager } from "../controllers/use-bookings-manager";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface MainBookingsPageViewProps {
   initialBookings?: MainBookingItem[];
 }
 
 export function MainBookingsPageView({
-  initialBookings = defaultMainBookings,
+  initialBookings,
 }: MainBookingsPageViewProps) {
   const router = useRouter();
+  const confirm = useConfirm();
   const {
     searchQuery,
     filterStatus,
@@ -77,6 +78,7 @@ export function MainBookingsPageView({
     handleConfirmExtend,
     handleConfirmChangeUnit,
     handleConfirmCancel,
+    handleDeleteBooking,
   } = useBookingsManager(initialBookings);
 
   return (
@@ -360,6 +362,22 @@ export function MainBookingsPageView({
                             variant: "destructive",
                             onClick: () => openCancelModal(booking.bookingCode),
                           },
+                          {
+                            label: "حذف الحجز نهائياً",
+                            icon: Trash2,
+                            variant: "destructive",
+                            onClick: async () => {
+                              const ok = await confirm({
+                                title: "حذف الحجز",
+                                message: `هل أنت متأكد من رغبتك في حذف الحجز رقم ${booking.bookingCode}؟ لا يمكن التراجع عن هذا الإجراء.`,
+                                confirmLabel: "حذف الحجز",
+                                variant: "destructive",
+                              });
+                              if (ok) {
+                                await handleDeleteBooking(booking.id);
+                              }
+                            },
+                          },
                         ]}
                       />
                     </td>
@@ -374,7 +392,7 @@ export function MainBookingsPageView({
         <TablePagination
           currentPage={activePage}
           totalPages={totalPages}
-          totalCount={842}
+          totalCount={statusCounts.all}
           fromIndex={startIndex + 1}
           toIndex={Math.min(startIndex + rowsPerPage, totalFiltered)}
           pageSize={rowsPerPage}

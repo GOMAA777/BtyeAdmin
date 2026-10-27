@@ -229,7 +229,7 @@ export function RegisterForm() {
             />
             <span>
               أوافق على الشروط والأحكام وسياسة حماية البيانات والخصوصية المتبعة لدى
-              منصة ابراج.
+              منصة BYTE HOME.
             </span>
           </label>
           {errors.acceptTerms && (

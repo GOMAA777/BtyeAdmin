@@ -1,27 +1,15 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { EditBookingForm } from "@/features/bookings/components/edit-booking-form";
+import { bookingStaticParams } from "@/lib/static-params";
 
 export const metadata: Metadata = {
-  title: "تعديل الحجز | منصة أبراج",
+  title: "تعديل الحجز | منصة BYTE HOME",
   description: "تحديث مواعيد الإقامة، بيانات الوحدة، وتفاصيل الدفع والنزيل للحجز",
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 10 }, (_, i) => ({ id: String(i + 1) }));
-  const bkIds = Array.from({ length: 5 }, (_, i) => ({ id: `bk-${i + 1}` }));
-  const capBkIds = Array.from({ length: 5 }, (_, i) => ({ id: `BK-${i + 1}` }));
-  const bookingCodes = Array.from({ length: 10 }, (_, i) => ({ id: `BK-${10480 + i}` }));
-  const specialIds = [
-    { id: "1048" },
-    { id: "10482" },
-    { id: "10483" },
-    { id: "bk-1048" },
-    { id: "BK-1048" },
-    { id: "BK-10482" },
-    { id: "BK-10483" },
-  ];
-  return [...numericIds, ...bkIds, ...capBkIds, ...bookingCodes, ...specialIds];
+  return bookingStaticParams();
 }
 
 interface PageProps {

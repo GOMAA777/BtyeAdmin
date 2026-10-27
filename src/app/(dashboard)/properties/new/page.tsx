@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { NewPropertyClientContent } from "@/features/properties/components/new-property-client-content";
 
 export const metadata: Metadata = {
-  title: "إضافة عقار جديد | منصة أبراج",
+  title: "إضافة عقار جديد | منصة BYTE HOME",
   description: "إدراج عقار جديد وتعيينه لمالك مسجل في المنصة وربط التراخيص والبيانات الجغرافية بدقة.",
 };
 

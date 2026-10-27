@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -22,12 +22,17 @@ import {
   ToggleRight,
   UserSearch,
   BadgeCheck,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { cn } from "@/lib/utils";
 import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { ownersService } from "@/services/owners-service";
+import { propertiesService } from "@/services/properties-service";
+import { AddOwnerModal } from "@/features/owners/components/add-owner-modal";
+import type { Owner } from "@/features/owners/types";
 
 const PROPERTY_TYPE_OPTIONS = [
   "عمارة سكنية تجارية",
@@ -50,46 +55,86 @@ interface AddPropertyFormProps {
 export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
   const router = useRouter();
 
-  // Form State matching screenshot data
-  const [ownerSearch] = useState("محمد العتيبي (مؤسسة محمد العتيبي العقارية)");
-  const [propertyName, setPropertyName] = useState("عمارة النخيل السكنية");
+  // Owners list & dynamic selection
+  const [owners, setOwners] = useState<Owner[]>([]);
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string>("");
+  const [isAddOwnerModalOpen, setIsAddOwnerModalOpen] = useState(false);
+
+  // Form State starts empty for user input
+  const [propertyName, setPropertyName] = useState("");
   const [propertyType, setPropertyType] = useState("عمارة سكنية تجارية");
   const [city, setCity] = useState("الرياض");
-  const [district, setDistrict] = useState("حي النخيل الغربي");
-  const [unitsCount, setUnitsCount] = useState("24");
-  const [addressDetails, setAddressDetails] = useState(
-    "طريق الإمام سعود بن فيصل، بالقرب من تقاطع الملك فهد، مبنى رقم 482"
-  );
-  const [description, setDescription] = useState(
-    "عقار سكني حديث التشطيب مكون من 4 أدوار، مزود بمصعدين حديثين ومواقف سفلية مخصصة لكل وحدة، كاميرات مراقبة وحراسة أمنية متكاملة على مدار الساعة."
-  );
+  const [district, setDistrict] = useState("");
+  const [unitsCount, setUnitsCount] = useState("1");
+  const [addressDetails, setAddressDetails] = useState("");
+  const [description, setDescription] = useState("");
   const [operationalStatus, setOperationalStatus] = useState<"active" | "inactive">("active");
-  const [mapType, setMapType] = useState<"m" | "k">("m"); // 'm' roadmap, 'k' satellite
+  const [mapType, setMapType] = useState<"m" | "k">("m");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const loadOwners = useCallback(async () => {
+    const data = await ownersService.getAll();
+    setOwners(data);
+    if (data.length > 0 && !selectedOwnerId) {
+      setSelectedOwnerId(data[0].id);
+    }
+  }, [selectedOwnerId]);
+
+  useEffect(() => {
+    loadOwners();
+  }, [loadOwners]);
+
   const confirm = useConfirm();
+
+  const currentOwner = owners.find((o) => o.id === selectedOwnerId);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
+    if (!propertyName.trim()) {
+      toast.error("يرجى إدخال اسم العقار");
+      return;
+    }
+
+    if (!selectedOwnerId) {
+      toast.error("يرجى اختيار مالك العقار أولاً أو تسجيل مالك جديد");
+      return;
+    }
+
     const ok = await confirm({
       title: "تأكيد حفظ العقار",
-      message: `هل أنت متأكد من حفظ وتفعيل بيانات العقار "${propertyName}" في محفظة المالك؟`,
+      message: `هل أنت متأكد من حفظ وتفعيل بيانات العقار "${propertyName}" في محفظة المالك "${currentOwner?.name || ""}"؟`,
       confirmLabel: "حفظ واعتماد العقار",
       variant: "default",
     });
     if (!ok) return;
 
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      await propertiesService.create({
+        name: propertyName.trim(),
+        type: propertyType,
+        city,
+        district: district.trim(),
+        address: addressDetails.trim(),
+        description: description.trim(),
+        unitsCount: parseInt(unitsCount, 10) || 1,
+        ownerId: currentOwner?.id,
+        ownerName: currentOwner?.name || "مالك مسجل",
+        status: operationalStatus,
+      });
+
       toast.success("تم تسجيل وتفعيل بيانات العقار واعتماده بنجاح");
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push("/properties/new/?success=true");
+        router.push("/properties/");
       }
-    }, 500);
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ بيانات العقار");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -151,79 +196,94 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
               </span>
             </div>
 
-            {/* Owner Search/Selection Bar */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-[#172115] text-right">
-                البحث عن المالك وتحديده
-              </label>
-              <div className="bg-[#F1F5EB] border border-[#E0E5D8]/70 rounded-2xl p-2.5 flex items-center justify-between gap-3">
-                {/* Right in RTL: Icon + Text */}
-                <div className="flex items-center gap-2.5 text-xs text-[#172115] font-semibold px-2">
-                  <UserSearch className="w-4 h-4 text-[#7D8A78]" />
-                  <span>{ownerSearch}</span>
+            {/* Owner Selection Box */}
+            {owners.length === 0 ? (
+              <div className="bg-[#FFF8E6] border border-[#F3E2B8] rounded-2xl p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-right">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-[#8A6300]">لا يوجد ملاك عقارات مسجلين حتى الآن</p>
+                  <p className="text-[11px] text-[#A67C00]">يرجى إضافة مالك عقار أولاً لربط العقار بمحفظته القانونية.</p>
                 </div>
-
-                {/* Left in RTL: تغيير button */}
                 <button
                   type="button"
-                  onClick={() => toast.info("البحث عن مالك آخر")}
-                  className="bg-[#DEE7D7] hover:bg-[#D5E0CD] text-[#2C3825] px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  onClick={() => setIsAddOwnerModalOpen(true)}
+                  className="bg-[#34422A] hover:bg-[#283520] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
                 >
-                  <span>تغيير</span>
-                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
+                  <span>إضافة مالك جديد</span>
                 </button>
               </div>
-            </div>
-
-            {/* Selected Owner Preview Box matching Screenshot 1 */}
-            <div className="bg-[#F8FAF6] rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#E8EDE2]">
-              {/* Right in RTL: Owner Avatar & Info */}
-              <div className="flex items-center gap-3.5">
-                <div className="relative shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-[#384832] text-white font-bold flex items-center justify-center text-lg shadow-2xs">
-                    م
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-[#172115] text-right">
+                      البحث عن المالك وتحديده
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddOwnerModalOpen(true)}
+                      className="text-xs font-bold text-[#34422A] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>إضافة مالك آخر</span>
+                    </button>
                   </div>
-                  <span className="w-3.5 h-3.5 rounded-full bg-[#10B981] border-2 border-white absolute bottom-0 left-0" />
+                  <SelectDropdown
+                    value={selectedOwnerId}
+                    onChange={setSelectedOwnerId}
+                    options={owners.map((o) => ({
+                      value: o.id,
+                      label: `${o.name} (${o.phone})`,
+                    }))}
+                    placeholder="اختر المالك..."
+                    triggerClassName="w-full bg-[#F1F5EB] border border-[#E0E5D8]/70 rounded-2xl h-12 px-4 text-xs font-semibold text-[#172115]"
+                  />
                 </div>
 
-                <div className="space-y-1 text-right">
-                  <div className="flex items-center gap-2.5">
-                    <h3 className="text-base font-bold text-[#172115]">
-                      محمد بن سعود العتيبي
-                    </h3>
-                    <span className="bg-[#E0E6DA] text-[#34432E] text-[11px] font-bold px-2.5 py-0.5 rounded-lg">
-                      حساب موثق
-                    </span>
-                  </div>
+                {currentOwner && (
+                  <div className="bg-[#F8FAF6] rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#E8EDE2]">
+                    <div className="flex items-center gap-3.5">
+                      <div className="relative shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-[#384832] text-white font-bold flex items-center justify-center text-lg shadow-2xs">
+                          {currentOwner.initials || currentOwner.name.charAt(0)}
+                        </div>
+                        <span className="w-3.5 h-3.5 rounded-full bg-[#10B981] border-2 border-white absolute bottom-0 left-0" />
+                      </div>
 
-                  <div className="flex items-center gap-2 text-xs text-[#7D8A78] flex-wrap font-medium">
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-[#7D8A78]" />
-                      <span dir="ltr">+966 55 123 4567</span>
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 font-semibold text-[#172115]">
-                      <BadgeCheck className="w-3.5 h-3.5 text-[#7D8A78]" />
-                      <span>رخصة فال:</span>
-                      <span dir="ltr">1200028491</span>
-                    </span>
-                  </div>
+                      <div className="space-y-1 text-right">
+                        <div className="flex items-center gap-2.5">
+                          <h3 className="text-base font-bold text-[#172115]">
+                            {currentOwner.name}
+                          </h3>
+                          <span className="bg-[#E0E6DA] text-[#34432E] text-[11px] font-bold px-2.5 py-0.5 rounded-lg">
+                            {currentOwner.status === "active" ? "حساب موثق" : "قيد المراجعة"}
+                          </span>
+                        </div>
 
-                  <div className="text-xs text-[#7D8A78] font-medium text-right">
-                    مؤسسة محمد العتيبي للتطوير العقاري
+                        <div className="flex items-center gap-2 text-xs text-[#7D8A78] flex-wrap font-medium">
+                          <span className="flex items-center gap-1">
+                            <Phone className="w-3.5 h-3.5 text-[#7D8A78]" />
+                            <span dir="ltr">{currentOwner.phone}</span>
+                          </span>
+                          <span>•</span>
+                          <span className="text-xs text-[#7D8A78]">
+                            {currentOwner.email}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/owners/${currentOwner.id}/`}
+                      className="bg-white hover:bg-[#FAFBF9] border border-[#E2E6DC] text-[#2C3825] px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors shrink-0 self-start sm:self-center"
+                    >
+                      <span>ملف المالك</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-[#7D8A78]" />
+                    </Link>
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* Left in RTL: View Owner Profile Button */}
-              <Link
-                href="/owners/1/"
-                className="bg-white hover:bg-[#FAFBF9] border border-[#E2E6DC] text-[#2C3825] px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors shrink-0 self-start sm:self-center"
-              >
-                <span>ملف المالك</span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#7D8A78]" />
-              </Link>
-            </div>
+            )}
           </div>
 
           {/* Card 2: بيانات العقار الأساسية matching Screenshot 2 */}
@@ -667,6 +727,15 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
             loadingText: "جاري الحفظ...",
           },
         ]}
+      />
+
+      <AddOwnerModal
+        isOpen={isAddOwnerModalOpen}
+        onClose={() => setIsAddOwnerModalOpen(false)}
+        onSuccess={(newOwner) => {
+          setOwners((prev) => [...prev, newOwner]);
+          setSelectedOwnerId(newOwner.id);
+        }}
       />
     </form>
   );

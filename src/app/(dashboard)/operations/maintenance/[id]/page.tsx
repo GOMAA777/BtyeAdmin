@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { MaintenanceDetailView } from "@/features/operations/components/maintenance-detail-view";
 
+import { maintenanceTaskStaticParams } from "@/lib/static-params";
+
 export function generateStaticParams() {
-  return [
-    { id: "MT-2048" },
-    { id: "MT-2047" },
-    { id: "MT-2045" },
-    { id: "1" },
-    { id: "2" },
-  ];
+  return maintenanceTaskStaticParams();
 }
 
 interface MaintenanceTicketPageProps {
@@ -20,7 +16,7 @@ export async function generateMetadata({
 }: MaintenanceTicketPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: `بلاغ صيانة ${id} - ابراج`,
+    title: `بلاغ صيانة ${id} - BYTE HOME`,
     description: `تفاصيل ومتابعة بلاغ الصيانة ${id} على مستوى المنصة`,
   };
 }

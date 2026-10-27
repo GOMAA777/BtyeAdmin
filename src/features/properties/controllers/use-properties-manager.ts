@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import {
   Property,
@@ -8,10 +8,13 @@ import {
   MainPropertyFilterState,
   initialPropertyFilterState,
 } from "../types";
-import { defaultProperties } from "../data/mock-properties";
+import { propertiesService } from "@/services/properties-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
-export function usePropertiesManager(initialData: Property[] = defaultProperties) {
-  const [properties, setProperties] = useState<Property[]>(initialData);
+export function usePropertiesManager(initialData?: Property[]) {
+  const [properties, setProperties] = useState<Property[]>(
+    initialData || useAppDataStore.getState().properties
+  );
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("all");
@@ -19,6 +22,19 @@ export function usePropertiesManager(initialData: Property[] = defaultProperties
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
   const [propertyFilters, setPropertyFilters] =
     useState<MainPropertyFilterState>(initialPropertyFilterState);
+
+  const loadProperties = useCallback(async () => {
+    const data = await propertiesService.getAll();
+    setProperties(data);
+  }, []);
+
+  useEffect(() => {
+    loadProperties();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setProperties(state.properties);
+    });
+    return () => unsub();
+  }, [loadProperties]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -94,7 +110,7 @@ export function usePropertiesManager(initialData: Property[] = defaultProperties
     });
   }, [properties, filter, search, propertyFilters]);
 
-  const totalHeadlineCount = 184;
+  const totalHeadlineCount = properties.length;
   const totalFiltered = filteredProperties.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
   const activePage = Math.min(currentPage, totalPages);
@@ -115,18 +131,24 @@ export function usePropertiesManager(initialData: Property[] = defaultProperties
     archived: properties.filter((p) => p.status === "archived").length,
   };
 
-  const handleDeleteProperty = (id: string, title: string) => {
-    setProperties((prev) => prev.filter((p) => p.id !== id));
-    toast.success(`تم حذف "${title}" بنجاح`, {
-      description: "تمت إزالة العقار وكافة وحداته من المنظومة التشغيلية.",
-    });
+  const handleDeleteProperty = async (id: string, title: string) => {
+    try {
+      await propertiesService.remove(id);
+      toast.success(`تم حذف "${title}" بنجاح`, {
+        description: "تمت إزالة العقار وكافة وحداته من المنظومة التشغيلية.",
+      });
+    } catch {
+      toast.error("حدث خطأ أثناء حذف العقار");
+    }
   };
 
-  const handleToggleStatus = (id: string, newStatus: PropertyStatus) => {
-    setProperties((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-    );
-    toast.success("تم تحديث حالة العقار بنجاح");
+  const handleToggleStatus = async (id: string, newStatus: PropertyStatus) => {
+    try {
+      await propertiesService.update(id, { status: newStatus });
+      toast.success("تم تحديث حالة العقار بنجاح");
+    } catch {
+      toast.error("حدث خطأ أثناء تحديث حالة العقار");
+    }
   };
 
   return {

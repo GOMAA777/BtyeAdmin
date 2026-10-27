@@ -18,7 +18,7 @@ export function ActiveChatHeader({
       onOpenWorkerDetails();
     } else {
       toast.info(`عرض الملف التعريفي والمهام للعامل: ${conversation.name}`, {
-        description: "رقم الهوية: 1083921049 | الكفيل: شركة أبراج للتشغيل الفندقي",
+        description: "رقم الهوية: 1083921049 | الكفيل: شركة BYTE HOME للتشغيل الفندقي",
       });
     }
   };

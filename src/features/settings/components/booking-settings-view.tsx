@@ -26,6 +26,7 @@ import {
 import { useBookingSettings } from "../controllers/use-booking-settings";
 import { ConfirmBookingRulesModal } from "./modals/confirm-booking-rules-modal";
 import { DockingBottomBar } from "@/components/shared/docking-bottom-bar";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
 
 export function BookingSettingsView() {
   const {
@@ -95,18 +96,16 @@ export function BookingSettingsView() {
                   </span>
                   <Clock className="w-4 h-4 text-[#55634d]" />
                 </div>
-                <div className="relative">
-                  <select
-                    value={settings.defaultCheckInTime}
-                    onChange={(e) => updateSetting("defaultCheckInTime", e.target.value)}
-                    className="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#34422a]"
-                  >
-                    <option value="14:00">02:00 م (14:00)</option>
-                    <option value="15:00">03:00 م (15:00)</option>
-                    <option value="16:00">04:00 م (16:00)</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#75786f] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={settings.defaultCheckInTime}
+                  onChange={(val) => updateSetting("defaultCheckInTime", val)}
+                  options={[
+                    { value: "14:00", label: "02:00 م (14:00)" },
+                    { value: "15:00", label: "03:00 م (15:00)" },
+                    { value: "16:00", label: "04:00 م (16:00)" },
+                  ]}
+                  triggerClassName="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17]"
+                />
                 <p className="text-[11px] text-[#75786f] leading-[16px]">
                   الوقت الافتراضي المعتمد لتسليم المفتاح وتفعيل كود الدخول الذكي.
                 </p>
@@ -120,18 +119,16 @@ export function BookingSettingsView() {
                   </span>
                   <Clock className="w-4 h-4 text-[#55634d]" />
                 </div>
-                <div className="relative">
-                  <select
-                    value={settings.defaultCheckOutTime}
-                    onChange={(e) => updateSetting("defaultCheckOutTime", e.target.value)}
-                    className="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#34422a]"
-                  >
-                    <option value="11:00">11:00 ص (11:00)</option>
-                    <option value="12:00">12:00 م (12:00)</option>
-                    <option value="13:00">01:00 م (13:00)</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#75786f] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <SelectDropdown
+                  value={settings.defaultCheckOutTime}
+                  onChange={(val) => updateSetting("defaultCheckOutTime", val)}
+                  options={[
+                    { value: "11:00", label: "11:00 ص (11:00)" },
+                    { value: "12:00", label: "12:00 م (12:00)" },
+                    { value: "13:00", label: "01:00 م (13:00)" },
+                  ]}
+                  triggerClassName="w-full bg-white border border-[#dce2d7] rounded-[8px] px-3 py-2 text-[13px] font-semibold text-[#181d17]"
+                />
                 <p className="text-[11px] text-[#75786f] leading-[16px]">
                   انتهاء صلاحية كود الدخول وبدء نافذة التنظيف الفني المجدولة.
                 </p>

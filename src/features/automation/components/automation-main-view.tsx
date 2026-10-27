@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
+import { AnimatedTabPanel } from "@/components/shared/animated-tabs";
 import { AutomationRulesView } from "./rules/automation-rules-view";
 import { WhatsAppTemplatesView } from "./templates/whatsapp-templates-view";
 import { ExecutionLogsView } from "./logs/execution-logs-view";
@@ -27,11 +28,11 @@ function AutomationMainContent() {
   };
 
   return (
-    <div>
+    <AnimatedTabPanel tabKey={activeTab}>
       {activeTab === "rules" && <AutomationRulesView onTabChange={handleTabChange} />}
       {activeTab === "templates" && <WhatsAppTemplatesView onTabChange={handleTabChange} />}
       {activeTab === "logs" && <ExecutionLogsView onTabChange={handleTabChange} />}
-    </div>
+    </AnimatedTabPanel>
   );
 }
 

@@ -659,7 +659,7 @@ export function PlatformSettingsView() {
                   إظهار الإعلانات والتنبيهات النظامية للملاك
                 </span>
                 <span className="font-cairo text-[#75786f] text-[13px] leading-[20px]">
-                  بث تحديثات منصة «ابراج» والتنبيهات الضريبية وهيئة العقار في لوحات تحكم الملاك
+                  بث تحديثات منصة «BYTE HOME» والتنبيهات الضريبية وهيئة العقار في لوحات تحكم الملاك
                 </span>
               </div>
             </div>

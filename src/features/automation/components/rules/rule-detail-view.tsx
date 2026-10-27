@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/back-button";
 import {
   Edit,
   Pause,
@@ -88,40 +90,46 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
       {/* 1. PAGE HEADER BAR (Figma node 1:23177) */}
       <div className="bg-white rounded-[16px] p-6 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Right side in RTL: Title & Badges & Description */}
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] font-semibold text-[#181d17] tracking-[-0.6px] leading-[34px]">
-              تفاصيل قاعدة الأتمتة
-            </h1>
-            <span className="bg-[#e5eae0] text-[#454840] text-[11px] font-semibold px-[10px] py-[4px] rounded-full tracking-[0.55px] whitespace-nowrap">
-              #{rule.ruleCode || "AUT-102"}
-            </span>
-            {rule.status === "active" ? (
-              <span className="bg-[#d8e8cb] text-[#34422a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full inline-flex items-center gap-[6px] whitespace-nowrap">
-                <span className="bg-[#4b5940] size-[8px] rounded-full inline-block" />
-                <span>مفعلة</span>
+        <div className="flex items-start gap-3">
+          <BackButton
+            fallbackHref="/automation/"
+            className="w-10 h-10 rounded-xl bg-[#f1f5eb] hover:bg-[#e5eae0] text-[#34422a] flex items-center justify-center transition-colors shrink-0 mt-0.5 cursor-pointer"
+          />
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-[24px] font-semibold text-[#181d17] tracking-[-0.6px] leading-[34px]">
+                تفاصيل قاعدة الأتمتة
+              </h1>
+              <span className="bg-[#e5eae0] text-[#454840] text-[11px] font-semibold px-[10px] py-[4px] rounded-full tracking-[0.55px] whitespace-nowrap">
+                #{rule.ruleCode || "AUT-102"}
               </span>
-            ) : (
-              <span className="bg-[#ffdad6] text-[#93000a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full inline-flex items-center gap-[6px] whitespace-nowrap">
-                <span className="bg-[#ba1a1a] size-[8px] rounded-full inline-block" />
-                <span>متوقفة</span>
-              </span>
-            )}
+              {rule.status === "active" ? (
+                <span className="bg-[#d8e8cb] text-[#34422a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full inline-flex items-center gap-[6px] whitespace-nowrap">
+                  <span>مفعلة</span>
+                  <span className="bg-[#4b5940] size-[8px] rounded-full inline-block" />
+                </span>
+              ) : (
+                <span className="bg-[#ffdad6] text-[#93000a] text-[11px] font-semibold px-[12px] py-[4px] rounded-full inline-flex items-center gap-[6px] whitespace-nowrap">
+                  <span>متوقفة</span>
+                  <span className="bg-[#ba1a1a] size-[8px] rounded-full inline-block" />
+                </span>
+              )}
+            </div>
+            <p className="text-[#454840] text-[13px] font-normal leading-[20px] mt-1">
+              استعراض معايير التشغيل ومحفزات الإطلاق وسجل العمليات اللحظي لمحرك الأتمتة المركزي.
+            </p>
           </div>
-          <p className="text-[#454840] text-[13px] font-normal leading-[20px] mt-1">
-            استعراض معايير التشغيل ومحفزات الإطلاق وسجل العمليات اللحظي لمحرك الأتمتة المركزي.
-          </p>
         </div>
 
-        {/* Left side in RTL: Action Button Group (Figma order: Audit Log -> Pause -> Edit) */}
+        {/* Left side in RTL: Action Button Group */}
         <div className="flex items-center gap-2 flex-wrap self-end lg:self-center">
-          {/* Button 1: Full Audit Log */}
+          {/* Button 1: Edit Rule */}
           <Link
-            href="/automation/?tab=logs"
-            className="bg-white hover:bg-[#f6fbf1] text-[#4b5940] text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] border border-[#e5eae0] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
+            href={`/automation/rules/${rule.ruleCode || "AUT-102"}/edit/`}
+            className="bg-[#4b5940] hover:bg-[#3d4934] text-white text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
           >
-            <FileText className="size-[14px]" />
-            <span>سجل التدقيق الكامل</span>
+            <span>تعديل القاعدة</span>
+            <Edit className="size-[15px]" />
           </Link>
 
           {/* Button 2: Pause or Activate Rule */}
@@ -131,8 +139,8 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
               onClick={() => setShowPauseModal(true)}
               className="bg-[#f1f5eb] hover:bg-[#e4ebdc] text-[#34422a] text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] inline-flex items-center gap-[8px] transition-colors cursor-pointer"
             >
-              <Pause className="size-[15px]" />
               <span>إيقاف القاعدة</span>
+              <Pause className="size-[15px]" />
             </button>
           ) : (
             <button
@@ -140,30 +148,30 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
               onClick={() => setShowActivateModal(true)}
               className="bg-[#d8e8cb] hover:bg-[#c6dcbe] text-[#34422a] text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] inline-flex items-center gap-[8px] transition-colors cursor-pointer"
             >
-              <Play className="size-[15px]" />
               <span>تفعيل القاعدة</span>
+              <Play className="size-[15px]" />
             </button>
           )}
 
-          {/* Button 3: Edit Rule (Dark Olive primary CTA) */}
+          {/* Button 3: Full Audit Log */}
           <Link
-            href={`/automation/rules/${rule.ruleCode || "AUT-102"}/edit/`}
-            className="bg-[#4b5940] hover:bg-[#3d4934] text-white text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
+            href="/automation/?tab=logs"
+            className="bg-white hover:bg-[#f6fbf1] text-[#4b5940] text-[14px] font-semibold h-[44px] px-[20px] rounded-[12px] border border-[#e5eae0] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
           >
-            <Edit className="size-[15px]" />
-            <span>تعديل القاعدة</span>
+            <span>سجل التدقيق الكامل</span>
+            <FileText className="size-[14px]" />
           </Link>
         </div>
       </div>
 
-      {/* 2. Execution Statistics Cards (Figma node 1:23209) */}
+      {/* 2. Execution Statistics Cards (Factual Counts Only) (Figma node 1:23209) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
         {/* Card 1: Total executions (إجمالي التنفيذ) */}
         <div className="bg-white rounded-[16px] p-[16px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold text-[#454840]">إجمالي التنفيذ</span>
-            <div className="size-[32px] rounded-full bg-[#ebefe6] flex items-center justify-center text-[#4b5940]">
-              <Play className="size-[14px]" />
+            <div className="size-[32px] rounded-[8px] bg-[#ebefe6] flex items-center justify-center text-[#4b5940]">
+              <History className="size-[15px]" />
             </div>
           </div>
           <div className="pt-[12px]">
@@ -181,7 +189,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
         <div className="bg-white rounded-[16px] p-[16px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold text-[#454840]">عمليات ناجحة</span>
-            <div className="size-[32px] rounded-full bg-[#d8e8cb] flex items-center justify-center text-[#34422a]">
+            <div className="size-[32px] rounded-[8px] bg-[#d8e8cb] flex items-center justify-center text-[#34422a]">
               <CheckCircle2 className="size-[15px]" />
             </div>
           </div>
@@ -202,7 +210,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
         <div className="bg-white rounded-[16px] p-[16px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold text-[#454840]">عمليات غير مكتملة</span>
-            <div className="size-[32px] rounded-full bg-[#ffdad6] flex items-center justify-center text-[#93000a]">
+            <div className="size-[32px] rounded-[8px] bg-[#ffdad6] flex items-center justify-center text-[#93000a]">
               <AlertCircle className="size-[15px]" />
             </div>
           </div>
@@ -223,7 +231,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
         <div className="bg-white rounded-[16px] p-[16px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold text-[#454840]">قيد الانتظار</span>
-            <div className="size-[32px] rounded-full bg-[#e5eae0] flex items-center justify-center text-[#454840]">
+            <div className="size-[32px] rounded-[8px] bg-[#e5eae0] flex items-center justify-center text-[#454840]">
               <Clock className="size-[15px]" />
             </div>
           </div>
@@ -343,7 +351,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                 </div>
 
                 <p className="text-[13px] font-normal text-[#454840] leading-[20px]">
-                  المستلم: النزيل المسجل في الحجز عبر رقم الهاتف الخليوي المعتمد لدى منصة ابراج.
+                  المستلم: النزيل المسجل في الحجز عبر رقم الهاتف الخليوي المعتمد لدى منصة BYTE HOME.
                 </p>
 
                 {/* WhatsApp Message Preview Box */}
@@ -479,22 +487,19 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                       <div className="font-bold text-[#181d17] leading-[20px]">فيصل السبيعي</div>
                       <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">BK-10482</div>
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap">
-                      <div className="font-medium text-[#181d17] leading-[20px]">عمارة النخيل •</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">و-204</div>
+                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap leading-[20px]">
+                      عمارة النخيل • و-204
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">18 سبت 2026</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">09:00 ص</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      18 سبت 2026 - 09:00 ص
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">واتساب</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">+ توثيق</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      واتساب + توثيق
                     </td>
                     <td className="py-[16px] px-[16px] whitespace-nowrap">
-                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px]">
+                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                        <span>نجح</span>
                         <span className="size-[6px] rounded-full bg-[#34422a]" />
-                        <span>ناجح</span>
                       </span>
                     </td>
                     <td className="py-[16px] px-[16px] text-center whitespace-nowrap">
@@ -517,22 +522,19 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                       <div className="font-bold text-[#181d17] leading-[20px]">سارة المنصور</div>
                       <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">BK-10478</div>
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap">
-                      <div className="font-medium text-[#181d17] leading-[20px]">أبراج الياسمين •</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">و-512</div>
+                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap leading-[20px]">
+                      أبراج الياسمين • و-512
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">18 سبت 2026</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">08:30 ص</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      18 سبت 2026 - 08:30 ص
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">واتساب</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">+ توثيق</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      واتساب + توثيق
                     </td>
                     <td className="py-[16px] px-[16px] whitespace-nowrap">
-                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px]">
+                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                        <span>نجح</span>
                         <span className="size-[6px] rounded-full bg-[#34422a]" />
-                        <span>ناجح</span>
                       </span>
                     </td>
                     <td className="py-[16px] px-[16px] text-center whitespace-nowrap">
@@ -547,7 +549,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                   </tr>
 
                   {/* Row 3: Failure (EX-8488) */}
-                  <tr className="bg-[rgba(255,218,214,0.15)] hover:bg-[rgba(255,218,214,0.3)] transition-colors">
+                  <tr className="bg-[rgba(255,218,214,0.2)] hover:bg-[rgba(255,218,214,0.35)] transition-colors">
                     <td className="py-[16px] px-[16px] font-bold text-[#181d17] whitespace-nowrap">
                       EX-8488
                     </td>
@@ -555,23 +557,20 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                       <div className="font-bold text-[#181d17] leading-[20px]">خالد العمري</div>
                       <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">BK-10469</div>
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap">
-                      <div className="font-medium text-[#181d17] leading-[20px]">فلل حطين •</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">ف-08</div>
+                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap leading-[20px]">
+                      فلل حطين • ف-08
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">17 سبت 2026</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">03:00 م</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      17 سبت 2026 - 03:00 م
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">واتساب</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">+ توثيق</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      واتساب + توثيق
                     </td>
                     <td className="py-[16px] px-[16px] whitespace-nowrap">
-                      <div className="bg-[#ffdad6] text-[#93000a] text-[11px] font-semibold px-[10px] py-[3px] rounded-[8px] inline-flex flex-col items-center justify-center leading-[14px]">
-                        <span>فشل</span>
-                        <span className="text-[10px] leading-[12px] mt-0.5">• رقم هاتف</span>
-                      </div>
+                      <span className="bg-[#ffdad6] text-[#93000a] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                        <span>فشل (رقم هاتف)</span>
+                        <span className="size-[6px] rounded-full bg-[#ba1a1a]" />
+                      </span>
                     </td>
                     <td className="py-[16px] px-[16px] text-center whitespace-nowrap">
                       <button
@@ -580,7 +579,7 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                           setRetryingLogId("EX-8488");
                           setShowRetryModal(true);
                         }}
-                        className="inline-flex items-center justify-center size-[32px] rounded-full hover:bg-red-100 text-[#ba1a1a] transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center size-[32px] rounded-[8px] hover:bg-red-100 text-[#ba1a1a] transition-colors cursor-pointer"
                         title="إعادة المحاولة يدوياً"
                       >
                         <RotateCcw className="size-[15px]" />
@@ -597,22 +596,19 @@ export function RuleDetailView({ rule: initialRule }: RuleDetailViewProps) {
                       <div className="font-bold text-[#181d17] leading-[20px]">عبدالله الدوسري</div>
                       <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">BK-10464</div>
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap">
-                      <div className="font-medium text-[#181d17] leading-[20px]">مجمع السدرة •</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">و-103</div>
+                    <td className="py-[16px] px-[16px] text-[#181d17] whitespace-nowrap leading-[20px]">
+                      مجمع السدرة • و-103
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">17 سبت 2026</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">01:15 م</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      17 سبت 2026 - 01:15 م
                     </td>
-                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap">
-                      <div className="text-[12px] font-medium text-[#181d17] leading-[18px]">واتساب</div>
-                      <div className="text-[11px] text-[#75786f] font-normal leading-[16px]">+ توثيق</div>
+                    <td className="py-[16px] px-[16px] text-[#454840] whitespace-nowrap leading-[20px]">
+                      واتساب + توثيق
                     </td>
                     <td className="py-[16px] px-[16px] whitespace-nowrap">
-                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px]">
+                      <span className="bg-[#d8e8cb] text-[#121f0d] text-[11px] font-semibold px-[10px] py-[4px] rounded-full inline-flex items-center gap-[4px]">
+                        <span>نجح</span>
                         <span className="size-[6px] rounded-full bg-[#34422a]" />
-                        <span>ناجح</span>
                       </span>
                     </td>
                     <td className="py-[16px] px-[16px] text-center whitespace-nowrap">

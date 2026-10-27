@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { initialOperationsTasks } from "../data/mock-operations";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   OperationCategoryFilter,
   OperationSubFilter,
@@ -9,11 +8,29 @@ import {
   OperationFilterState,
   initialOperationFilterState,
 } from "../types";
+import { operationsService } from "@/services/operations-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
 export function useOperationsManager(
-  initialTasks: OperationTask[] = initialOperationsTasks
+  initialTasks?: OperationTask[]
 ) {
-  const [tasks] = useState<OperationTask[]>(initialTasks);
+  const [tasks, setTasks] = useState<OperationTask[]>(
+    initialTasks || useAppDataStore.getState().operations
+  );
+
+  const loadTasks = useCallback(async () => {
+    const data = await operationsService.getAll();
+    setTasks(data);
+  }, []);
+
+  useEffect(() => {
+    loadTasks();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setTasks(state.operations);
+    });
+    return () => unsub();
+  }, [loadTasks]);
+
   const [categoryFilter, setCategoryFilter] =
     useState<OperationCategoryFilter>("all");
   const [subFilter, setSubFilter] = useState<OperationSubFilter>("all");
@@ -39,20 +56,20 @@ export function useOperationsManager(
 
   const counts = useMemo(() => {
     return {
-      all: 48,
-      cleaning: 28,
-      maintenance: 20,
+      all: tasks.length,
+      cleaning: tasks.filter((t) => t.type === "cleaning").length,
+      maintenance: tasks.filter((t) => t.type === "maintenance").length,
     };
-  }, []);
+  }, [tasks]);
 
   const subCounts = useMemo(() => {
     return {
-      all: 2,
-      pending: 1,
-      current: 2,
-      in_progress: 2,
+      all: tasks.length,
+      pending: tasks.filter((t) => t.status === "needs_cleaning" || t.status === "pending").length,
+      current: tasks.filter((t) => t.status !== "completed").length,
+      in_progress: tasks.filter((t) => t.status === "in_progress").length,
     };
-  }, []);
+  }, [tasks]);
 
   const filteredTasks = useMemo(() => {
     const result = tasks.filter((task) => {

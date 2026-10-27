@@ -94,6 +94,10 @@ export const teamService = {
     return { ...existing, ...updates };
   },
 
+  async updateStatus(id: string, status: TeamMemberStatus): Promise<TeamMember> {
+    return this.update(id, { status, statusLabel: status === "active" ? "نشط ومتاح" : "معلق" });
+  },
+
   async remove(id: string): Promise<boolean> {
     await delay();
     useAppDataStore.getState().deleteTeamMember(id);

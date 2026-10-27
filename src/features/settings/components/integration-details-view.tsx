@@ -79,7 +79,7 @@ export function IntegrationDetailsView() {
               نطاق التغطية المؤسسية للمنصة
             </h3>
             <p className="font-cairo font-normal text-[#75786f] text-[13px] leading-[20px]">
-              يخدم هذا التكامل {state.totalPropertiesServed} عقاراً فاخراً و {state.totalUnitsServed} وحدة سكنية نشطة عبر منظومة ابراج.
+              يخدم هذا التكامل {state.totalPropertiesServed} عقاراً فاخراً و {state.totalUnitsServed} وحدة سكنية نشطة عبر منظومة BYTE HOME.
             </p>
           </div>
           <div className="bg-[#4b5940] size-10 rounded-[12px] flex items-center justify-center text-white shrink-0">
@@ -354,7 +354,7 @@ export function IntegrationDetailsView() {
           {/* KMS Warning Callout */}
           <div className="bg-[#f1f5eb] rounded-[12px] p-4 flex items-center justify-end gap-3 text-right">
             <p className="font-cairo font-normal text-[#454840] text-[14px] leading-[22px]">
-              تلتزم ابراج بأعلى معايير الأمن السيبراني: يتم حجب المفاتيح السرية وتجزئتها آلياً داخل وحدة التخزين الآمنة (KMS).
+              تلتزم BYTE HOME بأعلى معايير الأمن السيبراني: يتم حجب المفاتيح السرية وتجزئتها آلياً داخل وحدة التخزين الآمنة (KMS).
             </p>
             <Shield className="size-5 text-[#34422a] shrink-0" />
           </div>

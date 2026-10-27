@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Pause, ClipboardList, ShieldCheck, ArrowRightLeft, User } from "lucide-react";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
 import { TeamMember } from "../../types";
 
 interface SuspendMemberModalProps {
@@ -144,23 +145,18 @@ export function SuspendMemberModal({
 
                 {reassignOption === "auto" && (
                   <div className="mt-1 ps-6">
-                    <div className="relative">
-                      <select
-                        value={selectedSubstituteId}
-                        onChange={(e) => setSelectedSubstituteId(e.target.value)}
-                        className="w-full bg-[#f1f5eb] border border-[#dfe4db] rounded-[8px] py-2 px-3 pr-8 text-[12px] font-medium text-[#181d17] appearance-none focus:outline-none focus:ring-1 focus:ring-[#34422a] font-cairo"
-                      >
-                        {availableSubstitutes
-                          .filter((s) => s.id !== member.id)
-                          .map((sub) => (
-                            <option key={sub.id} value={sub.id}>
-                              {sub.fullName} ({sub.roleLabel} — متواجد بالنطاق)
-                            </option>
-                          ))}
-                      </select>
-                      <User className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-[#75786f] pointer-events-none" />
-                      <ArrowRightLeft className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-[#75786f] pointer-events-none" />
-                    </div>
+                    <SelectDropdown
+                      value={selectedSubstituteId}
+                      onChange={setSelectedSubstituteId}
+                      options={availableSubstitutes
+                        .filter((s) => s.id !== member.id)
+                        .map((sub) => ({
+                          value: sub.id,
+                          label: `${sub.fullName} (${sub.roleLabel} — متواجد بالنطاق)`,
+                        }))}
+                      placeholder="اختر بديلاً..."
+                      triggerClassName="w-full bg-[#f1f5eb] border border-[#dfe4db] rounded-[8px] py-2 px-3 text-[12px] font-medium text-[#181d17] font-cairo"
+                    />
                   </div>
                 )}
               </label>

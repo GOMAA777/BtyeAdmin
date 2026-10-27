@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Owner, OwnerStatus } from "../types";
-import { defaultOwners } from "../data/mock-owners";
+import { ownersService } from "@/services/owners-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 import { AdvancedFilterState } from "../components/owners-advanced-filter-drawer";
 
 const defaultAdvancedFilters: AdvancedFilterState = {
@@ -41,8 +42,10 @@ function parseArabicDate(dateStr: string): Date | null {
   return new Date(`${year}-${month}-${day}T00:00:00`);
 }
 
-export function useOwnersManager(initialData: Owner[] = defaultOwners) {
-  const [owners, setOwners] = useState<Owner[]>(initialData);
+export function useOwnersManager(initialData?: Owner[]) {
+  const [owners, setOwners] = useState<Owner[]>(
+    initialData || useAppDataStore.getState().owners
+  );
   const [pageSize, setPageSize] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("all");
@@ -50,6 +53,19 @@ export function useOwnersManager(initialData: Owner[] = defaultOwners) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [advancedFilters, setAdvancedFilters] =
     useState<AdvancedFilterState>(defaultAdvancedFilters);
+
+  const loadOwners = useCallback(async () => {
+    const data = await ownersService.getAll();
+    setOwners(data);
+  }, []);
+
+  useEffect(() => {
+    loadOwners();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setOwners(state.owners);
+    });
+    return () => unsub();
+  }, [loadOwners]);
 
   const activeFiltersCount = useMemo(() => {
     return (
@@ -182,7 +198,7 @@ export function useOwnersManager(initialData: Owner[] = defaultOwners) {
       });
   }, [owners, filter, search, advancedFilters]);
 
-  const totalHeadlineCount = 248;
+  const totalHeadlineCount = owners.length;
   const totalFiltered = filteredOwners.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
   const activePage = Math.min(currentPage, totalPages);
@@ -203,9 +219,13 @@ export function useOwnersManager(initialData: Owner[] = defaultOwners) {
     pending: owners.filter((o) => o.status === "pending").length,
   };
 
-  const handleDeleteOwner = (id: string, name: string) => {
-    setOwners((prev) => prev.filter((o) => o.id !== id));
-    toast.success(`تم حذف المالك: ${name}`);
+  const handleDeleteOwner = async (id: string, name: string) => {
+    try {
+      await ownersService.remove(id);
+      toast.success(`تم حذف المالك: ${name}`);
+    } catch {
+      toast.error("حدث خطأ أثناء حذف المالك");
+    }
   };
 
   return {

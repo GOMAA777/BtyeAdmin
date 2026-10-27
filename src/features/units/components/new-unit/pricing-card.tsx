@@ -1,7 +1,21 @@
+"use client";
+
 import { BadgeCheck, CreditCard } from "lucide-react";
 import { SectionCard, InfoPanel } from "./ui";
 
-export function PricingCard() {
+interface PricingCardProps {
+  price?: string;
+  setPrice?: (val: string) => void;
+  billingCycle?: "night" | "month";
+  setBillingCycle?: (val: "night" | "month") => void;
+}
+
+export function PricingCard({
+  price = "320",
+  setPrice,
+  billingCycle = "night",
+  setBillingCycle,
+}: PricingCardProps) {
   return (
     <SectionCard
       number="٤"
@@ -14,12 +28,18 @@ export function PricingCard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-5">
         {/* السعر الأساسي */}
         <div>
-          <span className="block text-[12.5px] font-bold text-[#181D17]">
+          <label className="block text-[12.5px] font-bold text-[#181D17]">
             السعر الأساسي القياسي<span className="text-[#E5484D] ms-1">*</span>
-          </span>
+          </label>
           <div className="mt-2 h-11 px-3.5 rounded-[10px] border border-[#EDF1E6] bg-white flex items-center justify-between">
-            <span className="text-[16px] font-bold text-[#181D17]">320</span>
-            <span className="text-[12.5px] text-[#7C8773]">ر.س</span>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice?.(e.target.value)}
+              placeholder="320"
+              className="w-full text-[16px] font-bold text-[#181D17] bg-transparent border-0 focus:outline-none"
+            />
+            <span className="text-[12.5px] text-[#7C8773] shrink-0">ر.س</span>
           </div>
           <p className="text-[11px] text-[#8A9384] mt-2">
             السعر المعتمد قبل المواسم والخصومات
@@ -28,19 +48,29 @@ export function PricingCard() {
 
         {/* دورة التسعير */}
         <div>
-          <span className="block text-[12.5px] font-bold text-[#181D17]">
+          <label className="block text-[12.5px] font-bold text-[#181D17]">
             دورة التسعير المستهدفة<span className="text-[#E5484D] ms-1">*</span>
-          </span>
+          </label>
           <div className="mt-2 h-11 rounded-[10px] bg-[#F1F5EB] p-1 flex items-stretch gap-1">
             <button
               type="button"
-              className="flex-1 rounded-[8px] bg-white shadow-[0_1px_2px_rgba(24,29,23,0.08)] text-[12.5px] font-bold text-[#181D17] transition-colors cursor-pointer"
+              onClick={() => setBillingCycle?.("night")}
+              className={`flex-1 rounded-[8px] text-[12.5px] font-bold transition-all cursor-pointer ${
+                billingCycle === "night"
+                  ? "bg-white shadow-[0_1px_2px_rgba(24,29,23,0.08)] text-[#181D17]"
+                  : "text-[#7C8773] hover:text-[#3F4A36]"
+              }`}
             >
               ليلة واحدة
             </button>
             <button
               type="button"
-              className="flex-1 rounded-[8px] text-[12.5px] text-[#7C8773] transition-colors cursor-pointer hover:text-[#3F4A36]"
+              onClick={() => setBillingCycle?.("month")}
+              className={`flex-1 rounded-[8px] text-[12.5px] font-bold transition-all cursor-pointer ${
+                billingCycle === "month"
+                  ? "bg-white shadow-[0_1px_2px_rgba(24,29,23,0.08)] text-[#181D17]"
+                  : "text-[#7C8773] hover:text-[#3F4A36]"
+              }`}
             >
               للشهر
             </button>

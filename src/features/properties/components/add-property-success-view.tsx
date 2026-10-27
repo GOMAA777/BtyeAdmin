@@ -53,7 +53,7 @@ export function AddPropertySuccessView({
             تمت إضافة العقار بنجاح
           </h1>
           <p className="text-xs sm:text-sm text-[#7D8A78] max-w-xl mx-auto leading-relaxed">
-            تم تسجيل وتفعيل بيانات العقار واعتماده رقمياً، وربطه بمحفظة المالك الاستثمارية في سجلات منصة ابراج
+            تم تسجيل وتفعيل بيانات العقار واعتماده رقمياً، وربطه بمحفظة المالك الاستثمارية في سجلات منصة BYTE HOME
           </p>
         </div>
 

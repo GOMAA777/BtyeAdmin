@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { SubscriptionDetailView } from "@/features/billing/components/subscription-detail-view";
-import { initialSubscriptions } from "@/features/billing/data/mock-billing";
+import { billingStaticParams } from "@/lib/static-params";
 
 export const metadata: Metadata = {
   title: "تفاصيل الاشتراك والفوترة | إبراج",
@@ -8,10 +8,7 @@ export const metadata: Metadata = {
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 5 }, (_, i) => ({ id: String(i + 1) }));
-  const codeIds = initialSubscriptions.map((s) => ({ id: String(s.id) }));
-  const subIds = ["SUB-101", "SUB-102", "SUB-103", "SUB-104", "SUB-105", "SUB-106"].map((id) => ({ id }));
-  return [...numericIds, ...codeIds, ...subIds];
+  return billingStaticParams();
 }
 
 interface PageProps {

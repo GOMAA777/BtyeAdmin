@@ -3,7 +3,7 @@ import { PropertiesHeader } from "@/features/properties/components/properties-he
 import { PropertiesTable } from "@/features/properties/components/properties-table";
 
 export const metadata: Metadata = {
-  title: "العقارات - ابراج",
+  title: "العقارات - BYTE HOME",
   description: "إدارة ومتابعة جميع العقارات المسجلة على المنصة وحالة الوحدات التابعة لها.",
 };
 

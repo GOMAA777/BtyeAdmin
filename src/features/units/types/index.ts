@@ -7,6 +7,8 @@ export type UnitIconType = "door" | "maintenance" | "cleaning" | "suite";
 export interface Unit {
   id: string;
   unitNumber: string;
+  name?: string;
+  typeLabel?: string;
   floor: string;
   floorNumber: number;
   iconType: UnitIconType;

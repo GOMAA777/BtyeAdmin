@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PropertyActivityLogView } from "@/features/properties/components/property-activity-log-view";
 
 export const metadata: Metadata = {
-  title: "سجل الأحداث الكامل للعقار | منصة أبراج",
+  title: "سجل الأحداث الكامل للعقار | منصة BYTE HOME",
   description: "تتبع غير قابل للتلاعب لكافة التغييرات والعمليات المنفذة على الأصل العقاري",
 };
 

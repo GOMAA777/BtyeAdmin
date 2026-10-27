@@ -3,7 +3,7 @@ import { UnitDetailPage } from "@/features/units/components/unit-detail/unit-det
 import { unitStaticParams } from "@/lib/static-params";
 
 export const metadata = {
-  title: "تفاصيل الوحدة السكنية والوصول الذكي | منصة أبراج",
+  title: "تفاصيل الوحدة السكنية والوصول الذكي | منصة BYTE HOME",
   description: "استعراض تفاصيل الوحدة وحالتها التشغيلية وإدارة كود الدخول وسجل العمليات الفندقية والميدانية",
 };
 

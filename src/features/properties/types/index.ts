@@ -3,14 +3,17 @@ export type PropertyStatus = "active" | "inactive" | "archived";
 export interface Property {
   id: string;
   title: string;
+  name?: string;
   type: string;
   code: string;
+  ownerId?: string;
   ownerName: string;
   ownerInitials: string;
   ownerEmail: string;
   city: string;
   district: string;
   totalUnits: number;
+  unitsCount?: number;
   occupiedUnits: number;
   availableUnits: number;
   activeBookings: number;

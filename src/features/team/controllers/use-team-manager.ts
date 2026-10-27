@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { TeamMember, TeamRole, TeamMemberStatus, TeamOverviewStats } from "../types";
-import { initialTeamMembers, initialTeamStats } from "../data/mock-team";
+import { initialTeamStats } from "../data/mock-team";
+import { teamService } from "@/services/team-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
 export interface AddMemberFormData {
   fullName: string;
@@ -17,8 +19,23 @@ export interface AddMemberFormData {
   automatedTaskTypes: Array<"cleaning" | "maintenance">;
 }
 
-export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers) {
-  const [members, setMembers] = useState<TeamMember[]>(initialMembers);
+export function useTeamManager(initialMembers?: TeamMember[]) {
+  const [members, setMembers] = useState<TeamMember[]>(
+    initialMembers || useAppDataStore.getState().team
+  );
+
+  const loadMembers = useCallback(async () => {
+    const data = await teamService.getAll();
+    setMembers(data);
+  }, []);
+
+  useEffect(() => {
+    loadMembers();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setMembers(state.team);
+    });
+    return () => unsub();
+  }, [loadMembers]);
   const [stats, setStats] = useState<TeamOverviewStats>(initialTeamStats);
 
   // Filter States
@@ -36,7 +53,7 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
   const [changeWhatsappModalOpen, setChangeWhatsappModalOpen] = useState(false);
   const [permissionsModalOpen, setPermissionsModalOpen] = useState(false);
   const [sendWhatsappModalOpen, setSendWhatsappModalOpen] = useState(false);
-  const [activeMember, setActiveMember] = useState<TeamMember | null>(initialMembers[0] || null);
+  const [activeMember, setActiveMember] = useState<TeamMember | null>(initialMembers?.[0] || null);
 
   // Counts for status tabs (matching Owners filter bar) & roles
   const counts = useMemo(() => {
@@ -135,28 +152,8 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
 
   // Actions
   const handleSuspendMember = useCallback(
-    (id: string, reassignToId?: string) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              status: "suspended" as TeamMemberStatus,
-              statusLabel: "موقوف مؤقتاً",
-              openTasksCount: 0,
-              openTasksLabel: "لا مهام معلقة",
-            };
-          }
-          if (reassignToId && m.id === reassignToId) {
-            return {
-              ...m,
-              openTasksCount: m.openTasksCount + 2,
-              openTasksLabel: `${m.openTasksCount + 2} مهام جارية`,
-            };
-          }
-          return m;
-        })
-      );
+    async (id: string, reassignToId?: string) => {
+      await teamService.updateStatus(id, "suspended");
       setStats((s) => ({
         ...s,
         activeMembers: Math.max(0, s.activeMembers - 1),
@@ -168,21 +165,8 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
     []
   );
 
-  const handleDeleteMember = useCallback((id: string, reassignToId?: string) => {
-    setMembers((prev) => {
-      return prev
-        .filter((m) => m.id !== id)
-        .map((m) => {
-          if (reassignToId && m.id === reassignToId) {
-            return {
-              ...m,
-              openTasksCount: m.openTasksCount + 2,
-              openTasksLabel: `${m.openTasksCount + 2} مهام جارية`,
-            };
-          }
-          return m;
-        });
-    });
+  const handleDeleteMember = useCallback(async (id: string, reassignToId?: string) => {
+    await teamService.remove(id);
     setStats((s) => ({
       ...s,
       totalMembers: Math.max(0, s.totalMembers - 1),
@@ -243,72 +227,14 @@ export function useTeamManager(initialMembers: TeamMember[] = initialTeamMembers
     []
   );
 
-  const handleAddMember = useCallback((data: AddMemberFormData) => {
-    const roleLabels: Record<TeamRole, string> = {
-      cleaner: "عامل نظافة",
-      maintenance: "فني صيانة",
-      supervisor: "مشرف تشغيل",
-    };
-    const specialties: Record<TeamRole, string> = {
-      cleaner: "طاقم نظافة وتعقيم فندقي",
-      maintenance: "معالجة بلاغات السباكة والكهرباء والتكييف",
-      supervisor: "إشراف ميداني ومتابعة الجودة",
-    };
-
-    const newMember: TeamMember = {
-      id: Date.now().toString(),
-      systemId: `#TM-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: data.fullName.split(" ").slice(0, 2).join(" "),
+  const handleAddMember = useCallback(async (data: AddMemberFormData) => {
+    await teamService.create({
       fullName: data.fullName,
-      initials: data.fullName
-        .split(" ")
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join(" "),
       role: data.role,
-      roleLabel: roleLabels[data.role],
-      specialty: specialties[data.role],
       phone: data.phone,
       whatsapp: data.whatsapp,
-      isWhatsappSameAsPhone: data.isWhatsappSameAsPhone,
-      property: "عمارة النخيل",
-      propertyLocation: "حي الصحافة الرياض",
-      unitsScope: "10 وحدات",
-      unitsCount: 10,
-      openTasksCount: 0,
-      openTasksLabel: "جاهز للمهام",
-      status: "active",
-      statusLabel: "نشط",
-      isOnline: true,
-      joinedDate: "اليوم",
-      tenure: "جديد",
-      contractType: "دوام كامل مرن",
-      workingHours: "08:00 صباحاً — 05:00 مساءً",
-      coverageScope: data.coverageScope,
-      assignedProperties: [
-        {
-          id: "p1",
-          name: "عمارة النخيل السكنية",
-          location: "حي الصحافة، الرياض",
-          unitsLabel: "10 وحدات نشطة",
-          isFull: true,
-          isActive: true,
-        },
-      ],
-      automatedTaskTypes: data.automatedTaskTypes,
-      specialNotes: data.specialNotes,
-      stats: {
-        openAndRunning: 0,
-        currentRunningDetail: "جاهز للمهام",
-        completedThisMonth: 0,
-        totalAssignedThisMonth: 0,
-        avgPrepTimeMinutes: 30,
-        fasterByMinutes: 0,
-      },
-      recentTasks: [],
-    };
-
-    setMembers((prev) => [newMember, ...prev]);
+      assignedProperties: data.assignedPropertyIds,
+    });
     setStats((s) => ({
       ...s,
       totalMembers: s.totalMembers + 1,

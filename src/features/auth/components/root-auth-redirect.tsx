@@ -29,7 +29,7 @@ export function RootAuthRedirect() {
 
         {/* Text Details */}
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-[#172115]">ابراج</h2>
+          <h2 className="text-xl font-bold text-[#172115] font-sans">BYTE HOME</h2>
           <p className="text-xs text-[#616E5D] font-medium animate-pulse">
             جاري تحضير البيانات والتحقق من الجلسة...
           </p>

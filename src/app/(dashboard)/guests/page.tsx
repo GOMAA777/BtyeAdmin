@@ -3,7 +3,7 @@ import { GuestDetailView } from "@/features/guests/components/guest-detail-view"
 import { defaultGuestDetail } from "@/features/guests/data/mock-guest-detail";
 
 export const metadata: Metadata = {
-  title: "بيانات العميل | منصة أبراج",
+  title: "بيانات العميل | منصة BYTE HOME",
   description: "الملف التعريفي للنزيل وسجل العمليات والحجوزات المسجلة عبر المنصة",
 };
 

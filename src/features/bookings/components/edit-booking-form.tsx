@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { DatePicker } from "@/components/shared/date-picker";
+import { TimePicker } from "@/components/shared/time-picker";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
+import { bookingsService } from "@/services/bookings-service";
+import { propertiesService } from "@/services/properties-service";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -76,6 +81,28 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
   const confirm = useConfirm();
   const [isSaving, setIsSaving] = useState(false);
 
+  useEffect(() => {
+    async function loadData() {
+      const [booking, pList] = await Promise.all([
+        bookingsService.getById(bookingId),
+        propertiesService.getAll(),
+      ]);
+      if (booking) {
+        setSelectedProperty(booking.propertyName);
+        setSelectedUnit(`وحدة ${booking.unit.unitNumber} (${booking.unit.unitType})`);
+        setCheckInDate(booking.checkIn.date);
+        setCheckInTime(booking.checkIn.time || "03:00 م");
+        setCheckOutDate(booking.checkOut.date);
+        setGuestName(booking.guest.name);
+        setGuestPhone(booking.guest.phone);
+        setBookingSource(booking.source);
+        setTotalAmount(typeof booking.amount.total === "string" ? booking.amount.total : `${booking.amount.total} ر.س`);
+        setPaymentStatus(booking.amount.paymentStatus);
+      }
+    }
+    loadData();
+  }, [bookingId]);
+
   const handleSave = async () => {
     const ok = await confirm({
       title: "حفظ تعديلات الحجز",
@@ -86,13 +113,24 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
     if (!ok) return;
 
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await bookingsService.update(bookingId, {
+        propertyName: selectedProperty,
+        checkIn: { date: checkInDate, time: checkInTime },
+        checkOut: { date: checkOutDate, nights: "3 ليال" },
+        guest: { name: guestName, phone: guestPhone, avatarLetter: guestName[0] || "ض" },
+        source: bookingSource,
+        amount: { total: totalAmount, paymentStatus },
+      });
       toast.success("تم تحديث الحجز بنجاح", {
         description: "تمت مزامنة المواعيد مع القنوات الذكية وتحديث الرمز الرقمي",
       });
       router.push(`/bookings/${bookingId}/`);
-    }, 600);
+    } catch {
+      toast.error("حدث خطأ أثناء حفظ التعديلات");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -279,18 +317,22 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="space-y-1">
                     <span className="text-[11px] text-[#7A8875] font-medium block">تاريخ الوصول</span>
-                    <div className="bg-white rounded-xl px-3 py-2.5 flex items-center justify-between border border-[#E2E6DC] text-xs font-semibold text-[#172115] shadow-3xs">
-                      <span>{checkInDate}</span>
-                      <Calendar className="w-3.5 h-3.5 text-[#7A8875]" />
-                    </div>
+                    <DatePicker
+                      value={checkInDate}
+                      onChange={setCheckInDate}
+                      placeholder="تاريخ الوصول..."
+                      className="w-full"
+                    />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[11px] text-[#7A8875] font-medium block">وقت الوصول</span>
-                    <div className="bg-white rounded-xl px-3 py-2.5 flex items-center justify-between border border-[#E2E6DC] text-xs font-semibold text-[#172115] shadow-3xs">
-                      <span>{checkInTime}</span>
-                      <Clock className="w-3.5 h-3.5 text-[#7A8875]" />
-                    </div>
+                    <TimePicker
+                      value={checkInTime}
+                      onChange={setCheckInTime}
+                      placeholder="وقت الوصول..."
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -305,18 +347,22 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="space-y-1">
                     <span className="text-[11px] text-[#7A8875] font-medium block">تاريخ المغادرة</span>
-                    <div className="bg-white rounded-xl px-3 py-2.5 flex items-center justify-between border border-[#E2E6DC] text-xs font-semibold text-[#172115] shadow-3xs">
-                      <span>{checkOutDate}</span>
-                      <Calendar className="w-3.5 h-3.5 text-[#7A8875]" />
-                    </div>
+                    <DatePicker
+                      value={checkOutDate}
+                      onChange={setCheckOutDate}
+                      placeholder="تاريخ المغادرة..."
+                      className="w-full"
+                    />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[11px] text-[#7A8875] font-medium block">وقت المغادرة</span>
-                    <div className="bg-white rounded-xl px-3 py-2.5 flex items-center justify-between border border-[#E2E6DC] text-xs font-semibold text-[#172115] shadow-3xs">
-                      <span>{checkOutTime}</span>
-                      <Clock className="w-3.5 h-3.5 text-[#7A8875]" />
-                    </div>
+                    <TimePicker
+                      value={checkOutTime}
+                      onChange={setCheckOutTime}
+                      placeholder="وقت المغادرة..."
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -473,13 +519,18 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
                 <label className="text-xs text-[#7A8875] font-semibold block">
                   مصدر الحجز
                 </label>
-                <div className="bg-[#F2F5EF] rounded-2xl px-4 py-3 flex items-center justify-between text-xs sm:text-sm font-semibold text-[#172115] border border-transparent hover:border-[#D5E0CE] cursor-pointer transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Share2 className="w-4 h-4 text-[#3D4C35]" />
-                    <span>{bookingSource}</span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-[#7A8875]" />
-                </div>
+                <SelectDropdown
+                  value={bookingSource}
+                  onChange={setBookingSource}
+                  options={[
+                    { value: "Whatsapp.com", label: "واتساب مباشر" },
+                    { value: "Booking.com", label: "Booking.com" },
+                    { value: "Airbnb.com", label: "Airbnb" },
+                    { value: "Direct", label: "حجز مباشر" },
+                  ]}
+                  placeholder="اختر مصدر الحجز..."
+                  className="w-full"
+                />
               </div>
 
               {/* Field 2: Total Amount */}
@@ -503,13 +554,17 @@ export function EditBookingForm({ bookingId = "BK-10482" }: EditBookingFormProps
                 <label className="text-xs text-[#7A8875] font-semibold block">
                   حالة السداد
                 </label>
-                <div className="bg-[#F2F5EF] rounded-2xl px-4 py-3 flex items-center justify-between text-xs sm:text-sm font-semibold text-[#172115] border border-transparent hover:border-[#D5E0CE] cursor-pointer transition-colors">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-[#3D4C35]" />
-                    <span>{paymentStatus}</span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-[#7A8875]" />
-                </div>
+                <SelectDropdown
+                  value={paymentStatus}
+                  onChange={setPaymentStatus}
+                  options={[
+                    { value: "مدفوع بالكامل", label: "مدفوع بالكامل" },
+                    { value: "مدفوع جزئياً", label: "مدفوع جزئياً" },
+                    { value: "في انتظار الدفع", label: "في انتظار الدفع" },
+                  ]}
+                  placeholder="اختر حالة السداد..."
+                  className="w-full"
+                />
               </div>
             </div>
 

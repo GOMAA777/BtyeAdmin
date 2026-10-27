@@ -13,7 +13,7 @@ export function Logo({
   className,
   size = 24,
   priority = false,
-  alt = "ابراج",
+  alt = "BYTE HOME",
 }: LogoProps) {
   return (
     <Image

@@ -8,23 +8,15 @@ import { PropertyUnitsCard } from "@/features/properties/components/property-uni
 import { PropertyAdminActions } from "@/features/properties/components/property-admin-actions";
 import { PropertyRecentBookings } from "@/features/properties/components/property-recent-bookings";
 import { defaultPropertyDetail } from "@/features/properties/data/mock-property-detail";
+import { propertyStaticParams } from "@/lib/static-params";
 
 export const metadata: Metadata = {
-  title: "تفاصيل العقار | منصة أبراج",
+  title: "تفاصيل العقار | منصة BYTE HOME",
   description: "عرض تفاصيل العقار والوحدات والمواصفات المعمارية والموقع الجغرافي والحجوزات الأخيرة",
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 10 }, (_, i) => ({ id: String(i + 1) }));
-  const propIds = Array.from({ length: 5 }, (_, i) => ({ id: `prop-${i + 1}` }));
-  const specialIds = [
-    { id: "014" },
-    { id: "prop-014" },
-    { id: "nakheel" },
-    { id: "oasis" },
-    { id: "aqeeq" },
-  ];
-  return [...numericIds, ...propIds, ...specialIds];
+  return propertyStaticParams();
 }
 
 interface PageProps {

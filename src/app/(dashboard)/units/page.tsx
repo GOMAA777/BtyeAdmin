@@ -3,7 +3,7 @@ import { UnitsHeader } from "@/features/units/components/units-header";
 import { UnitsTable } from "@/features/units/components/units-table";
 
 export const metadata: Metadata = {
-  title: "الوحدات - ابراج",
+  title: "الوحدات - BYTE HOME",
   description:
     "إدارة ومتابعة جميع الوحدات المسجلة على المنصة وحالات الإشغال والتشغيل في الوقت الفعلي.",
 };

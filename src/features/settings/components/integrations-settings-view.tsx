@@ -47,7 +47,7 @@ export function IntegrationsSettingsView() {
             التكاملات والربط السحابي
           </h1>
           <p className="font-cairo font-normal text-[#454840] text-[14px] leading-[22px]">
-            إدارة ومراقبة بوابات الربط السحابي ومزودي الخدمات الخارجية المعتمدة لمنصة ابراج
+            إدارة ومراقبة بوابات الربط السحابي ومزودي الخدمات الخارجية المعتمدة لمنصة BYTE HOME
           </p>
         </div>
 

@@ -324,8 +324,8 @@ export function Sidebar() {
                 <Logo size={24} priority />
               </div>
               <div className="space-y-0.5">
-                <h1 className="text-base font-bold tracking-tight text-white leading-tight">
-                  ابراج
+                <h1 className="text-base font-bold tracking-wider text-white leading-tight font-sans">
+                  BYTE HOME
                 </h1>
                 <p className="text-[10px] text-white/60 font-light leading-tight">
                   منظومة إدارة وتشغيل العقارات

@@ -2,23 +2,15 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PropertyActivityLogView } from "@/features/properties/components/property-activity-log-view";
 import { defaultPropertyActivitySummary } from "@/features/properties/data/mock-property-activity-log";
+import { propertyStaticParams } from "@/lib/static-params";
 
 export const metadata: Metadata = {
-  title: "سجل الأحداث الكامل للعقار | منصة أبراج",
+  title: "سجل الأحداث الكامل للعقار | منصة BYTE HOME",
   description: "تتبع غير قابل للتلاعب لكافة التغييرات والعمليات المنفذة على الأصل العقاري",
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 10 }, (_, i) => ({ id: String(i + 1) }));
-  const propIds = Array.from({ length: 5 }, (_, i) => ({ id: `prop-${i + 1}` }));
-  const specialIds = [
-    { id: "014" },
-    { id: "prop-014" },
-    { id: "nakheel" },
-    { id: "oasis" },
-    { id: "aqeeq" },
-  ];
-  return [...numericIds, ...propIds, ...specialIds];
+  return propertyStaticParams();
 }
 
 interface PageProps {

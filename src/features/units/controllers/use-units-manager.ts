@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Unit, UnitFilterState } from "../types";
-import { initialUnits } from "../data/mock-units";
+import { unitsService } from "@/services/units-service";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
 const defaultAdvancedFilters: UnitFilterState = {
   property: "all",
@@ -13,8 +14,10 @@ const defaultAdvancedFilters: UnitFilterState = {
   sortBy: "default",
 };
 
-export function useUnitsManager(initialData: Unit[] = initialUnits) {
-  const [units] = useState<Unit[]>(initialData);
+export function useUnitsManager(initialData?: Unit[]) {
+  const [units, setUnits] = useState<Unit[]>(
+    initialData || useAppDataStore.getState().units
+  );
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [tabFilter, setTabFilter] = useState<string>("all");
@@ -22,6 +25,19 @@ export function useUnitsManager(initialData: Unit[] = initialUnits) {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
   const [advancedFilters, setAdvancedFilters] =
     useState<UnitFilterState>(defaultAdvancedFilters);
+
+  const loadUnits = useCallback(async () => {
+    const data = await unitsService.getAll();
+    setUnits(data);
+  }, []);
+
+  useEffect(() => {
+    loadUnits();
+    const unsub = useAppDataStore.subscribe((state) => {
+      setUnits(state.units);
+    });
+    return () => unsub();
+  }, [loadUnits]);
 
   const handleTabChange = (newTab: string) => {
     setTabFilter(newTab);
@@ -130,7 +146,7 @@ export function useUnitsManager(initialData: Unit[] = initialUnits) {
     [units]
   );
 
-  const totalHeadlineCount = 342;
+  const totalHeadlineCount = units.length;
   const totalFiltered = filteredUnits.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
   const activePage = Math.min(currentPage, totalPages);

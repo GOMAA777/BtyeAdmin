@@ -225,7 +225,7 @@ export function GeneralSettingsView() {
                     </span>
                   </div>
                   <span className="font-cairo text-[#454840] text-[13px] leading-[20px]">
-                    أبراج — إدارة الأصول العقارية (النسخة الداكنة)
+                    BYTE HOME — إدارة الأصول العقارية (النسخة الداكنة)
                   </span>
                   <span className="font-cairo text-[#75786f] text-[11px] leading-[16px] mt-1">
                     PNG, SVG • الحد الأقصى 2MB • 512×512 بكسل

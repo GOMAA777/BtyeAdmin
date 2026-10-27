@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useMemo } from "react";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 
 // Exact Figma SVG Vector: Trend Arrow Up
 function TrendArrowIcon({ className = "w-2.5 h-2.5 shrink-0" }: { className?: string }) {
@@ -79,42 +82,47 @@ interface KPICardItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const cardsData: KPICardItem[] = [
-  {
-    id: "owners",
-    title: "أصحاب العقارات",
-    value: "248",
-    trend: "+ 5.2%",
-    subtitle: "12 تسجيل جديد هذا الشهر",
-    icon: OwnersHandHouseIcon,
-  },
-  {
-    id: "properties",
-    title: "العقارات",
-    value: "386",
-    trend: "+ 3.8%",
-    subtitle: "العقارات النشطة على المنصة",
-    icon: PropertiesBuildingIcon,
-  },
-  {
-    id: "units",
-    title: "إجمالي الوحدات",
-    value: "4,820",
-    trend: "+ 8.1%",
-    subtitle: "وحدة سكنية وتجارية مسجلة",
-    icon: UnitsKeyIcon,
-  },
-  {
-    id: "bookings",
-    title: "الحجوزات",
-    value: "12,640",
-    trend: "+ 12.4%",
-    subtitle: "إجمالي الحجوزات هذا الشهر",
-    icon: BookingsCalendarIcon,
-  },
-];
-
 export function DashboardKPIs() {
+  const owners = useAppDataStore((s) => s.owners);
+  const properties = useAppDataStore((s) => s.properties);
+  const units = useAppDataStore((s) => s.units);
+  const bookings = useAppDataStore((s) => s.bookings);
+
+  const cardsData: KPICardItem[] = useMemo(() => [
+    {
+      id: "owners",
+      title: "أصحاب العقارات",
+      value: String(owners.length),
+      trend: owners.length > 0 ? `+${owners.length}` : "0%",
+      subtitle: owners.length > 0 ? `${owners.length} مالك مسجل` : "لا يوجد ملاك مسجلون بعد",
+      icon: OwnersHandHouseIcon,
+    },
+    {
+      id: "properties",
+      title: "العقارات",
+      value: String(properties.length),
+      trend: properties.length > 0 ? `+${properties.length}` : "0%",
+      subtitle: properties.length > 0 ? `${properties.length} عقار مسجل` : "لا توجد عقارات نشطة بعد",
+      icon: PropertiesBuildingIcon,
+    },
+    {
+      id: "units",
+      title: "إجمالي الوحدات",
+      value: String(units.length),
+      trend: units.length > 0 ? `+${units.length}` : "0%",
+      subtitle: units.length > 0 ? `${units.length} وحدة مسجلة` : "لا توجد وحدات مسجلة بعد",
+      icon: UnitsKeyIcon,
+    },
+    {
+      id: "bookings",
+      title: "الحجوزات",
+      value: String(bookings.length),
+      trend: bookings.length > 0 ? `+${bookings.length}` : "0%",
+      subtitle: bookings.length > 0 ? `${bookings.length} حجز مسجل` : "لا توجد حجوزات مسجلة بعد",
+      icon: BookingsCalendarIcon,
+    },
+  ], [owners.length, properties.length, units.length, bookings.length]);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 font-cairo">
       {cardsData.map((card) => {

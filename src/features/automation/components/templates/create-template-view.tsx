@@ -26,9 +26,11 @@ import {
   Layers,
   Lock,
   Mic,
+  Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
+import { FloatingConfirmationBar } from "@/components/shared/floating-confirmation-bar";
 
 export function CreateTemplateView() {
   const router = useRouter();
@@ -150,7 +152,7 @@ export function CreateTemplateView() {
   };
 
   return (
-    <div className="space-y-6 font-cairo pb-20" dir="rtl">
+    <div className="space-y-6 font-cairo pb-6" dir="rtl">
       {/* Top Header Card [1:24243] */}
       <div className="bg-white rounded-[24px] p-6 border border-[#EBEBEB] shadow-sm">
         <div className="flex items-center gap-3">
@@ -564,86 +566,124 @@ export function CreateTemplateView() {
             </div>
           </div>
 
-          {/* Smartphone Frame [1:24243] */}
-          <div className="bg-[#111B21] rounded-[44px] p-3 shadow-2xl border-[7px] border-[#1E231C] overflow-hidden text-right">
-            {/* Phone Top Notch / Status Bar */}
-            <div className="pt-1.5 pb-2 px-5 flex items-center justify-between text-gray-400 text-[10px] font-mono">
-              <div className="flex items-center gap-1">
-                <span>94%</span>
-                <div className="w-3.5 h-2 border border-gray-400 rounded-2xs flex items-center p-0.5">
-                  <div className="w-full h-full bg-gray-400" />
-                </div>
-              </div>
-              <div className="w-14 h-2.5 bg-black rounded-full" />
-              <span>09:30</span>
-            </div>
+          {/* Realistic Smartphone Frame with Physical Side Buttons & Tall 19.5:9 Aspect Ratio */}
+          <div className="relative mx-auto max-w-[340px]">
+            {/* Hardware side buttons (Physical accents) */}
+            <div className="absolute -start-[10px] top-24 w-[3px] h-10 bg-[#242A22] rounded-s-sm shadow-xs" aria-hidden="true" />
+            <div className="absolute -start-[10px] top-38 w-[3px] h-10 bg-[#242A22] rounded-s-sm shadow-xs" aria-hidden="true" />
+            <div className="absolute -end-[10px] top-28 w-[3px] h-14 bg-[#242A22] rounded-e-sm shadow-xs" aria-hidden="true" />
 
-            {/* WhatsApp App Bar */}
-            <div className="bg-[#1F2C34] px-3 py-2.5 rounded-t-[20px] flex items-center justify-between border-b border-gray-700/50">
-              <div className="flex items-center gap-2.5 text-gray-300">
-                <MoreVertical className="w-3.5 h-3.5 cursor-pointer" />
-                <Phone className="w-3.5 h-3.5 cursor-pointer" />
-                <Video className="w-3.5 h-3.5 cursor-pointer" />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div>
-                  <div className="text-[11px] font-bold text-white flex items-center gap-1 justify-end">
-                    <span>أبراج لإدارة الأصول</span>
-                    <BadgeCheck className="w-3 h-3 text-[#3E8A5A] fill-[#3E8A5A]/20" />
+            {/* Smartphone Body */}
+            <div className="bg-[#111B21] rounded-[50px] p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.45)] border-[8px] border-[#1E231C] ring-1 ring-white/10 overflow-hidden text-right flex flex-col">
+              {/* Phone Top Notch / Status Bar with Dynamic Island */}
+              <div className="pt-2 pb-2 px-5 flex items-center justify-between text-gray-400 text-[10px] font-mono select-none">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-0.5 text-gray-300">
+                    <Wifi className="w-3 h-3" />
                   </div>
-                  <div className="text-[9.5px] text-[#3E8A5A]">حساب أعمال رسمي موثّق</div>
+                  <span>94%</span>
+                  <div className="w-4 h-2.5 border border-gray-400 rounded-2xs flex items-center p-0.5">
+                    <div className="w-full h-full bg-emerald-500 rounded-[1px]" />
+                  </div>
                 </div>
-                <div className="w-7 h-7 rounded-full bg-[#34422A] flex items-center justify-center text-white text-[10px] font-bold">
-                  <Building2 className="w-3.5 h-3.5 text-white" />
-                </div>
-              </div>
-            </div>
 
-            {/* WhatsApp Chat Body */}
-            <div className="bg-[#EFECE6] p-3.5 min-h-[440px] flex flex-col justify-between space-y-3">
-              {/* Date Badge */}
-              <div className="text-center">
-                <span className="px-3 py-0.5 rounded-full bg-white/90 text-[#75786F] text-[10px] font-semibold shadow-2xs">
-                  اليوم
-                </span>
+                {/* Dynamic Island pill */}
+                <div className="w-24 h-4.5 bg-black rounded-full flex items-center justify-end px-2 gap-1.5 shadow-inner">
+                  <div className="w-2 h-2 rounded-full bg-[#111B21] ring-1 ring-white/10" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#1a2329]" />
+                </div>
+
+                <span className="font-semibold text-gray-300 tracking-wider">09:41</span>
               </div>
 
-              {/* Chat Message Bubble */}
-              <div className="bg-[#E7FFDB] rounded-[16px] rounded-tr-none p-3 shadow-xs border border-[#D5ECC9] space-y-1.5 text-right">
-                <div className="text-[11.5px] text-[#181D17] leading-relaxed whitespace-pre-line font-cairo">
-                  {previewFormattedText}
+              {/* WhatsApp App Bar */}
+              <div className="bg-[#1F2C34] px-3 py-2.5 rounded-t-[20px] flex items-center justify-between border-b border-gray-700/50 shrink-0">
+                <div className="flex items-center gap-2.5 text-gray-300">
+                  <MoreVertical className="w-3.5 h-3.5 cursor-pointer hover:text-white transition-colors" />
+                  <Phone className="w-3.5 h-3.5 cursor-pointer hover:text-white transition-colors" />
+                  <Video className="w-3.5 h-3.5 cursor-pointer hover:text-white transition-colors" />
                 </div>
 
-                {/* Timestamp and Read Status */}
-                <div className="flex items-center justify-start gap-1 text-[9.5px] text-[#75786F] pt-1">
-                  <span>09:30 ص</span>
-                  <CheckCheck className="w-3 h-3 text-[#53BDEB]" />
+                <div className="flex items-center gap-2">
+                  <div>
+                    <div className="text-[11px] font-bold text-white flex items-center gap-1 justify-end">
+                      <span>BYTE HOME لإدارة الأصول</span>
+                      <BadgeCheck className="w-3 h-3 text-[#3E8A5A] fill-[#3E8A5A]/20" />
+                    </div>
+                    <div className="text-[9.5px] text-[#3E8A5A]">حساب أعمال رسمي موثّق</div>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#34422A] flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                    <Building2 className="w-3.5 h-3.5 text-white" />
+                  </div>
                 </div>
               </div>
 
-              {/* Action Button Preview */}
-              {buttonLabel && (
-                <div className="w-full py-2 px-3 rounded-[10px] bg-white text-[#181D17] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs border border-[#E5E8E2]">
-                  <MapPin className="w-3 h-3 text-[#4B5940]" />
-                  <span>{buttonLabel}</span>
-                </div>
-              )}
+              {/* WhatsApp Chat Body (Taller authentic smartphone height) */}
+              <div className="bg-[#EFEAE2] p-3.5 min-h-[580px] flex flex-col justify-between space-y-3 relative overflow-hidden rounded-b-[20px]">
+                {/* Subtle WhatsApp wallpaper pattern background */}
+                <div
+                  className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                  style={{
+                    backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
+                    backgroundSize: "16px 16px",
+                  }}
+                  aria-hidden="true"
+                />
 
-              {/* End-to-end Encrypted Notice */}
-              <div className="flex items-center justify-center gap-1 text-[9.5px] text-[#75786F]">
-                <Lock className="w-3 h-3" />
-                <span>محادثة مشفرة بالكامل بين الطرفين</span>
-              </div>
+                {/* Top: Date Chip & Message Content */}
+                <div className="space-y-3 relative z-10">
+                  {/* Date Badge */}
+                  <div className="text-center">
+                    <span className="px-3 py-0.5 rounded-full bg-white/90 text-[#75786F] text-[10px] font-semibold shadow-2xs">
+                      اليوم
+                    </span>
+                  </div>
 
-              {/* Simulated Input Bar */}
-              <div className="flex items-center gap-2 pt-1">
-                <div className="w-8 h-8 rounded-full bg-[#00A884] flex items-center justify-center text-white shrink-0">
-                  <Send className="w-3.5 h-3.5" />
+                  {/* Chat Message Bubble */}
+                  <div className="bg-[#E7FFDB] rounded-[16px] rounded-tr-none p-3 shadow-xs border border-[#D5ECC9] space-y-1.5 text-right">
+                    <div className="text-[11.5px] text-[#181D17] leading-relaxed whitespace-pre-line font-cairo">
+                      {previewFormattedText}
+                    </div>
+
+                    {/* Timestamp and Read Status */}
+                    <div className="flex items-center justify-start gap-1 text-[9.5px] text-[#75786F] pt-1">
+                      <span>09:41 ص</span>
+                      <CheckCheck className="w-3 h-3 text-[#53BDEB]" />
+                    </div>
+                  </div>
+
+                  {/* Action Button Preview */}
+                  {buttonLabel && (
+                    <div className="w-full py-2 px-3 rounded-[10px] bg-white text-[#181D17] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs border border-[#E5E8E2] hover:bg-gray-50 transition-colors">
+                      <MapPin className="w-3 h-3 text-[#4B5940]" />
+                      <span>{buttonLabel}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[10px] text-[#75786F] flex items-center justify-between border border-[#E5E8E2]">
-                  <Mic className="w-3.5 h-3.5 text-[#75786F]" />
-                  <span>الرسائل التلقائية مفعلة</span>
+
+                {/* Bottom: Encryption Notice, Input Bar & Home Indicator */}
+                <div className="space-y-2 relative z-10 pt-2">
+                  {/* End-to-end Encrypted Notice */}
+                  <div className="flex items-center justify-center gap-1 text-[9.5px] text-[#75786F]">
+                    <Lock className="w-3 h-3" />
+                    <span>محادثة مشفرة بالكامل بين الطرفين</span>
+                  </div>
+
+                  {/* Simulated Input Bar */}
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-[#00A884] flex items-center justify-center text-white shrink-0 shadow-xs">
+                      <Send className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[10px] text-[#75786F] flex items-center justify-between border border-[#E5E8E2] shadow-2xs">
+                      <Mic className="w-3.5 h-3.5 text-[#75786F]" />
+                      <span>الرسائل التلقائية مفعلة</span>
+                    </div>
+                  </div>
+
+                  {/* Home Indicator / Gesture Bar */}
+                  <div className="pt-2 pb-0.5">
+                    <div className="w-28 h-1 bg-black/40 rounded-full mx-auto" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -656,14 +696,13 @@ export function CreateTemplateView() {
         </div>
       </div>
 
-      {/* Sticky Bottom Actions Bar [1:24243] */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E8E2] px-6 py-3.5 shadow-lg">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Status Telemetry */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+      {/* Floating Confirmation & Save Bar */}
+      <FloatingConfirmationBar
+        rightContent={
+          <div className="flex items-center gap-2.5 text-xs text-right">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#16A34A] shrink-0 animate-pulse" />
             <div>
-              <span className="font-bold text-[#181D17]">
+              <span className="font-bold text-sm text-[#172115]">
                 جاهز للحفظ والاعتماد في محرك الأتمتة المركزي
               </span>
               <span className="text-[#75786F] ms-2 text-[11px]">
@@ -671,37 +710,30 @@ export function CreateTemplateView() {
               </span>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Link
-              href="/automation/?tab=templates"
-              className="px-5 py-2.5 rounded-[12px] bg-white hover:bg-gray-50 border border-[#E5E8E2] text-[#181D17] text-xs font-semibold transition-colors cursor-pointer"
-            >
-              إلغاء
-            </Link>
-
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleSave("draft")}
-              className="px-5 py-2.5 rounded-[12px] bg-[#EAF1E8] hover:bg-[#DEE8DC] text-[#34422A] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
-            >
-              حفظ كمسودة
-            </button>
-
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleSave("active")}
-              className="px-5 py-2.5 rounded-[12px] bg-[#34422A] hover:bg-[#2B3723] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <Check className="w-4 h-4" />
-              <span>{isSubmitting ? "جارٍ الحفظ والاعتماد..." : "حفظ القالب"}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+        }
+        actions={[
+          {
+            label: "إلغاء",
+            href: "/automation/?tab=templates",
+            variant: "secondary",
+          },
+          {
+            label: "حفظ كمسودة",
+            onClick: () => handleSave("draft"),
+            variant: "draft",
+            disabled: isSubmitting,
+          },
+          {
+            label: "حفظ القالب",
+            onClick: () => handleSave("active"),
+            variant: "primary",
+            icon: Check,
+            disabled: isSubmitting,
+            loading: isSubmitting,
+            loadingText: "جارٍ الحفظ والاعتماد...",
+          },
+        ]}
+      />
     </div>
   );
 }

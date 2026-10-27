@@ -18,7 +18,7 @@ const inter = Inter({
 import { APP_CONFIG } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "إدارة أملاك - ابراج",
+  title: "BYTE HOME - إدارة وتشغيل العقارات",
   description: "المنظومة المتكاملة لإدارة الأصول والوحدات الفندقية والسكنية بالمملكة",
   icons: {
     icon: [

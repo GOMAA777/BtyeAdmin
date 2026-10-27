@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, UserX, AlertCircle, ClipboardList, ArrowRightLeft, Trash2 } from "lucide-react";
+import { SelectDropdown } from "@/components/shared/select-dropdown";
 import { TeamMember } from "../../types";
 
 interface DeleteMemberModalProps {
@@ -95,21 +96,18 @@ export function DeleteMemberModal({
                 <span className="text-[#ba1a1a]">*</span>
                 <span>تحويل كافة المهام المفتوحة والمسؤوليات الحالية إلى:</span>
               </label>
-              <div className="relative">
-                <select
-                  value={selectedSubstituteId}
-                  onChange={(e) => setSelectedSubstituteId(e.target.value)}
-                  className="w-full bg-white border border-[#dfe4db] rounded-[12px] h-12 px-4 text-[13.5px] font-medium text-[#181d17] shadow-sm appearance-none focus:outline-none focus:ring-1 focus:ring-[#ba1a1a] font-cairo"
-                >
-                  {availableSubstitutes
-                    .filter((s) => s.id !== member.id)
-                    .map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.fullName} — {sub.roleLabel} (متفرغ حالياً)
-                      </option>
-                    ))}
-                </select>
-              </div>
+              <SelectDropdown
+                value={selectedSubstituteId}
+                onChange={setSelectedSubstituteId}
+                options={availableSubstitutes
+                  .filter((s) => s.id !== member.id)
+                  .map((sub) => ({
+                    value: sub.id,
+                    label: `${sub.fullName} — ${sub.roleLabel} (متفرغ حالياً)`,
+                  }))}
+                placeholder="اختر بديلاً للمهام المفتوحة..."
+                triggerClassName="w-full bg-white border border-[#dfe4db] rounded-[12px] h-12 px-4 text-[13.5px] font-medium text-[#181d17] shadow-sm font-cairo"
+              />
               <p className="text-[11px] text-[#454840] flex items-center gap-1.5 pt-1 font-cairo">
                 <ArrowRightLeft className="size-3 text-[#75786f]" />
                 <span>سيصل إشعار واتساب تلقائي للمعيّن الجديد بجدول التسليم وأكواد الشقق الذكية.</span>

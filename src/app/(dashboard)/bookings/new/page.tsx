@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { NewBookingClientContent } from "@/features/bookings/components/new-booking-client-content";
 
 export const metadata: Metadata = {
-  title: "إضافة حجز | منصة أبراج",
+  title: "إضافة حجز | منصة BYTE HOME",
   description:
     "إدراج عقار جديد وتعيينه لمالك مسجل في المنصة وربط التراخيص والبيانات الجغرافية بدقة.",
 };

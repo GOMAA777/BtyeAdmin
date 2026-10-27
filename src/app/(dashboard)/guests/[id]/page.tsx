@@ -2,21 +2,15 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { GuestDetailView } from "@/features/guests/components/guest-detail-view";
 import { defaultGuestDetail } from "@/features/guests/data/mock-guest-detail";
+import { guestStaticParams } from "@/lib/static-params";
 
 export const metadata: Metadata = {
-  title: "بيانات العميل | منصة أبراج",
+  title: "بيانات العميل | منصة BYTE HOME",
   description: "الملف التعريفي للنزيل وسجل العمليات والحجوزات المسجلة عبر المنصة",
 };
 
 export function generateStaticParams() {
-  const numericIds = Array.from({ length: 5 }, (_, i) => ({ id: String(i + 1) }));
-  const guestIds = [
-    { id: "gust-89324" },
-    { id: "GUST-89324" },
-    { id: "89324" },
-    { id: "khaled" },
-  ];
-  return [...numericIds, ...guestIds];
+  return guestStaticParams();
 }
 
 interface PageProps {

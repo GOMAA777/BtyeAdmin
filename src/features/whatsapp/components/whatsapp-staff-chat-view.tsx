@@ -60,34 +60,46 @@ export function WhatsAppStaffChatView() {
         />
 
         {/* Column 2: Active Conversation & Automated Workflow Desk */}
-        <div className="flex-1 flex flex-col h-full bg-[#F6FBF1] min-w-0">
-          {/* Active Chat Header */}
-          <ActiveChatHeader conversation={currentConversation} />
+        {currentConversation ? (
+          <div className="flex-1 flex flex-col h-full bg-[#F6FBF1] min-w-0">
+            {/* Active Chat Header */}
+            <ActiveChatHeader conversation={currentConversation} />
 
-          {/* Chat Feed */}
-          <ChatFeed
-            messages={currentMessages}
-            taskStatus={taskStatus}
-            onAcceptTask={handleAcceptTask}
-          />
+            {/* Chat Feed */}
+            <ChatFeed
+              messages={currentMessages}
+              taskStatus={taskStatus}
+              onAcceptTask={handleAcceptTask}
+            />
 
-          {/* Horizontal Action Shortcuts Bar */}
-          <ChatActionShortcuts
-            taskStatus={taskStatus}
-            photoCount={photoCount}
-            onAcceptTask={handleAcceptTask}
-            onStartCleaning={handleStartCleaning}
-            onUploadPhotos={handleUploadPhotos}
-            onCompleteTask={handleCompleteTask}
-            onOpenLocation={handleOpenLocation}
-          />
+            {/* Horizontal Action Shortcuts Bar */}
+            <ChatActionShortcuts
+              taskStatus={taskStatus}
+              photoCount={photoCount}
+              onAcceptTask={handleAcceptTask}
+              onStartCleaning={handleStartCleaning}
+              onUploadPhotos={handleUploadPhotos}
+              onCompleteTask={handleCompleteTask}
+              onOpenLocation={handleOpenLocation}
+            />
 
-          {/* Bottom Messaging Composer */}
-          <ChatComposer
-            workerName={currentConversation.name.split("—")[0].trim()}
-            onSendMessage={handleSendMessage}
-          />
-        </div>
+            {/* Bottom Messaging Composer */}
+            <ChatComposer
+              workerName={currentConversation.name.split("—")[0].trim()}
+              onSendMessage={handleSendMessage}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center h-full bg-[#F6FBF1] p-8 text-center font-cairo">
+            <div className="w-16 h-16 rounded-full bg-[#E5EAE0] flex items-center justify-center text-[#4B5940] mb-4 shadow-sm">
+              <i className="lucide-icon icon-message-square w-7 h-7" />
+            </div>
+            <h3 className="text-base font-bold text-[#181D17]">لا توجد محادثة محددة</h3>
+            <p className="text-xs text-[#75786F] mt-1.5 max-w-sm">
+              اختر محادثة من القائمة لعرض الرسائل وتفاصيل المهمة ومتابعة الطاقم الميداني.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { FullOperationsLogView } from "@/features/operations/components/full-operations-log-view";
 
 export const metadata: Metadata = {
-  title: "سجل التشغيل الكامل — الوحدة 204 - ابراج",
+  title: "سجل التشغيل الكامل — الوحدة 204 - BYTE HOME",
   description: "التوثيق الزمني التشغيلي المباشر لمهام النظافة والتعقيم وبلاغات الصيانة والأعطال الفنية.",
 };
 

@@ -9,7 +9,7 @@ import { Clock, CheckCircle2, Info } from "lucide-react";
  */
 export function showUnderConstructionToast(
   title: string = "هذا القسم",
-  description: string = "يجري العمل على إتاحة هذا التبويب بجميع بياناته وتفاصيله قريباً ضمن التحديث القادم لمنظومة أبراج."
+  description: string = "يجري العمل على إتاحة هذا التبويب بجميع بياناته وتفاصيله قريباً ضمن التحديث القادم لمنظومة BYTE HOME."
 ) {
   toast(
     <div className="flex items-start gap-4 w-full text-start select-none pe-1 font-cairo" dir="rtl">

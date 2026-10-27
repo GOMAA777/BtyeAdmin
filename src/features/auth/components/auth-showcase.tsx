@@ -41,7 +41,7 @@ export function AuthShowcase() {
             <Logo size={32} priority />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white">ابراج</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white font-sans">BYTE HOME</h2>
             <p className="text-xs text-white/70 font-light">
               المنصة المؤسسية لإدارة وتشغيل الأصول العقارية
             </p>

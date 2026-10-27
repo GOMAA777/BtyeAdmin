@@ -259,7 +259,7 @@ https://abraj.sa/task/CLN-2055`,
               <div className="bg-[#f1f5eb] rounded-[8px] px-3 py-1.5 flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-1.5 text-[#454840] font-medium font-cairo">
                   <Lock className="size-3 text-[#34422a]" />
-                  <span>رسالة تشفير طرفي معتمدة • محرك أبراج العقاري</span>
+                  <span>رسالة تشفير طرفي معتمدة • محرك BYTE HOME العقاري</span>
                 </div>
                 <span className="text-[#75786f] font-cairo">اليوم، 12:45 م</span>
               </div>

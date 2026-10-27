@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSetBreadcrumbTitle } from "@/hooks/use-navigation-trail";
 import { BookingDetail } from "../types";
+import { bookingsService } from "@/services/bookings-service";
 import { BookingDetailHeader } from "./booking-detail-header";
 import { BookingCancellationBanner } from "./booking-cancellation-banner";
 import { BookingGuestCard } from "./booking-guest-card";
@@ -18,8 +19,19 @@ interface BookingDetailViewProps {
 }
 
 export function BookingDetailView({ booking }: BookingDetailViewProps) {
-  useSetBreadcrumbTitle(`حجز ${booking.bookingCode}`, booking.guest?.name);
+  const [data, setData] = useState<BookingDetail>(booking);
   const [currentStatus, setCurrentStatus] = useState<BookingDetail["status"]>(booking.status);
+
+  useEffect(() => {
+    bookingsService.getDetailById(booking.bookingCode || booking.id).then((real) => {
+      if (real) {
+        setData(real);
+        setCurrentStatus(real.status);
+      }
+    });
+  }, [booking.bookingCode, booking.id]);
+
+  useSetBreadcrumbTitle(`حجز ${data.bookingCode}`, data.guest?.name);
 
   const isCancelled = currentStatus === "cancelled";
 
@@ -27,7 +39,7 @@ export function BookingDetailView({ booking }: BookingDetailViewProps) {
     <div className="space-y-6 pb-12" dir="rtl">
       {/* 1. Top Header Card */}
       <BookingDetailHeader
-        bookingCode={booking.bookingCode}
+        bookingCode={data.bookingCode}
         status={currentStatus}
       />
 
@@ -47,24 +59,24 @@ export function BookingDetailView({ booking }: BookingDetailViewProps) {
         <div className="lg:col-span-8 space-y-6 order-1">
           {/* R1: Stay Dates & Schedule */}
           <BookingStayScheduleCard
-            stay={booking.stay}
+            stay={data.stay}
             isCancelled={isCancelled}
           />
 
           {/* R2: Assigned Unit & Property */}
-          <BookingAssignedUnitCard assigned={booking.assigned} />
+          <BookingAssignedUnitCard assigned={data.assigned} />
 
           {/* R3: Payment & Financial Settlement */}
           <BookingFinancialSettlementCard
-            financial={booking.financial}
+            financial={data.financial}
             isCancelled={isCancelled}
           />
 
           {/* R4: WhatsApp Automation */}
           <BookingWhatsAppAutomationCard
-            automation={booking.automation}
+            automation={data.automation}
             isCancelled={isCancelled}
-            bookingCode={booking.bookingCode || "BK-10482"}
+            bookingCode={data.bookingCode || "BK-10482"}
           />
         </div>
 
@@ -72,21 +84,21 @@ export function BookingDetailView({ booking }: BookingDetailViewProps) {
         <div className="lg:col-span-4 space-y-6 order-2">
           {/* L1: Guest Profile */}
           <BookingGuestCard
-            guest={booking.guest}
-            bookingCode={booking.bookingCode || "BK-10482"}
+            guest={data.guest}
+            bookingCode={data.bookingCode || "BK-10482"}
           />
 
           {/* L2: Smart Lock Access Code */}
           <BookingSmartLockCard
-            smartLock={booking.smartLock}
+            smartLock={data.smartLock}
             isCancelled={isCancelled}
           />
 
           {/* L3: Activity Log Timeline */}
           <BookingActivityTimelineCard
-            activityLog={booking.activityLog}
+            activityLog={data.activityLog}
             isCancelled={isCancelled}
-            bookingCode={booking.bookingCode}
+            bookingCode={data.bookingCode}
           />
         </div>
       </div>

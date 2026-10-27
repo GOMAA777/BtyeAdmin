@@ -26,7 +26,7 @@ export default function GlobalError({
             <Logo size={24} priority />
           </div>
           <div>
-            <span className="text-lg font-bold text-[#172115]">ابراج</span>
+            <span className="text-lg font-bold text-[#172115] font-sans">BYTE HOME</span>
             <span className="hidden sm:inline-block ms-2 text-xs text-[#616E5D]">
               | إدارة وتشغيل الأصول العقارية
             </span>

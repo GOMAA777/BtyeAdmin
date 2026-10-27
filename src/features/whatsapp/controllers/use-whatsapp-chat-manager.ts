@@ -18,7 +18,9 @@ export function useWhatsAppChatManager(
   initialMessages: Record<string, WhatsAppChatMessage[]> = defaultChatMessages
 ) {
   const [conversations] = useState<WhatsAppConversationItem[]>(initialConversations);
-  const [selectedConversationId, setSelectedConversationId] = useState("conv-1");
+  const [selectedConversationId, setSelectedConversationId] = useState<string>(
+    initialConversations[0]?.id || ""
+  );
   const [chatMessages, setChatMessages] =
     useState<Record<string, WhatsAppChatMessage[]>>(initialMessages);
 

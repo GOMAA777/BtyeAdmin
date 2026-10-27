@@ -19,7 +19,7 @@ export default function DashboardLayout({
           {/* Main Content Area (dynamically adapts when sidebar collapses) */}
           <DashboardContent>
             <Topbar />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1536px] w-full mx-auto space-y-6">
+            <main className="p-4 sm:p-6 lg:p-8 pb-4 sm:pb-5 lg:pb-6 max-w-[1536px] w-full mx-auto space-y-6">
               {children}
             </main>
           </DashboardContent>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { RuleDetailView } from "@/features/automation/components/rules/rule-detail-view";
 import { initialAutomationRules } from "@/features/automation/data/mock-automation";
+import { automationRuleStaticParams } from "@/lib/static-params";
 
 export const metadata = {
   title: "تفاصيل قاعدة الأتمتة | منصة إدارة العقارات",
@@ -8,9 +9,7 @@ export const metadata = {
 };
 
 export function generateStaticParams() {
-  return initialAutomationRules.map((rule) => ({
-    id: rule.id,
-  }));
+  return automationRuleStaticParams();
 }
 
 export default async function RuleDetailPage({

@@ -11,8 +11,18 @@ const QUICK_TAGS = [
   "مكتب عمل تنفيذي",
 ];
 
-export function DescriptionCard() {
-  const [description, setDescription] = useState("");
+interface DescriptionCardProps {
+  description?: string;
+  setDescription?: (val: string | ((prev: string) => string)) => void;
+}
+
+export function DescriptionCard({
+  description: controlledDescription,
+  setDescription: setControlledDescription,
+}: DescriptionCardProps) {
+  const [internalDescription, setInternalDescription] = useState("");
+  const description = controlledDescription !== undefined ? controlledDescription : internalDescription;
+  const setDescription = setControlledDescription || setInternalDescription;
 
   const addTag = (tag: string) => {
     setDescription((prev) => {
@@ -31,9 +41,9 @@ export function DescriptionCard() {
         </span>
       }
     >
-      <span className="block text-[12.5px] font-bold text-[#181D17]">
+      <label className="block text-[12.5px] font-bold text-[#181D17]">
         الوصف العام والمميزات الخاصة
-      </span>
+      </label>
 
       <textarea
         value={description}

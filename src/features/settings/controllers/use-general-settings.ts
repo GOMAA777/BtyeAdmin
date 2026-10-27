@@ -7,10 +7,10 @@ import { GeneralSettingsState } from "../types";
 export function useGeneralSettings() {
   const initialData: GeneralSettingsState = {
     info: {
-      name: "أبراج",
-      website: "https://abraj-sa.com",
+      name: "BYTE HOME",
+      website: "https://bytehome-sa.com",
       description: "المنصة المؤسسية لإدارة وتشغيل الأصول العقارية",
-      officialEmail: "contact@abraj-sa.com",
+      officialEmail: "contact@bytehome-sa.com",
       contactNumber: "+966 11 400 8899",
     },
     support: {
@@ -25,7 +25,7 @@ export function useGeneralSettings() {
         "نقوم حالياً بإجراء تحديثات وتحسينات دورية على خوادم المنصة لضمان أعلى مستويات الأمان والأداء. سنعود للعمل قريباً.",
       expectedEndTime: "2026-10-06 04:00 ص",
     },
-    activeLogoName: "abraj-brand-identity-2026.svg",
+    activeLogoName: "bytehome-brand-identity-2026.svg",
     activeLogoSvg: "",
     lastUpdated: "5 أكتوبر 2026",
     updatedBy: "محمد أحمد",

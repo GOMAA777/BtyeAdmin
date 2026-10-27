@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { NewUnitPage } from "@/features/units/components/new-unit/new-unit-page";
 
 export const metadata: Metadata = {
-  title: "إضافة وحدة - ابراج",
+  title: "إضافة وحدة - BYTE HOME",
   description:
     "سجّل وحدة جديدة ضمن أحد العقارات المسجلة وحدد جميع مواصفاتها وتسعيرها وحالتها التشغيلية.",
 };

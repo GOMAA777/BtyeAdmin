@@ -20,7 +20,7 @@ export function AutomationTabsNav({
   activeTab,
   currentTab,
   onTabChange,
-  counts = { rules: 12, templates: 8, logs: 1420 },
+  counts = { rules: 0, templates: 0, logs: 0 },
 }: AutomationTabsNavProps) {
   const selectedTab = activeTab || currentTab || "rules";
 

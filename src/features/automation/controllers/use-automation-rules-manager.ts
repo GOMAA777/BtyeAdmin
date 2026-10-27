@@ -1,31 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { AutomationRule } from "../types";
 import { initialAutomationRules } from "../data/mock-automation";
-import { automationService } from "@/services/automation.service";
 
 export function useAutomationRulesManager(
   initialRules: AutomationRule[] = initialAutomationRules
 ) {
   const [rules, setRules] = useState<AutomationRule[]>(initialRules);
-
-  useEffect(() => {
-    let mounted = true;
-    automationService.getRules().then((data) => {
-      if (mounted) setRules(data);
-    });
-    const unsubscribe = automationService.subscribe(() => {
-      automationService.getRules().then((data) => {
-        if (mounted) setRules(data);
-      });
-    });
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
-  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -115,23 +98,31 @@ export function useAutomationRulesManager(
     setIsDeleteOpen(true);
   };
 
-  const confirmPause = async () => {
+  const confirmPause = () => {
     if (activeRuleForModal) {
-      await automationService.updateRule(activeRuleForModal.id, { status: "paused" });
+      setRules((prev) =>
+        prev.map((r) =>
+          r.id === activeRuleForModal.id ? { ...r, status: "paused" } : r
+        )
+      );
       toast.success(`تم إيقاف القاعدة: ${activeRuleForModal.title}`);
     }
   };
 
-  const confirmActivate = async () => {
+  const confirmActivate = () => {
     if (activeRuleForModal) {
-      await automationService.updateRule(activeRuleForModal.id, { status: "active" });
+      setRules((prev) =>
+        prev.map((r) =>
+          r.id === activeRuleForModal.id ? { ...r, status: "active" } : r
+        )
+      );
       toast.success(`تم تفعيل القاعدة: ${activeRuleForModal.title}`);
     }
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (activeRuleForModal) {
-      await automationService.removeRule(activeRuleForModal.id);
+      setRules((prev) => prev.filter((r) => r.id !== activeRuleForModal.id));
       toast.success(`تم حذف القاعدة: ${activeRuleForModal.title}`);
     }
   };

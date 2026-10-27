@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { EditRuleView } from "@/features/automation/components/rules/edit-rule-view";
 import { initialAutomationRules } from "@/features/automation/data/mock-automation";
+import { automationRuleStaticParams } from "@/lib/static-params";
 
 export const metadata = {
   title: "تعديل قاعدة الأتمتة | منصة إدارة العقارات",
@@ -8,9 +9,7 @@ export const metadata = {
 };
 
 export function generateStaticParams() {
-  return initialAutomationRules.map((rule) => ({
-    id: rule.id,
-  }));
+  return automationRuleStaticParams();
 }
 
 export default async function EditRulePage({

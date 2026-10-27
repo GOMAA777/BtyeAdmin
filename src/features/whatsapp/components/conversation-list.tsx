@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AnimatedTabs } from "@/components/shared/animated-tabs";
 import { WhatsAppConversationItem, ConversationFilter } from "../types";
 
 interface ConversationListProps {
@@ -53,7 +54,7 @@ export function ConversationList({
               المحادثات
             </h2>
             <span className="px-2 py-0.5 rounded-full text-[11px] font-medium font-cairo bg-[#D8E8CB] text-[#121F0D]">
-              5 نشطة
+              {conversations.length} نشطة
             </span>
           </div>
 
@@ -96,56 +97,29 @@ export function ConversationList({
           </div>
         </div>
 
-        {/* Filter pills: الكل, مهام نشطة, المشرفون */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          <button
-            type="button"
-            onClick={() => setFilter("all")}
-            className={cn(
-              "px-3 py-1 rounded-full text-[11px] font-semibold font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-              filter === "all"
-                ? "bg-[#34422A] text-white"
-                : "bg-[#EBEFE6] text-[#454840] hover:bg-[#DFE4DB]"
-            )}
-          >
-            الكل
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter("active_tasks")}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-              filter === "active_tasks"
-                ? "bg-[#34422A] text-white"
-                : "bg-[#EBEFE6] text-[#454840] hover:bg-[#DFE4DB]"
-            )}
-          >
-            <span
-              className={cn(
-                "w-2 h-2 rounded-full",
-                filter === "active_tasks" ? "bg-emerald-300" : "bg-[#54624C]"
-              )}
-            />
-            <span>مهام نشطة</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter("supervisors")}
-            className={cn(
-              "px-3 py-1 rounded-full text-[11px] font-medium font-cairo transition-all cursor-pointer whitespace-nowrap shadow-3xs",
-              filter === "supervisors"
-                ? "bg-[#34422A] text-white"
-                : "bg-[#EBEFE6] text-[#454840] hover:bg-[#DFE4DB]"
-            )}
-          >
-            المشرفون
-          </button>
-        </div>
+        <AnimatedTabs
+          tabs={[
+            { id: "all", label: "الكل" },
+            { id: "active_tasks", label: "مهام نشطة" },
+            { id: "supervisors", label: "المشرفون" },
+          ]}
+          value={filter}
+          onChange={(id) => setFilter(id as ConversationFilter)}
+          layoutId="whatsappConversationFilterPill"
+          variant="dark"
+          trackClassName="border-0 shadow-none bg-transparent p-0 gap-1.5"
+        />
       </div>
 
       {/* 2. Conversations Feed */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
-        {filteredConversations.map((item) => {
+        {filteredConversations.length === 0 ? (
+          <div className="py-16 px-4 text-center text-[#75786F] space-y-2">
+            <p className="font-semibold text-[13px] text-[#34422A]">لا توجد محادثات</p>
+            <p className="text-[11px] leading-relaxed">لم يتم بدء أي محادثات واتساب بعد.</p>
+          </div>
+        ) : (
+          filteredConversations.map((item) => {
           const isSelected = item.id === selectedId;
 
           return (
@@ -249,7 +223,8 @@ export function ConversationList({
               </div>
             </button>
           );
-        })}
+        })
+      )}
       </div>
 
       {/* 3. Footer: Webhook Status */}

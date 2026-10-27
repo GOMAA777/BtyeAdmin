@@ -41,7 +41,7 @@ export function OwnersEmptyState({ onRefresh, onAddOwner }: OwnersEmptyStateProp
           لا يوجد أصحاب عقارات حتى الآن
         </h2>
         <p className="text-xs sm:text-sm text-[#7D8A78] leading-relaxed">
-          ابدأ بإضافة أول مالك عقار أو أرسل له دعوة تفعيل رقمية للربط بمنظومة ابراج العقارية وإدارة الأصول بكفاءة.
+          ابدأ بإضافة أول مالك عقار أو أرسل له دعوة تفعيل رقمية للربط بمنظومة BYTE HOME العقارية وإدارة الأصول بكفاءة.
         </p>
       </div>
 

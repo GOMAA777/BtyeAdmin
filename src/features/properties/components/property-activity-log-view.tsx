@@ -470,7 +470,7 @@ export function PropertyActivityLogView({
 
         {/* Left Column in RTL (lg:col-span-4): Streamlined Event Details Inspector Drawer */}
         <div className="lg:col-span-4 space-y-6">
-          {isInspectorOpen ? (
+          {isInspectorOpen && activeEvent ? (
             <section className="bg-white border border-[#ebefe6] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] rounded-[16px] p-[17px] flex flex-col gap-[16px] w-full">
               {/* Header */}
               <div className="border-b border-[#ebefe6] pb-[10px] flex items-center justify-between">
