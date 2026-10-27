@@ -138,7 +138,8 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 lg:space-y-10 animate-in fade-in duration-300">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-8 lg:space-y-10 animate-in fade-in duration-300">
       {/* 1. Page Header matching Screenshot 1 */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#E2E6DC] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-2xs">
         {/* Right side in RTL: Title & Subtitle */}
@@ -729,6 +730,8 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
         ]}
       />
 
+      </form>
+
       <AddOwnerModal
         isOpen={isAddOwnerModalOpen}
         onClose={() => setIsAddOwnerModalOpen(false)}
@@ -737,6 +740,6 @@ export function AddPropertyForm({ onSuccess }: AddPropertyFormProps) {
           setSelectedOwnerId(newOwner.id);
         }}
       />
-    </form>
+    </>
   );
 }

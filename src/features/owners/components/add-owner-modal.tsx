@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, UserPlus, Phone, Mail, User, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { ownersService } from "@/services/owners-service";
 import { SelectDropdown } from "@/components/shared/select-dropdown";
 import type { Owner } from "@/features/owners/types";
@@ -15,6 +17,7 @@ interface AddOwnerModalProps {
 }
 
 export function AddOwnerModal({ isOpen, onClose, onSuccess }: AddOwnerModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +27,13 @@ export function AddOwnerModal({ isOpen, onClose, onSuccess }: AddOwnerModalProps
 
   const confirm = useConfirm();
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useScrollLock(isOpen);
+
+  if (!isOpen || !mounted) return null;
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -37,6 +46,7 @@ export function AddOwnerModal({ isOpen, onClose, onSuccess }: AddOwnerModalProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!validate()) return;
 
     const ok = await confirm({
@@ -70,7 +80,7 @@ export function AddOwnerModal({ isOpen, onClose, onSuccess }: AddOwnerModalProps
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" dir="rtl">
       <div
         className="bg-white relative w-full max-w-[500px] rounded-3xl shadow-[0px_20px_48px_-12px_rgba(24,29,23,0.22)] overflow-hidden border border-[#DCE2D7]"
@@ -196,6 +206,7 @@ export function AddOwnerModal({ isOpen, onClose, onSuccess }: AddOwnerModalProps
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
