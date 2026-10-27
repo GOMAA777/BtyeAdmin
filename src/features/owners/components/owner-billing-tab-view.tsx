@@ -198,6 +198,18 @@ export function OwnerBillingTabView() {
     };
   }, []);
 
+  const handleResetAllFilters = () => {
+    setBillingFilters({
+      status: "all",
+      period: "all",
+      payoutRange: "all",
+      sortBy: "default",
+    });
+    setFilterStatus("all");
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       {/* 1. Header Card */}
@@ -397,6 +409,7 @@ export function OwnerBillingTabView() {
           onOpenAdvancedFilter={() => setIsFilterDrawerOpen(true)}
           activeFiltersCount={activeFiltersCount}
           filterButtonTitle="تصفية الفواتير والمستحقات"
+          onResetFilter={handleResetAllFilters}
           tabs={[
             { id: "all", label: `الكل (${counts.all})` },
             { id: "paid", label: `مسددة (${counts.paid})` },

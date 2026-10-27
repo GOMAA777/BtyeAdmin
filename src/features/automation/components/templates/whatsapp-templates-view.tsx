@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -23,6 +23,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { TableToolbar } from "@/components/shared/table-toolbar";
 import { ActionDropdown } from "@/components/shared/action-dropdown";
@@ -146,13 +147,19 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
     }
   };
 
+  const rulesCount = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().automationRules.length,
+    () => 0
+  );
+
   return (
     <div className="space-y-6 font-cairo" dir="rtl">
       {/* 3 Main Tabs Nav (with templates active) */}
       <AutomationTabsNav
         activeTab="templates"
         onTabChange={onTabChange}
-        counts={{ rules: 0, templates: templates.length, logs: 0 }}
+        counts={{ rules: rulesCount, templates: templates.length, logs: 0 }}
       />
 
       {/* 2. Top Header & Actions [1:26440] */}
@@ -173,7 +180,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
         <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
           <Link
             href="/automation/templates/new/"
-            className="bg-[#4b5940] hover:bg-[#34422a] rounded-[12px] px-[20px] py-[10px] text-white text-[14px] font-medium leading-[20px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors"
+            className="bg-[#4b5940] hover:bg-[#34422a] rounded-[12px] px-[20px] py-[10px] text-white text-[14px] font-medium leading-[20px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[8px] transition-colors shadow-2xs"
           >
             <span>إنشاء قالب</span>
             <Plus className="size-[14px]" />
@@ -187,15 +194,6 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           >
             <RefreshCw className={`size-[14px] text-[#181d17] ${isSyncing ? "animate-spin" : ""}`} />
             <span>{isSyncing ? "جارٍ المزامنة..." : "مزامنة القوالب"}</span>
-          </button>
-
-          {/* Toggle for empty state view testing */}
-          <button
-            type="button"
-            onClick={() => setIsEmptyPreview(!isEmptyPreview)}
-            className="px-2.5 py-1 text-xs text-[#4b5940] bg-[#ebefe6] rounded-lg border border-[#e5e8e2] hover:underline cursor-pointer"
-          >
-            {isEmptyPreview ? "عرض البيانات" : "معاينة فارغة"}
           </button>
         </div>
       </div>
@@ -215,7 +213,7 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
       />
 
       {/* 4. Empty State View [1:26359] vs Templates Table */}
-      {isEmptyPreview || filteredTemplates.length === 0 ? (
+      {templates.length === 0 ? (
         <AutomationEmptyStateCard
           icon={<WhatsAppCaptionsIcon className="size-[40px]" />}
           title="لا توجد قوالب واتساب"
@@ -228,7 +226,6 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
           secondaryAction={{
             label: "تحديث الصفحة",
             onClick: () => {
-              setIsEmptyPreview(false);
               setSearchQuery("");
               setSelectedCategory("all");
             },
@@ -239,6 +236,23 @@ export function WhatsAppTemplatesView({ onTabChange }: WhatsAppTemplatesViewProp
             icon: <Plus className="size-[16px] text-white" />,
           }}
         />
+      ) : filteredTemplates.length === 0 ? (
+        <div className="bg-white rounded-[16px] border border-[#e5e8e2] p-12 text-center">
+          <p className="text-[16px] font-bold text-[#181d17]">لا توجد نتائج مطابقة لمعايير البحث</p>
+          <p className="text-[13px] text-[#454840] mt-1">جرّب تغيير كلمات البحث أو إعادة ضبط خيارات التصفية.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedCategory("all");
+              setStatusFilter("all");
+              setLanguageFilter("all");
+            }}
+            className="mt-4 px-4 py-2 bg-[#f1f5eb] text-[#34422a] rounded-[10px] text-[13px] font-semibold hover:bg-[#e2ead9] transition-colors cursor-pointer"
+          >
+            إعادة ضبط التصفية
+          </button>
+        </div>
       ) : (
         <div className="bg-white rounded-[16px] border border-[#E5E8E2] overflow-hidden space-y-4 p-4">
           <div className="overflow-x-auto">

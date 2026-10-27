@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -17,6 +17,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAppDataStore } from "@/stores/use-app-data-store";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { FilterButton } from "@/components/shared/filter-button";
 import { TableToolbar } from "@/components/shared/table-toolbar";
@@ -132,10 +133,20 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
     setRetryTargetLog(null);
   };
 
+  const rulesCount = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().automationRules.length,
+    () => 0
+  );
+
   return (
     <div className="space-y-[16px] font-cairo" dir="rtl">
       {/* 1. Internal Navigation Tabs (Figma node 1:25060) */}
-      <AutomationTabsNav activeTab="logs" onTabChange={onTabChange} />
+      <AutomationTabsNav
+        activeTab="logs"
+        onTabChange={onTabChange}
+        counts={{ rules: rulesCount, templates: 0, logs: logs.length }}
+      />
 
       {/* 2. Top Hero Greeting Bar (Figma node 1:25024) */}
       <div className="bg-white rounded-[16px] p-[24px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] border border-[#e5eae0] flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -151,16 +162,6 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
 
         {/* Left side in RTL: Action Button Group */}
         <div className="flex items-center gap-[8px] flex-wrap self-end md:self-center">
-          {/* Empty state preview toggle for reviewing Figma node 1:26564 */}
-          <button
-            type="button"
-            onClick={() => setIsEmptyPreview((prev) => !prev)}
-            className="bg-white hover:bg-[#f6fbf1] text-[#4b5940] text-[12px] font-semibold h-[44px] px-[14px] rounded-[12px] border border-[#d8e8cb] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] inline-flex items-center gap-[6px] transition-colors cursor-pointer"
-            title="معاينة شاشة الحالة الفارغة حسب تصميم فيجما (1:26564)"
-          >
-            <span>{isEmptyPreview ? "عرض السجلات المعبأة" : "معاينة الحالة الفارغة (Figma)"}</span>
-          </button>
-
           {/* Button 1: Update Data */}
           <button
             type="button"
@@ -198,7 +199,7 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
         tabsLayoutId="executionLogsFilterPill"
       />
 
-      {isEmptyPreview || filteredLogs.length === 0 ? (
+      {logs.length === 0 ? (
         /* Central Hero Empty State Card (Figma node 1:26564 / 1:26605) */
         <AutomationEmptyStateCard
           icon={<ExecutionLogsDocumentIcon className="size-[40px]" />}
@@ -218,6 +219,23 @@ export function ExecutionLogsView({ onTabChange }: ExecutionLogsViewProps) {
             icon: <MetaVerifiedBadgeIcon className="size-[14px]" />,
           }}
         />
+      ) : filteredLogs.length === 0 ? (
+        <div className="bg-white rounded-[16px] border border-[#e5e8e2] p-12 text-center">
+          <p className="text-[16px] font-bold text-[#181d17]">لا توجد نتائج مطابقة لمعايير البحث</p>
+          <p className="text-[13px] text-[#454840] mt-1">جرّب تغيير كلمات البحث أو إعادة ضبط خيارات التصفية.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setStatusFilter("all");
+              setActionTypeFilter("all");
+              setPropertyFilter("all");
+            }}
+            className="mt-4 px-4 py-2 bg-[#f1f5eb] text-[#34422a] rounded-[10px] text-[13px] font-semibold hover:bg-[#e2ead9] transition-colors cursor-pointer"
+          >
+            إعادة ضبط التصفية
+          </button>
+        </div>
       ) : (
         <>
           {/* 4. Master Data Table Container (Figma node 1:25083) */}
