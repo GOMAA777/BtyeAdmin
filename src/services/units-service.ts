@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { Unit, UnitStatus, UnitType, UnitIconType } from "@/features/units/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,17 +26,20 @@ export interface CreateUnitDTO {
 
 export const unitsService = {
   async getAll(): Promise<Unit[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().units;
   },
 
   async getById(id: string): Promise<Unit | null> {
+    await ensureStoreHydrated();
     await delay();
     const unit = useAppDataStore.getState().units.find((u) => u.id === id);
     return unit || null;
   },
 
   async getByProperty(propertyId: string): Promise<Unit[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().units.filter((u) => u.propertyId === propertyId);
   },

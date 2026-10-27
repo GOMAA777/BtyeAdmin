@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import {
   MainBookingItem,
@@ -9,27 +9,23 @@ import {
   initialBookingFilterState,
 } from "../types";
 import { bookingsService } from "@/services/bookings-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
+
+const emptyBookings: MainBookingItem[] = [];
 
 export function useBookingsManager(
   initialBookings?: MainBookingItem[]
 ) {
-  const [bookings, setBookings] = useState<MainBookingItem[]>(
-    initialBookings || useAppDataStore.getState().bookings
+  const storeBookings = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().bookings,
+    () => emptyBookings
   );
-
-  const loadBookings = useCallback(async () => {
-    const data = await bookingsService.getAll();
-    setBookings(data);
-  }, []);
+  const bookings = initialBookings || storeBookings;
 
   useEffect(() => {
-    loadBookings();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setBookings(state.bookings);
-    });
-    return () => unsub();
-  }, [loadBookings]);
+    ensureStoreHydrated();
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | BookingStatus>("all");
   const [currentPage, setCurrentPage] = useState(1);

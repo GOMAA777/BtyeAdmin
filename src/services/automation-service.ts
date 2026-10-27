@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { AutomationRule, RuleCategory, RuleStatus } from "@/features/automation/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,11 +19,13 @@ export interface CreateAutomationRuleDTO {
 
 export const automationService = {
   async getAll(): Promise<AutomationRule[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().automationRules;
   },
 
   async getById(id: string): Promise<AutomationRule | null> {
+    await ensureStoreHydrated();
     await delay();
     const rule = useAppDataStore.getState().automationRules.find((r) => r.id === id);
     return rule || null;

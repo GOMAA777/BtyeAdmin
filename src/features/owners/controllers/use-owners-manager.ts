@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Owner, OwnerStatus } from "../types";
 import { ownersService } from "@/services/owners-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import { AdvancedFilterState } from "../components/owners-advanced-filter-drawer";
 
 const defaultAdvancedFilters: AdvancedFilterState = {
@@ -42,10 +42,16 @@ function parseArabicDate(dateStr: string): Date | null {
   return new Date(`${year}-${month}-${day}T00:00:00`);
 }
 
+const emptyOwners: Owner[] = [];
+
 export function useOwnersManager(initialData?: Owner[]) {
-  const [owners, setOwners] = useState<Owner[]>(
-    initialData || useAppDataStore.getState().owners
+  const storeOwners = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().owners,
+    () => emptyOwners
   );
+  const owners = initialData || storeOwners;
+
   const [pageSize, setPageSize] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("all");
@@ -54,18 +60,9 @@ export function useOwnersManager(initialData?: Owner[]) {
   const [advancedFilters, setAdvancedFilters] =
     useState<AdvancedFilterState>(defaultAdvancedFilters);
 
-  const loadOwners = useCallback(async () => {
-    const data = await ownersService.getAll();
-    setOwners(data);
-  }, []);
-
   useEffect(() => {
-    loadOwners();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setOwners(state.owners);
-    });
-    return () => unsub();
-  }, [loadOwners]);
+    ensureStoreHydrated();
+  }, []);
 
   const activeFiltersCount = useMemo(() => {
     return (

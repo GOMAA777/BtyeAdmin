@@ -37,6 +37,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { StoreHydrationHandler } from "@/components/shared/store-hydration-handler";
 
 export default function RootLayout({
   children,
@@ -59,6 +60,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-full flex flex-col font-sans bg-[#EFF2EB] text-[#252A24]"
       >
+        <StoreHydrationHandler />
         <NuqsAdapter>{children}</NuqsAdapter>
         <Toaster />
       </body>

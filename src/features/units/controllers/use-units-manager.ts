@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import { Unit, UnitFilterState } from "../types";
 import { unitsService } from "@/services/units-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
 const defaultAdvancedFilters: UnitFilterState = {
   property: "all",
@@ -14,10 +14,16 @@ const defaultAdvancedFilters: UnitFilterState = {
   sortBy: "default",
 };
 
+const emptyUnits: Unit[] = [];
+
 export function useUnitsManager(initialData?: Unit[]) {
-  const [units, setUnits] = useState<Unit[]>(
-    initialData || useAppDataStore.getState().units
+  const storeUnits = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().units,
+    () => emptyUnits
   );
+  const units = initialData || storeUnits;
+
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [tabFilter, setTabFilter] = useState<string>("all");
@@ -26,18 +32,9 @@ export function useUnitsManager(initialData?: Unit[]) {
   const [advancedFilters, setAdvancedFilters] =
     useState<UnitFilterState>(defaultAdvancedFilters);
 
-  const loadUnits = useCallback(async () => {
-    const data = await unitsService.getAll();
-    setUnits(data);
-  }, []);
-
   useEffect(() => {
-    loadUnits();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setUnits(state.units);
-    });
-    return () => unsub();
-  }, [loadUnits]);
+    ensureStoreHydrated();
+  }, []);
 
   const handleTabChange = (newTab: string) => {
     setTabFilter(newTab);

@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { OperationTask } from "@/features/operations/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,11 +19,13 @@ export interface CreateOperationTaskDTO {
 
 export const operationsService = {
   async getAll(): Promise<OperationTask[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().operations;
   },
 
   async getById(id: string): Promise<OperationTask | null> {
+    await ensureStoreHydrated();
     await delay();
     const task = useAppDataStore.getState().operations.find((t) => t.id === id);
     return task || null;

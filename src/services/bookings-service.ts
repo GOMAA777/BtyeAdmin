@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { MainBookingItem, BookingStatus, BookingDetail } from "@/features/bookings/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,11 +31,13 @@ export interface CreateBookingDTO {
 
 export const bookingsService = {
   async getAll(): Promise<MainBookingItem[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().bookings;
   },
 
   async getById(id: string): Promise<MainBookingItem | null> {
+    await ensureStoreHydrated();
     await delay();
     const booking = useAppDataStore.getState().bookings.find(
       (b) => b.id === id || b.bookingCode === id
@@ -44,6 +46,7 @@ export const bookingsService = {
   },
 
   async getDetailById(id: string): Promise<BookingDetail | null> {
+    await ensureStoreHydrated();
     await delay();
     const item = useAppDataStore.getState().bookings.find(
       (b) => b.id === id || b.bookingCode === id

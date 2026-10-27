@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { Owner, OwnerStatus } from "@/features/owners/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -14,11 +14,13 @@ export interface CreateOwnerDTO {
 
 export const ownersService = {
   async getAll(): Promise<Owner[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().owners;
   },
 
   async getById(id: string): Promise<Owner | null> {
+    await ensureStoreHydrated();
     await delay();
     const owner = useAppDataStore.getState().owners.find((o) => o.id === id);
     return owner || null;

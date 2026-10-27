@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import {
   Property,
@@ -9,12 +9,18 @@ import {
   initialPropertyFilterState,
 } from "../types";
 import { propertiesService } from "@/services/properties-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
+
+const emptyProperties: Property[] = [];
 
 export function usePropertiesManager(initialData?: Property[]) {
-  const [properties, setProperties] = useState<Property[]>(
-    initialData || useAppDataStore.getState().properties
+  const storeProperties = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().properties,
+    () => emptyProperties
   );
+  const properties = initialData || storeProperties;
+
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filter, setFilter] = useState<string>("all");
@@ -23,18 +29,9 @@ export function usePropertiesManager(initialData?: Property[]) {
   const [propertyFilters, setPropertyFilters] =
     useState<MainPropertyFilterState>(initialPropertyFilterState);
 
-  const loadProperties = useCallback(async () => {
-    const data = await propertiesService.getAll();
-    setProperties(data);
-  }, []);
-
   useEffect(() => {
-    loadProperties();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setProperties(state.properties);
-    });
-    return () => unsub();
-  }, [loadProperties]);
+    ensureStoreHydrated();
+  }, []);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { TeamMember, TeamRole, TeamMemberStatus, TeamOverviewStats } from "../types";
 import { initialTeamStats } from "../data/mock-team";
 import { teamService } from "@/services/team-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
 export interface AddMemberFormData {
   fullName: string;
@@ -19,23 +19,19 @@ export interface AddMemberFormData {
   automatedTaskTypes: Array<"cleaning" | "maintenance">;
 }
 
-export function useTeamManager(initialMembers?: TeamMember[]) {
-  const [members, setMembers] = useState<TeamMember[]>(
-    initialMembers || useAppDataStore.getState().team
-  );
+const emptyTeam: TeamMember[] = [];
 
-  const loadMembers = useCallback(async () => {
-    const data = await teamService.getAll();
-    setMembers(data);
-  }, []);
+export function useTeamManager(initialMembers?: TeamMember[]) {
+  const storeTeam = useSyncExternalStore(
+    useAppDataStore.subscribe,
+    () => useAppDataStore.getState().team,
+    () => emptyTeam
+  );
+  const members = initialMembers || storeTeam;
 
   useEffect(() => {
-    loadMembers();
-    const unsub = useAppDataStore.subscribe((state) => {
-      setMembers(state.team);
-    });
-    return () => unsub();
-  }, [loadMembers]);
+    ensureStoreHydrated();
+  }, []);
   const [stats, setStats] = useState<TeamOverviewStats>(initialTeamStats);
 
   // Filter States
@@ -177,19 +173,11 @@ export function useTeamManager(initialMembers?: TeamMember[]) {
   }, []);
 
   const handleChangeWhatsapp = useCallback(
-    (id: string, newNumber: string, updatePrimaryPhone: boolean) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              whatsapp: newNumber,
-              phone: updatePrimaryPhone ? newNumber : m.phone,
-            };
-          }
-          return m;
-        })
-      );
+    async (id: string, newNumber: string, updatePrimaryPhone: boolean) => {
+      await teamService.update(id, {
+        whatsapp: newNumber,
+        ...(updatePrimaryPhone ? { phone: newNumber } : {}),
+      });
       setChangeWhatsappModalOpen(false);
       toast.success("تم تأكيد وتحديث رقم WhatsApp والتحقق من جاهزية المحادثة");
     },
@@ -197,26 +185,22 @@ export function useTeamManager(initialMembers?: TeamMember[]) {
   );
 
   const handleUpdatePermissions = useCallback(
-    (id: string, scope: "all" | "custom", propertyIds: string[]) => {
-      setMembers((prev) =>
-        prev.map((m) => {
-          if (m.id === id) {
-            return {
-              ...m,
-              coverageScope: scope,
-              assignedProperties: m.assignedProperties.map((p) => ({
-                ...p,
-                isActive: propertyIds.includes(p.id),
-              })),
-            };
-          }
-          return m;
-        })
-      );
+    async (id: string, scope: "all" | "custom", propertyIds: string[]) => {
+      const target = members.find((m) => m.id === id);
+      if (target) {
+        const updatedAssigned = target.assignedProperties.map((p) => ({
+          ...p,
+          isActive: propertyIds.includes(p.id),
+        }));
+        await teamService.update(id, {
+          coverageScope: scope,
+          assignedProperties: updatedAssigned,
+        });
+      }
       setPermissionsModalOpen(false);
       toast.success("تم حفظ وتحديث نطاق الصلاحيات والعقارات بنجاح");
     },
-    []
+    [members]
   );
 
   const handleSendWhatsappMessage = useCallback(

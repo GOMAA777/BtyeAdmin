@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { TeamMember, TeamRole, TeamMemberStatus } from "@/features/team/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,11 +15,13 @@ export interface CreateTeamMemberDTO {
 
 export const teamService = {
   async getAll(): Promise<TeamMember[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().team;
   },
 
   async getById(id: string): Promise<TeamMember | null> {
+    await ensureStoreHydrated();
     await delay();
     const member = useAppDataStore.getState().team.find((m) => m.id === id);
     return member || null;

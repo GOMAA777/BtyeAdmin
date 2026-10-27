@@ -9,16 +9,17 @@ import {
   initialOperationFilterState,
 } from "../types";
 import { operationsService } from "@/services/operations-service";
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, getInitialHydratedState, ensureStoreHydrated } from "@/stores/use-app-data-store";
 
 export function useOperationsManager(
   initialTasks?: OperationTask[]
 ) {
   const [tasks, setTasks] = useState<OperationTask[]>(
-    initialTasks || useAppDataStore.getState().operations
+    initialTasks || getInitialHydratedState((s) => s.operations, [])
   );
 
   const loadTasks = useCallback(async () => {
+    await ensureStoreHydrated();
     const data = await operationsService.getAll();
     setTasks(data);
   }, []);

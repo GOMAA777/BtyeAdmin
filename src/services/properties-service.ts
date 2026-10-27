@@ -1,4 +1,4 @@
-import { useAppDataStore } from "@/stores/use-app-data-store";
+import { useAppDataStore, ensureStoreHydrated } from "@/stores/use-app-data-store";
 import type { Property, PropertyStatus } from "@/features/properties/types";
 
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,11 +23,13 @@ export interface CreatePropertyDTO {
 
 export const propertiesService = {
   async getAll(): Promise<Property[]> {
+    await ensureStoreHydrated();
     await delay();
     return useAppDataStore.getState().properties;
   },
 
   async getById(id: string): Promise<Property | null> {
+    await ensureStoreHydrated();
     await delay();
     const property = useAppDataStore.getState().properties.find((p) => p.id === id);
     return property || null;

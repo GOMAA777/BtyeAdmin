@@ -212,6 +212,27 @@ export const useAppDataStore = create<AppDataState>()(
         setItem: () => {},
         removeItem: () => {},
       })),
+      skipHydration: true,
     }
   )
 );
+
+/**
+ * Safely returns fallback during SSR and initial client hydration to avoid hydration mismatches.
+ * To read live reactive store data safely, prefer useSyncExternalStore or subscribe.
+ */
+export function getInitialHydratedState<T>(
+  _selector: (state: AppDataState) => T,
+  fallback: T
+): T {
+  return fallback;
+}
+
+/**
+ * Ensures the app data store is hydrated on the client before reading or writing.
+ */
+export async function ensureStoreHydrated(): Promise<void> {
+  if (typeof window !== "undefined" && !useAppDataStore.persist?.hasHydrated?.()) {
+    await useAppDataStore.persist.rehydrate();
+  }
+}
