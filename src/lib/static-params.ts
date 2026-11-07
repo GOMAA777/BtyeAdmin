@@ -93,7 +93,10 @@ export function billingStaticParams() {
 }
 
 export function automationRuleStaticParams() {
-  return toStaticParams(initialAutomationRules.map((r) => r.id));
+  return toStaticParams(
+    initialAutomationRules.map((r) => r.id),
+    ["AUT-101", "AUT-102", "AUT-103", "AUT-104", "AUT-105", "AUT-106", "AUT-107", "AUT-108", "1"]
+  );
 }
 
 export function automationLogStaticParams() {

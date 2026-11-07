@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, ChevronLeft } from "lucide-react";
+import { Search, ChevronLeft } from "lucide-react";
 import { useUIStore } from "@/stores/use-ui-store";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { cn } from "@/lib/utils";
 import { resolveAssetUrl } from "@/lib/constants";
+import { NotificationsPopover } from "@/features/notifications/components/notifications-popover";
 
 export function Topbar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
@@ -89,15 +90,8 @@ export function Topbar() {
           {/* 3. Vertical Divider Line */}
           <div className="h-5 w-px bg-[#DCE2D7] shrink-0 mx-0.5" />
 
-          {/* 4. Notification Bell with Red Dot */}
-          <button
-            type="button"
-            className="relative p-1.5 text-[#252A24] hover:text-[#4B5940] transition-colors cursor-pointer shrink-0"
-            aria-label="التنبيهات"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 start-1 w-2 h-2 rounded-full bg-[#C02828] ring-2 ring-white" />
-          </button>
+          {/* 4. Notification Bell with Popover */}
+          <NotificationsPopover />
         </div>
       </div>
     </header>

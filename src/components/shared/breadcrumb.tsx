@@ -5,16 +5,14 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   ChevronLeft,
-  Home,
   ArrowLeft,
-  Copy,
-  Check,
   X,
   MoreHorizontal,
-  Navigation,
+  LayoutGrid,
 } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { hardNavigate } from "@/lib/constants";
+import { resolveSectionIcon } from "@/lib/route-titles";
 import { useNavigationTrail, type TrailItem } from "@/hooks/use-navigation-trail";
 
 export interface BreadcrumbProps {
@@ -49,7 +47,8 @@ export function Breadcrumb({
 
   // 1. Navbar Variant (Rendered in Topbar)
   if (variant === "navbar") {
-    const isLongTrail = breadcrumbs.length > 3;
+    // From 3 crumbs: icon (root) → •• (middle) → current page title
+    const isLongTrail = breadcrumbs.length >= 3;
     const firstCrumb = breadcrumbs[0];
     const lastCrumb = breadcrumbs[breadcrumbs.length - 1];
     const middleCrumbs = isLongTrail ? breadcrumbs.slice(1, breadcrumbs.length - 1) : [];
@@ -67,7 +66,7 @@ export function Breadcrumb({
 
         <ol className="flex items-center gap-1 sm:gap-1.5 flex-nowrap overflow-x-auto no-scrollbar text-xs">
           {!isLongTrail ? (
-            /* Normal trail (3 or fewer items) - show all in full */
+            /* Short trail (< 3) — show every crumb in full */
             breadcrumbs.map((crumb, index) => {
               const isFirst = index === 0;
               const isLast = index === breadcrumbs.length - 1;
@@ -94,11 +93,11 @@ export function Breadcrumb({
               );
             })
           ) : (
-            /* Long trail (> 3 items) - collapse middle items into dots */
+            /* Long trail (≥ 3): icon → dots → last page title */
             <>
-              {/* 1. First Root Crumb */}
+              {/* 1. First Root Crumb — icon only */}
               <li className="inline-flex items-center gap-1 sm:gap-1.5 shrink-0">
-                <LinkCrumb crumb={firstCrumb} isFirst={true} />
+                <LinkCrumb crumb={firstCrumb} isFirst={true} iconOnly />
               </li>
 
               {/* Separator */}
@@ -231,24 +230,59 @@ export function Breadcrumb({
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Normal Link Crumb Item
+ * Section-root link. iconOnly (long trail) = section icon button only.
  */
-function LinkCrumb({ crumb, isFirst }: { crumb: TrailItem; isFirst: boolean }) {
+function LinkCrumb({
+  crumb,
+  isFirst,
+  iconOnly = false,
+}: {
+  crumb: TrailItem;
+  isFirst: boolean;
+  iconOnly?: boolean;
+}) {
+  const SectionIcon =
+    (isFirst && resolveSectionIcon(crumb.href)) || (isFirst ? LayoutGrid : null);
+
+  if (iconOnly) {
+    const Icon = SectionIcon || LayoutGrid;
+    return (
+      <Link
+        href={crumb.href || "/"}
+        prefetch={true}
+        onClick={(e) => {
+          e.preventDefault();
+          hardNavigate(crumb.href || "/");
+        }}
+        title={crumb.title}
+        aria-label={crumb.title}
+        className={cn(
+          "inline-flex items-center justify-center size-7 rounded-lg text-[#34422E] hover:text-[#181D17] hover:bg-[#F1F5EB] transition-colors outline-none focus-visible:ring-1 focus-visible:ring-[#34422E]/30 cursor-pointer shrink-0",
+          "border border-transparent hover:border-[#DCE2D7]"
+        )}
+      >
+        <Icon className="w-3.5 h-3.5" strokeWidth={2.2} />
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={crumb.href || "/"}
       prefetch={true}
+      onClick={(e) => {
+        e.preventDefault();
+        hardNavigate(crumb.href || "/");
+      }}
       className={cn(
         "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium text-[#54624C] hover:text-[#181D17] hover:bg-[#F1F5EB] transition-colors outline-none focus-visible:ring-1 focus-visible:ring-[#34422E]/30 whitespace-nowrap cursor-pointer",
         isFirst && "text-[#34422E] font-semibold"
       )}
     >
-      {isFirst && crumb.title === "الرئيسية" && (
-        <Home className="w-3.5 h-3.5 text-[#34432E]" />
+      {SectionIcon && (
+        <SectionIcon className="w-3.5 h-3.5 text-[#34432E] shrink-0" strokeWidth={2.2} />
       )}
-      <span className={cn(isFirst && crumb.title === "الرئيسية" && "hidden sm:inline")}>
-        {crumb.title}
-      </span>
+      <span>{crumb.title}</span>
       {crumb.badge && (
         <span className="px-1.5 py-0.5 rounded bg-[#E5EAE0] text-[10px] font-mono text-[#54624C]">
           {crumb.badge}
@@ -262,6 +296,9 @@ function LinkCrumb({ crumb, isFirst }: { crumb: TrailItem; isFirst: boolean }) {
  * Active Leaf Crumb Item (Last Page)
  */
 function ActiveLeafCrumb({ crumb, isFirst }: { crumb: TrailItem; isFirst: boolean }) {
+  const SectionIcon =
+    (isFirst && resolveSectionIcon(crumb.href)) || (isFirst ? LayoutGrid : null);
+
   return (
     <div
       className={cn(
@@ -270,8 +307,8 @@ function ActiveLeafCrumb({ crumb, isFirst }: { crumb: TrailItem; isFirst: boolea
       )}
       aria-current="page"
     >
-      {isFirst && crumb.title === "الرئيسية" && (
-        <Home className="w-3.5 h-3.5 text-[#34432E]" />
+      {SectionIcon && (
+        <SectionIcon className="w-3.5 h-3.5 text-[#34432E] shrink-0" strokeWidth={2.2} />
       )}
       <span className="truncate max-w-[130px] sm:max-w-[200px] md:max-w-[260px]">
         {crumb.title}
@@ -289,87 +326,45 @@ function ActiveLeafCrumb({ crumb, isFirst }: { crumb: TrailItem; isFirst: boolea
 }
 
 /**
- * Individual Collapsed Dot Button ("••") with Hover Tooltip & Click Popover
- * Directly fulfills "pop > .. > .. > ld"
+ * Collapsed middle crumb ("••"): styled hover card shows the page name; click navigates.
  */
 function BreadcrumbDotItem({
   crumb,
   index,
   total,
-  allCrumbs,
 }: {
   crumb: TrailItem;
   index: number;
   total: number;
   allCrumbs: TrailItem[];
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [showAllTrail, setShowAllTrail] = useState(false);
-
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLAnchorElement>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
 
   useEffect(() => {
     setIsMounted(true);
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
   }, []);
 
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
-    const width = 300;
-    // Align centered beneath the dot trigger, clamped to viewport margins
+    const width = 240;
     let left = rect.left + rect.width / 2 - width / 2;
     if (left + width > window.innerWidth - 12) {
       left = window.innerWidth - width - 12;
     }
-    if (left < 12) {
-      left = 12;
-    }
-    setCoords({
-      top: rect.bottom + 8,
-      left,
-    });
+    if (left < 12) left = 12;
+    setCoords({ top: rect.bottom + 8, left });
   }, []);
-
-  // Handle outside click when pinned/open
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(target) &&
-        triggerRef.current &&
-        !triggerRef.current.contains(target)
-      ) {
-        setIsOpen(false);
-        setIsHovered(false);
-        setShowAllTrail(false);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsOpen(false);
-        setIsHovered(false);
-        setShowAllTrail(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
 
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -379,183 +374,77 @@ function BreadcrumbDotItem({
 
   const handleMouseLeave = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      if (!isOpen) {
-        setIsHovered(false);
-      }
-    }, 180);
+    hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 120);
   };
 
-  const handleClick = (e: MouseEvent) => {
-    e.stopPropagation();
-    updatePosition();
-    setIsOpen((prev) => !prev);
-    setIsHovered(true);
-  };
-
-  const handleCopy = () => {
-    const fullUrl = typeof window !== "undefined" ? `${window.location.origin}${crumb.href}` : crumb.href;
-    navigator.clipboard.writeText(fullUrl);
-    setCopied(true);
-    toast.success("تم نسخ رابط الصفحة إلى الحافظة بنجاح");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const isVisible = isMounted && (isOpen || isHovered);
+  const showTip = isMounted && isHovered;
 
   return (
-    <div className="relative inline-flex items-center">
-      {/* Sleek Dot Pill Button "••" */}
-      <button
+    <div
+      className="relative inline-flex items-center"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <Link
         ref={triggerRef}
-        type="button"
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        href={crumb.href || "/"}
+        prefetch={true}
+        onClick={(e) => {
+          e.preventDefault();
+          hardNavigate(crumb.href || "/");
+        }}
+        aria-label={`الانتقال إلى: ${crumb.title}`}
         className={cn(
-          "h-6.5 min-w-[28px] px-1.5 rounded-[8px] text-[11px] font-bold transition-all duration-150 select-none flex items-center justify-center gap-0.5 cursor-pointer outline-none",
+          "h-6.5 min-w-[28px] px-1.5 rounded-[8px] text-[11px] font-bold transition-all duration-150 select-none inline-flex items-center justify-center gap-0.5 cursor-pointer outline-none",
           "focus-visible:ring-2 focus-visible:ring-[#34422A]/30",
-          isOpen || isHovered
+          isHovered
             ? "bg-[#34422A] text-white shadow-xs scale-105 border border-[#34422A]"
             : "bg-[#F1F5EB] hover:bg-[#E4EBDC] text-[#54624C] hover:text-[#181D17] border border-[#DCE2D7] hover:border-[#CCDBC4]"
         )}
-        title={crumb.title}
-        aria-label={`مسار التنقل، المحطة ${index + 1}: ${crumb.title}`}
-        aria-expanded={isVisible}
+        data-crumb-index={index}
       >
         <span className="tracking-widest font-mono text-[12px] leading-none select-none px-0.5">
           ••
         </span>
-      </button>
+      </Link>
 
-      {/* Floating Tooltip / Popover via Portal */}
-      {isVisible &&
+      {showTip &&
         createPortal(
           <div
-            ref={popoverRef}
+            role="tooltip"
             style={{ top: coords.top, left: coords.left }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="fixed z-[9999] w-[290px] sm:w-[320px] bg-white rounded-[16px] border border-[#CCDBC4] shadow-xl p-3.5 text-start font-cairo animate-in fade-in zoom-in-95 duration-150 select-none text-[#181D17]"
+            className="fixed z-[9999] w-[240px] pointer-events-auto font-cairo animate-in fade-in zoom-in-95 duration-150"
             dir="rtl"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#EEF2E6]">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-md bg-[#EEF2E6] text-[#34422A] flex items-center justify-center shrink-0">
-                  <Navigation className="w-3.5 h-3.5" />
-                </span>
-                <span className="text-[11px] font-bold text-[#55694D]">
-                  المحطة {index + 1} من {total} في المسار
-                </span>
-              </div>
-              {isOpen ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsHovered(false);
-                    setShowAllTrail(false);
-                  }}
-                  className="w-5 h-5 rounded-md hover:bg-[#F1F5EB] text-[#78716C] flex items-center justify-center transition-colors cursor-pointer"
-                  aria-label="إغلاق"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <span className="text-[10px] text-[#8C9886] font-medium">معاينة بالهوفر</span>
-              )}
+            {/* Arrow */}
+            <div className="flex justify-center -mb-px">
+              <span className="w-2.5 h-2.5 rotate-45 bg-white border-t border-s border-[#CCDBC4] shadow-xs" />
             </div>
 
-            {/* Page Title & Details */}
-            <div className="py-2.5 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="text-[13.5px] font-bold text-[#181D17] leading-snug">
+            <div className="relative bg-white rounded-[14px] border border-[#CCDBC4] shadow-[0_10px_28px_rgba(36,48,32,0.14)] p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-bold text-[#55694D] bg-[#EEF2E6] px-2 py-0.5 rounded-md border border-[#DCE2D7]">
+                  محطة {index + 1} من {total}
+                </span>
+                <ArrowLeft className="w-3.5 h-3.5 text-[#8A9584] shrink-0" />
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-[13px] font-bold text-[#181D17] leading-snug">
                   {crumb.title}
-                </h4>
+                </p>
                 {crumb.badge && (
-                  <span className="px-1.5 py-0.5 rounded bg-[#EEF2E6] text-[10.5px] font-mono font-bold text-[#34422A] border border-[#CCDBC4]">
+                  <span className="inline-flex px-1.5 py-0.5 rounded-md bg-[#F1F5EB] text-[10px] font-mono font-bold text-[#34422A] border border-[#DCE2D7]">
                     {crumb.badge}
                   </span>
                 )}
               </div>
-              {crumb.href && (
-                <p className="text-[10.5px] text-[#78716C] truncate font-mono text-left" dir="ltr">
-                  {crumb.href}
-                </p>
-              )}
-            </div>
 
-            {/* If user toggled viewing the full trail list */}
-            {showAllTrail ? (
-              <div className="py-2 border-t border-[#EEF2E6] space-y-1 max-h-[160px] overflow-y-auto">
-                <div className="text-[10.5px] font-bold text-[#78716C] mb-1">
-                  المسار الكامل حتى الآن:
-                </div>
-                {allCrumbs.map((c, i) => {
-                  const isCurrentStop = i === index;
-                  return (
-                    <Link
-                      key={`${c.href}-${i}`}
-                      href={c.href || "/"}
-                      prefetch={true}
-                      onClick={() => {
-                        setIsOpen(false);
-                        setIsHovered(false);
-                      }}
-                      className={cn(
-                        "flex items-center justify-between p-1.5 rounded-lg text-xs transition-colors",
-                        isCurrentStop
-                          ? "bg-[#EEF2E6] font-bold text-[#34422A]"
-                          : "hover:bg-[#F1F5EB] text-[#55694D]"
-                      )}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <span className="w-4 h-4 rounded-full bg-white text-[9.5px] font-mono flex items-center justify-center border border-[#CCDBC4] shrink-0">
-                          {i + 1}
-                        </span>
-                        <span className="truncate">{c.title}</span>
-                      </div>
-                      <ArrowLeft className="w-3 h-3 text-[#78716C] shrink-0" />
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {/* Actions */}
-            <div className="pt-2.5 border-t border-[#EEF2E6] flex items-center justify-between gap-2">
-              <Link
-                href={crumb.href || "/"}
-                prefetch={true}
-                onClick={() => {
-                  setIsOpen(false);
-                  setIsHovered(false);
-                }}
-                className="flex-1 h-8 px-3 rounded-[10px] bg-[#34422A] hover:bg-[#283420] text-white text-[11.5px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-              >
-                <span>الانتقال للصفحة</span>
-                <ArrowLeft className="w-3.5 h-3.5" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="h-8 px-2.5 rounded-[10px] bg-[#F1F5EB] hover:bg-[#E5EBDD] text-[#34422A] text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer"
-                title="نسخ الرابط"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-[#2A6B3A]" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? "تم النسخ" : "نسخ"}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowAllTrail((p) => !p)}
-                className="h-8 px-2 rounded-[10px] bg-[#F1F5EB] hover:bg-[#E5EBDD] text-[#55694D] text-[10.5px] font-medium transition-colors cursor-pointer"
-                title="استعراض كافة المحطات"
-              >
-                {showAllTrail ? "إخفاء" : "الكل"}
-              </button>
+              <p className="text-[10.5px] text-[#78716C] pt-1 border-t border-[#EEF2E6]">
+                اضغط للانتقال إلى هذه الصفحة
+              </p>
             </div>
           </div>,
           document.body
@@ -728,9 +617,11 @@ function BreadcrumbGroupDots({
                   key={`${item.href}-${idx}`}
                   href={item.href || "/"}
                   prefetch={true}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     setIsOpen(false);
                     setIsHovered(false);
+                    hardNavigate(item.href || "/");
                   }}
                   className="flex items-center justify-between p-2 rounded-[12px] hover:bg-[#F1F5EB] text-[#181D17] transition-colors group cursor-pointer"
                 >

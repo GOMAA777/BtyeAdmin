@@ -69,7 +69,7 @@ export function FloatingConfirmationBar({
   children,
   className,
   innerClassName = "max-w-[1536px] mx-auto",
-  dockedClassName = "mt-8 mb-4",
+  dockedClassName = "mt-4",
   floatingClassName = "p-3 sm:p-4",
 }: FloatingConfirmationBarProps) {
   const renderButton = (btn: FloatingActionButton, idx: number) => {

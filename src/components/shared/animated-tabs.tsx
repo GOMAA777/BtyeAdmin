@@ -105,9 +105,10 @@ export function AnimatedTabs({
                   )}
                 />
               )}
-              <span>{tab.label}</span>
+              <span suppressHydrationWarning>{tab.label}</span>
               {tab.badge !== undefined && (
                 <span
+                  suppressHydrationWarning
                   className={cn(
                     "px-2 py-0.5 rounded-full text-[11px] font-bold",
                     isDark

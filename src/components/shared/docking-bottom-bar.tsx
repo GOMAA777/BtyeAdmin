@@ -6,58 +6,58 @@ import { cn } from "@/lib/utils";
 
 interface DockingBottomBarProps {
   children: React.ReactNode;
-  /**
-   * Classes applied to the bar container when it is docked in place at the bottom of the content
-   */
   dockedClassName?: string;
-  /**
-   * Classes applied to the bar container when it is floating fixed at the bottom of the viewport
-   */
   floatingClassName?: string;
-  /**
-   * Classes applied to the inner wrapper (e.g. max-w-[1536px] mx-auto)
-   */
   innerClassName?: string;
 }
 
+/**
+ * Floats fixed at the viewport bottom while scrolling a long form.
+ * Once the natural end of the page is reached, docks in-flow under the
+ * content and stops moving (no leftover empty gap).
+ */
 export function DockingBottomBar({
   children,
-  dockedClassName = "mt-8 mb-6",
+  dockedClassName = "mt-4",
   floatingClassName = "p-3 sm:p-4",
   innerClassName,
 }: DockingBottomBarProps) {
   const { sidebarOpen } = useUIStore();
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
 
   const [isDocked, setIsDocked] = useState(false);
-  const [barHeight, setBarHeight] = useState(80);
+  const [barHeight, setBarHeight] = useState(72);
+  const dockedRef = useRef(false);
 
-  // Measure content height dynamically with ResizeObserver
   useEffect(() => {
-    if (!contentRef.current) return;
-    const updateHeight = () => {
-      if (contentRef.current) {
-        const h = contentRef.current.offsetHeight;
-        if (h > 0) setBarHeight(h);
-      }
+    const el = barRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.offsetHeight;
+      if (h > 0) setBarHeight(h);
     };
-    updateHeight();
-
-    const ro = new ResizeObserver(updateHeight);
-    ro.observe(contentRef.current);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  // Monitor scroll position to toggle between floating and docked state
-  // Using a stable threshold that doesn't jitter when the bar state toggles
   const checkDocked = useCallback(() => {
-    if (!sentinelRef.current) return;
-    const rect = sentinelRef.current.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    // When the sentinel (positioned above the spacer/bar) reaches or passes the viewport bottom threshold
-    const threshold = windowHeight - barHeight - 24;
-    setIsDocked(rect.top <= threshold);
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+
+    const anchorTop = anchor.getBoundingClientRect().top;
+    const dockLine = window.innerHeight - barHeight;
+    // Hysteresis: dock earlier / undock later to avoid flicker at the boundary
+    const next = dockedRef.current
+      ? anchorTop <= dockLine + 12
+      : anchorTop <= dockLine - 4;
+
+    if (next !== dockedRef.current) {
+      dockedRef.current = next;
+      setIsDocked(next);
+    }
   }, [barHeight]);
 
   useEffect(() => {
@@ -70,30 +70,32 @@ export function DockingBottomBar({
     };
   }, [checkDocked]);
 
+  // Re-check after dock toggle (layout shift from spacer)
+  useEffect(() => {
+    const id = requestAnimationFrame(checkDocked);
+    return () => cancelAnimationFrame(id);
+  }, [isDocked, checkDocked]);
+
   return (
-    <div className="w-full relative">
-      {/* 1. Sentinel element: sits strictly above the spacer/bar, unaffected by bar docking */}
-      <div
-        ref={sentinelRef}
-        aria-hidden="true"
-        className="w-full h-px pointer-events-none -mt-2 opacity-0"
-      />
+    <div className="w-full">
+      {/* Natural resting place of the bar (end of form content) */}
+      <div ref={anchorRef} className="h-0 w-full" aria-hidden="true" />
 
-      {/* 2. Generous spacer when floating to guarantee content can be scrolled fully above the bar */}
-      <div
-        aria-hidden="true"
-        className={cn(
-          "w-full pointer-events-none transition-none",
-          isDocked ? "hidden" : "block"
-        )}
-        style={{ height: Math.max(barHeight + 48, 140) }}
-      />
+      {/*
+        Placeholder only while floating — exact bar height so last fields
+        can scroll above the fixed bar, without a large empty tail.
+      */}
+      {!isDocked && (
+        <div
+          aria-hidden="true"
+          className="w-full pointer-events-none"
+          style={{ height: barHeight }}
+        />
+      )}
 
-      {/* 3. The Bottom Bar */}
       <div
-        ref={contentRef}
+        ref={barRef}
         className={cn(
-          "transition-all duration-200 ease-out",
           isDocked
             ? cn("relative w-full", dockedClassName)
             : cn(

@@ -90,12 +90,12 @@ export function TableToolbar({
   return (
     <div
       className={cn(
-        "bg-white rounded-[28px] md:rounded-full p-2 sm:px-3 sm:py-2 border border-[#DCE2D7] flex flex-col md:flex-row items-center justify-between gap-3 shadow-xs font-cairo w-full",
+        "bg-white rounded-full p-2 sm:px-3 sm:py-2 border border-[#DCE2D7] flex items-center justify-between gap-3 shadow-xs font-cairo w-full overflow-x-auto no-scrollbar",
         className
       )}
     >
       {/* Search Input Box (Right in RTL) */}
-      <div className={cn("relative w-full md:w-80 lg:w-[440px]", searchWidthClassName)}>
+      <div className={cn("relative shrink-0 w-full sm:w-64 md:w-80", searchWidthClassName)}>
         <input
           type="text"
           value={searchQuery}
@@ -109,7 +109,7 @@ export function TableToolbar({
       </div>
 
       {/* Filter Button & Tabs Section (Left in RTL) */}
-      <div className="flex items-center gap-2.5 w-full md:w-auto flex-wrap justify-start md:justify-end">
+      <div className="flex items-center gap-2 w-auto flex-nowrap overflow-x-auto no-scrollbar justify-end shrink-0">
         {/* Reset Filter Button */}
         {showResetFilter && (
           <button

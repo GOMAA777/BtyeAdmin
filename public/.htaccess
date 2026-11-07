@@ -78,6 +78,7 @@ DirectoryIndex index.html
 
 # ----------------------------------------------------------------------
 # 4. Mod_Rewrite Rules (Next.js Static Export SPA & RSC payload routing)
+# Upload out/ contents into public_html/Edaret_Amlak/
 # ----------------------------------------------------------------------
 <IfModule mod_rewrite.c>
   RewriteEngine On

@@ -14,6 +14,7 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>((set) => ({
+  // Desktop: expanded. Mobile closes itself on mount in Sidebar (avoids covering CTAs).
   sidebarOpen: true,
   tableDensity: "normal",
   theme: "system",

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
+/** Production: public_html/Edaret_Amlak → https://edaretamlak.elmoroj.com/Edaret_Amlak/ */
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isDev ? "" : "/Edaret_Amlak");
 
 const nextConfig: NextConfig = {

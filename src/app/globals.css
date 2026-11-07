@@ -177,7 +177,32 @@
   html {
     @apply font-sans;
   }
+
+  /* إخفاء أسهم حقول الأرقام الافتراضية في جميع المتصفحات */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+  }
 }
+
+/* قاعدة عامة صريحة لضمان إخفاء أسهم الأرقام حتى خارج طبقات Tailwind */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
 
 /* CDN Lucide Icon Font Styling Bridge */
 i.lucide-icon {

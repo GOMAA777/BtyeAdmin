@@ -48,6 +48,7 @@ const isRouteAvailable = (href: string) => {
     "/styleguide",
     "/settings",
     "/profile",
+    "/notifications",
   ].includes(clean);
 };
 

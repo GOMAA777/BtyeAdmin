@@ -14,6 +14,7 @@ import {
   UserCircle2,
   Sparkles,
   History,
+  Bell,
   LucideIcon,
 } from "lucide-react";
 import { stripAppPath } from "@/lib/constants";
@@ -52,6 +53,7 @@ export const STATIC_SEGMENT_TITLES: Record<string, RouteMeta> = {
   whatsapp: { title: "سجل رسائل WhatsApp", icon: MessageSquare },
   activity: { title: "سجل النشاط", icon: History },
   styleguide: { title: "دليل التصميم والمكونات", icon: SlidersHorizontal },
+  notifications: { title: "مركز الإشعارات", icon: Bell },
 };
 
 /**
