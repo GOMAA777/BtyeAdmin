@@ -1,8 +1,7 @@
 "use client";
 
-import { Plus, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
-import { hardNavigate } from "@/lib/constants";
 
 export function UnitsHeader() {
   const handleExport = () => {
@@ -28,15 +27,6 @@ export function UnitsHeader() {
         >
           <Download className="w-4 h-4 text-[#181D17]" />
           <span>تصدير القائمة (CSV / Excel)</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => hardNavigate("/units/new/")}
-          className="h-11 px-5 sm:px-6 bg-[#4B5940] hover:bg-[#3D4C35] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer select-none"
-        >
-          <Plus className="w-4 h-4" />
-          <span>إضافة وحدة</span>
         </button>
       </div>
     </div>

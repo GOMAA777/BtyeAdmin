@@ -1,7 +1,6 @@
 "use client";
 
 import { toast } from "sonner";
-import { hardNavigate } from "@/lib/constants";
 
 export function PropertiesHeader() {
   const handleExport = () => {
@@ -27,15 +26,6 @@ export function PropertiesHeader() {
         >
           <i className="lucide-icon icon-download w-[14px] h-[14px]" />
           <span>تصدير القائمة (CSV / Excel)</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => hardNavigate("/properties/new/")}
-          className="bg-[#4B5940] hover:bg-[#3E4A35] text-white h-[44px] px-6 rounded-[12px] text-[14px] font-semibold flex items-center gap-2 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] transition-colors cursor-pointer select-none"
-        >
-          <i className="lucide-icon icon-plus w-[12px] h-[12px]" />
-          <span>إضافة عقار</span>
         </button>
       </div>
     </div>

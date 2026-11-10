@@ -4,10 +4,9 @@ import { useRouter } from "next/navigation";
 
 interface UnitsEmptyStateProps {
   onRefresh?: () => void;
-  onAddUnit?: () => void;
 }
 
-export function UnitsEmptyState({ onRefresh, onAddUnit }: UnitsEmptyStateProps) {
+export function UnitsEmptyState({ onRefresh }: UnitsEmptyStateProps) {
   const router = useRouter();
 
   const handleRefresh = () => {
@@ -15,14 +14,6 @@ export function UnitsEmptyState({ onRefresh, onAddUnit }: UnitsEmptyStateProps) 
       onRefresh();
     } else {
       router.refresh();
-    }
-  };
-
-  const handleAdd = () => {
-    if (onAddUnit) {
-      onAddUnit();
-    } else {
-      router.push("/units/new/");
     }
   };
 
@@ -38,11 +29,6 @@ export function UnitsEmptyState({ onRefresh, onAddUnit }: UnitsEmptyStateProps) 
           {/* Door icon */}
           <i className="lucide-icon icon-door-closed w-[30px] h-[30px] text-[#4B5940]" />
         </div>
-
-        {/* Plus Badge on Top-Right Corner */}
-        <div className="absolute bg-[#4B5940] border-2 border-white rounded-full w-7 h-7 -top-1.5 -end-1.5 flex items-center justify-center shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)]">
-          <i className="lucide-icon icon-plus w-2.5 h-2.5 text-white" />
-        </div>
       </div>
 
       {/* Main Title & Narrative */}
@@ -57,7 +43,6 @@ export function UnitsEmptyState({ onRefresh, onAddUnit }: UnitsEmptyStateProps) 
 
       {/* Primary Action Buttons */}
       <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4 relative z-10">
-        {/* Refresh Button */}
         <button
           type="button"
           onClick={handleRefresh}
@@ -65,16 +50,6 @@ export function UnitsEmptyState({ onRefresh, onAddUnit }: UnitsEmptyStateProps) 
         >
           <i className="lucide-icon icon-refresh-cw w-3 h-3 text-[#303A2C]" />
           <span>تحديث الصفحة</span>
-        </button>
-
-        {/* Add Unit Button */}
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="bg-[#4B5940] hover:bg-[#3D4C35] text-white text-sm font-bold h-12 px-8 rounded-[12px] flex items-center gap-2 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all cursor-pointer select-none"
-        >
-          <i className="lucide-icon icon-plus w-3 h-3 text-white" />
-          <span>إضافة وحدة</span>
         </button>
       </div>
     </div>

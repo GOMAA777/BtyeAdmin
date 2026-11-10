@@ -1,14 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Building2, Plus, RotateCcw } from "lucide-react";
+import { Building2, RotateCcw } from "lucide-react";
 
 interface PropertiesEmptyStateProps {
   onRefresh?: () => void;
-  onAddProperty?: () => void;
 }
 
-export function PropertiesEmptyState({ onRefresh, onAddProperty }: PropertiesEmptyStateProps) {
+export function PropertiesEmptyState({ onRefresh }: PropertiesEmptyStateProps) {
   const router = useRouter();
 
   const handleRefresh = () => {
@@ -16,14 +15,6 @@ export function PropertiesEmptyState({ onRefresh, onAddProperty }: PropertiesEmp
       onRefresh();
     } else {
       router.refresh();
-    }
-  };
-
-  const handleAdd = () => {
-    if (onAddProperty) {
-      onAddProperty();
-    } else {
-      router.push("/properties/new/");
     }
   };
 
@@ -41,11 +32,6 @@ export function PropertiesEmptyState({ onRefresh, onAddProperty }: PropertiesEmp
         >
           <Building2 className="w-[32px] h-[32px] text-[#4B5940]" />
         </div>
-
-        {/* Plus Badge on Top-Start Corner */}
-        <div className="absolute bg-[#4B5940] border-2 border-white rounded-full w-7 h-7 -top-1.5 -end-1.5 flex items-center justify-center shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)]">
-          <Plus className="w-3.5 h-3.5 text-white" />
-        </div>
       </div>
 
       {/* Main Title & Narrative */}
@@ -54,23 +40,12 @@ export function PropertiesEmptyState({ onRefresh, onAddProperty }: PropertiesEmp
           لا توجد عقارات حتى الآن
         </h2>
         <p className="text-[14px] leading-[24px] text-[#5F6C5B]">
-          لم يتم تسجيل أي عقارات على المنصة حتى الآن. ابدأ بإضافة أول عقار وربطه بالوحدات التابعة له.
+          لم يتم تسجيل أي عقارات على المنصة حتى الآن.
         </p>
       </div>
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4 relative z-10">
-        {/* Add Property Button */}
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="bg-[#4B5940] hover:bg-[#3D4C35] text-white text-sm font-bold h-12 px-8 rounded-[12px] flex items-center gap-2 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all cursor-pointer select-none"
-        >
-          <Plus className="w-4 h-4 text-white" />
-          <span>إضافة عقار جديد</span>
-        </button>
-
-        {/* Refresh Button */}
         <button
           type="button"
           onClick={handleRefresh}
